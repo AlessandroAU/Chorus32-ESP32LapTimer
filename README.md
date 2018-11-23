@@ -26,8 +26,8 @@ Performance:
 -----
 The Chorus32 Lap timer was compared to the $600USD ImmersionRC LapRF 8-Way at a local indoor event, arguably the worst conditions due to multipath and reflections. Results are presented below, you can see that the Chorus32 very closely matches the measured lap times of the LapRF, with percentage errors within the parts per million range. 
 
-https://raw.githubusercontent.com/AlessandroAU/Chorus32-ESP32LapTimer/master/Comparison1.png
-https://raw.githubusercontent.com/AlessandroAU/Chorus32-ESP32LapTimer/master/Comparison2.png
+![alt text](https://raw.githubusercontent.com/AlessandroAU/Chorus32-ESP32LapTimer/master/Comparison1.png)
+![alt text](https://raw.githubusercontent.com/AlessandroAU/Chorus32-ESP32LapTimer/master/Comparison2.png)
 
 Compiling the Project:
 -----
