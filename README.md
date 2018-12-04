@@ -6,6 +6,12 @@ Compared to the original ChorusRF Lamptimer this ESP32 version only requires one
 
 Hardware construction is also simplified as both parts are 3.3v logic and there is no need for level shifting or resistors.  
 
+Updates:
+-----
+Some users have had issues with Bluetooth causing crashes, I am looking into a fix.
+Vbat monitoring is not yet implimented, the 3.76v reading is just a dummy reading
+Auto RSSI threshold setup is also not implimented, just set thresholds manually for now. 
+
 Application Support:
 -----
 This devices communicates using the Chorus RF Laptimer API and will work with LiveTime (untested) as well as the Chorus RF Lap timer  app 
