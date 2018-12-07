@@ -15,8 +15,10 @@ void IRAM_ATTR addToSendQueue(uint8_t item) {
   UDPoutQue[UDPoutQuePtr] = item;
   UDPoutQuePtr++;
 
+#ifdef BluetoothEnabled
   BluetoothBuffOut[BluetoothBuffOutPointer] = item;
   BluetoothBuffOutPointer++;
+#endif
 
   if (MirrorToSerial) {
     Serial.print(char(item));
@@ -30,9 +32,10 @@ void IRAM_ATTR addToSendQueue(uint8_t * buff, uint8_t length) {
     UDPoutQue[UDPoutQuePtr] = buff[i];
     UDPoutQuePtr++;
 
+#ifdef BluetoothEnabled
     BluetoothBuffOut[BluetoothBuffOutPointer] = buff[i];
     BluetoothBuffOutPointer++;
-
+#endif
 
     if (MirrorToSerial) {
       Serial.print(char(buff[i]));

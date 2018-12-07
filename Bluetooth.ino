@@ -1,3 +1,9 @@
+
+
+
+
+#ifdef BluetoothEnabled
+
 void ReadfromBLE() {
 
   if (SerialBT.available()) {
@@ -31,4 +37,6 @@ void HandleBluetooth() {
   SendtoBLE();
   ReadfromBLE();
 }
+
+#endif 
 

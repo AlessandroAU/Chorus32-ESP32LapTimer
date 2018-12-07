@@ -8,6 +8,9 @@
 #include "HTTPserver.h"
 #include "Bluetooth.h"
 
+//#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
+
+
 WiFiClient client;
 WiFiServer server(23);
 
@@ -65,7 +68,9 @@ void setup() {
   delay(100);
   setModuleChannelBand(3);
 
+#ifdef BluetoothEnabled
   SerialBT.begin("Chorus Laptimer SPP");
+#endif
   //delay(5000);
   InitADCtimer();
 
@@ -77,7 +82,9 @@ void loop() {
   SendCurrRSSIloop();
   HTTPserver.handleClient();
   dnsServer.processNextRequest();
+#ifdef BluetoothEnabled
   HandleBluetooth();
+#endif
 
 }
 

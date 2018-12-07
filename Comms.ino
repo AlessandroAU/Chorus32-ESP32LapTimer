@@ -300,22 +300,22 @@ void SendCurrRSSI(uint8_t NodeAddr) {
 
   switch (NodeAddr) {
     case 0:
-      for (int i = 0; i < (rssiMonitorInterval); i++) { //lets not compute the whole thing
+      for (int i = 0; i < (rssiMonitorInterval); i++) { 
         AvgValue =  AvgValue + ADC1readings[i];
       }
       break;
     case 1:
-      for (int i = 0; i < (rssiMonitorInterval); i++) { //lets not compute the whole thing
+      for (int i = 0; i < (rssiMonitorInterval); i++) {
         AvgValue =  AvgValue + ADC2readings[i];
       }
       break;
     case 2:
-      for (int i = 0; i < (rssiMonitorInterval); i++) { //lets not compute the whole thing
+      for (int i = 0; i < (rssiMonitorInterval); i++) { 
         AvgValue =  AvgValue + ADC3readings[i];
       }
       break;
     case 3:
-      for (int i = 0; i < (rssiMonitorInterval); i++) { //lets not compute the whole thing
+      for (int i = 0; i < (rssiMonitorInterval); i++) {
         AvgValue =  AvgValue + ADC4readings[i];
       }
       break;
@@ -329,7 +329,6 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue('r');
-  //uint16_t ADCvalue = ADCvalues[NodeAddr];
   uint8_t buf[4];
   intToHex(buf, Result / 12);
   addToSendQueue(buf, 4);
