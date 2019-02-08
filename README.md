@@ -14,7 +14,7 @@ Auto RSSI threshold setup is also not implimented, just set thresholds manually 
 
 Application Support:
 -----
-This devices communicates using the Chorus RF Laptimer API and will work with LiveTime (untested) as well as the Chorus RF Lap timer  app 
+This devices communicates using the Chorus RF Laptimer API and _should_ work with LiveTime (untested) as well as the Chorus RF Lap timer  app 
 https://play.google.com/store/apps/details?id=app.andrey_voroshkov.chorus_laptimer
 
 
@@ -24,6 +24,7 @@ Construction is easy and only requires some basic point to point wiring of each 
 
 See HardwareConfig.h for pin assignments, it is possible to change any pin assignments apart from ADC channels. Note that pin assignments are GPIO hardware pin numbers and not pin numbers specific to the particular ESP32 development board you may be using. 
 
+![alt text](https://raw.githubusercontent.com/AlessandroAU/Chorus32-ESP32LapTimer/master/wiring.png)
 ![alt text](https://raw.githubusercontent.com/AlessandroAU/Chorus32-ESP32LapTimer/master/hardwareImage1.png)
 ![alt text](https://raw.githubusercontent.com/AlessandroAU/Chorus32-ESP32LapTimer/master/HardwareImage2.png)
 
