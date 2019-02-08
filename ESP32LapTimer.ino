@@ -31,7 +31,7 @@ extern int ADC4value;
 const char* ssid = "Chorus";
 const char* password = "Chorus123";
 
-int RSSIthresholds[4] = {3500, 3500, 3500, 3500};
+int RSSIthresholds[NumRecievers] = {3500, 3500, 3500, 3500};
 
 volatile uint32_t LapTimes[NumRecievers][100];
 volatile int LapTimePtr[NumRecievers] = {0, 0, 0, 0}; //Keep track of what lap we are up too
