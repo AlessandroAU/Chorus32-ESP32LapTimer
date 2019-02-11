@@ -43,6 +43,36 @@ void IRAM_ATTR addToSendQueue(uint8_t * buff, uint8_t length) {
   }
 }
 
+char SerialBuffIn[20];
+
+void IRAM_ATTR HandleSerialRead() {
+  byte ndx = 0;
+  char endMarker = '\n';
+  char rc;
+
+  while (Serial.available() > 0) {
+    rc = Serial.read();
+
+    if (rc != endMarker) {
+      SerialBuffIn[ndx] = rc;
+      ndx++;
+//      if (ndx >= numChars) {
+//        ndx = numChars - 1;
+//      }
+    }
+    else {
+      //memcpy(SerialBuffIn, packetBuffer, len);
+      uint8_t ControlPacket = SerialBuffIn[0];   ///fix this when you have the chance and seperate the serial and UDP functions
+      uint8_t NodeAddr = SerialBuffIn[1];
+      handleSerialControlInput(SerialBuffIn, ControlPacket, NodeAddr, ndx);
+      //receivedChars[ndx] = '\0'; // terminate the string
+      ndx = 0;
+      //newData = true;
+    }
+  }
+}
+
+
 
 void IRAM_ATTR HandleServerUDP() {
 

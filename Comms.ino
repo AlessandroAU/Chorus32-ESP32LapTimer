@@ -325,7 +325,7 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   uint16_t Result = AvgValue / (rssiMonitorInterval);
 
 
-  MirrorToSerial = false;  // this so it doesn't spam the serial console with RSSI updates
+  //MirrorToSerial = false;  // this so it doesn't spam the serial console with RSSI updates
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue('r');

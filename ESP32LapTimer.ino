@@ -77,7 +77,7 @@ void setup() {
 }
 
 void loop() {
-
+  HandleSerialRead();
   HandleServerUDP();
   SendCurrRSSIloop();
   HTTPserver.handleClient();
