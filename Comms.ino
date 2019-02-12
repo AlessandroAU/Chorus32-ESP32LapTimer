@@ -297,33 +297,54 @@ void SendCurrRSSI(uint8_t NodeAddr) {
 
   ///Calculate Averages///
   uint32_t AvgValue = 0;
+  uint16_t Result = 0;
 
-  switch (NodeAddr) {
-    case 0:
-      for (int i = 0; i < (rssiMonitorInterval); i++) { 
-        AvgValue =  AvgValue + ADC1readings[i];
-      }
-      break;
-    case 1:
-      for (int i = 0; i < (rssiMonitorInterval); i++) {
-        AvgValue =  AvgValue + ADC2readings[i];
-      }
-      break;
-    case 2:
-      for (int i = 0; i < (rssiMonitorInterval); i++) { 
-        AvgValue =  AvgValue + ADC3readings[i];
-      }
-      break;
-    case 3:
-      for (int i = 0; i < (rssiMonitorInterval); i++) {
-        AvgValue =  AvgValue + ADC4readings[i];
-      }
-      break;
+  if (rssiMonitorInterval > 0) {
+
+    switch (NodeAddr) {
+      case 0:
+        for (int i = 0; i < (rssiMonitorInterval); i++) {
+          AvgValue =  AvgValue + ADC1readings[i];
+        }
+        break;
+      case 1:
+        for (int i = 0; i < (rssiMonitorInterval); i++) {
+          AvgValue =  AvgValue + ADC2readings[i];
+        }
+        break;
+      case 2:
+        for (int i = 0; i < (rssiMonitorInterval); i++) {
+          AvgValue =  AvgValue + ADC3readings[i];
+        }
+        break;
+      case 3:
+        for (int i = 0; i < (rssiMonitorInterval); i++) {
+          AvgValue =  AvgValue + ADC4readings[i];
+        }
+        break;
+
+    }
+
+    Result = AvgValue / (rssiMonitorInterval);
+
+  } else {
+
+    switch (NodeAddr) {
+      case 0:
+        Result =  ADCvalues[0];
+        break;
+      case 1:
+        Result =  ADCvalues[2];
+        break;
+      case 2:
+        Result =  ADCvalues[2];
+        break;
+      case 3:
+        Result =  ADCvalues[3];
+        break;
+    }
 
   }
-
-  uint16_t Result = AvgValue / (rssiMonitorInterval);
-
 
   //MirrorToSerial = false;  // this so it doesn't spam the serial console with RSSI updates
   addToSendQueue('S');
@@ -432,8 +453,8 @@ void setupThreshold(uint8_t phase) {
   }
 }
 
-void SendNumberOfnodes() {
-  for (int i = 1; i < NumRecievers + 1; i++) {
+void SendNumberOfnodes(byte NodeAddr) {
+  for (int i = NodeAddr + 1; i <= NumRecievers + NodeAddr; i++) {
     addToSendQueue('N');
     addToSendQueue(TO_HEX(i));
     addToSendQueue('\n');
@@ -505,36 +526,56 @@ void SendAllSettings(uint8_t NodeAddr) {
   //1 Enum Devices
   //SendCurrRSSI(NodeAddr);
 
-  WaitFirstLap(NodeAddr); //1 Wait First lap
-  SendVRxBand(NodeAddr); //B
-  SendVRxChannel(NodeAddr); //C
-  SendVRxFreq(NodeAddr); //F VRx Freq
-  SendSetThresholdMode(NodeAddr); //H send Threshold Mode
-  SendRSSImonitorInterval(NodeAddr); //I RSSI monitor interval
-  SendTimerCalibration(NodeAddr); //J timer calibration
-  SendAllLaps(NodeAddr); //L Lap Report
-  SendMinLap(NodeAddr); //M Minumum Lap Time
-  SendRaceMode(NodeAddr); //R
-  SendSoundMode(NodeAddr); //S
-  SendThresholdValue(NodeAddr); // T
-  SendLipoVoltage(); // v
-  SendIsModuleConfigured(NodeAddr); //y
-  sendAPIversion(); // #
-  SendXdone(NodeAddr); //x
+  //  WaitFirstLap(NodeAddr); //1 Wait First lap
+  //  SendVRxBand(NodeAddr); //B
+  //  SendVRxChannel(NodeAddr); //C
+  //  SendVRxFreq(NodeAddr); //F VRx Freq
+  //  SendSetThresholdMode(NodeAddr); //H send Threshold Mode
+  //  SendRSSImonitorInterval(NodeAddr); //I RSSI monitor interval
+  //  SendTimerCalibration(NodeAddr); //J timer calibration
+  //  SendAllLaps(NodeAddr); //L Lap Report
+  //  SendMinLap(NodeAddr); //M Minumum Lap Time
+  //  SendRaceMode(NodeAddr); //R
+  //  SendSoundMode(NodeAddr); //S
+  //  SendThresholdValue(NodeAddr); // T
+  //  SendLipoVoltage(); // v
+  //  SendIsModuleConfigured(NodeAddr); //y
+  //  sendAPIversion(); // #
+  //  SendXdone(NodeAddr); //x
+
+
+  //delay(100);
+  SendVRxChannel(NodeAddr);
+  SendRaceMode(NodeAddr);
+  SendMinLap(NodeAddr);
+  SendThresholdValue(NodeAddr);
+  SendSoundMode(NodeAddr);
+  SendVRxBand(NodeAddr);
+  WaitFirstLap(NodeAddr);
+  SendIsModuleConfigured(NodeAddr);
+  SendVRxFreq(NodeAddr);
+  SendRSSImonitorInterval(NodeAddr);
+  SendTimerCalibration(NodeAddr);
+  sendAPIversion();
+  SendSetThresholdMode(NodeAddr);
+  SendXdone(NodeAddr);
+  //delay(100);
 
 }
 
 void SendRSSImonitorInterval(uint8_t NodeAddr) {
   addToSendQueue('S');
-  addToSendQueue(TO_HEX(0));
-  uint8_t buf[2];
-  byteToHex(buf, rssiMonitorInterval);
+  addToSendQueue(TO_HEX(NodeAddr));
+  uint8_t buf[4];
+  addToSendQueue('I');
+  intToHex(buf, rssiMonitorInterval);
+  addToSendQueue(buf, 4);
   addToSendQueue('\n');
 }
 
 void SendSoundMode(uint8_t NodeAddr) {
   addToSendQueue('S');
-  addToSendQueue(TO_HEX(0));
+  addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue('S');
   addToSendQueue('0');
   addToSendQueue('\n');
@@ -641,25 +682,44 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   uint8_t valueToSet;
   uint8_t NodeAddrByte = TO_BYTE(NodeAddr); // convert ASCII to real byte values
 
+  //Serial.println(length);
+
   if (ControlByte == CONTROL_NUM_RECIEVERS) {
     CurrNodeAddrAPI = 0;
     CurrNodeAddrLaps = 0;
-    SendNumberOfnodes();
+    SendNumberOfnodes(NodeAddrByte);
   }
 
   if (controlData[2] == CONTROL_GET_TIME) {
-    Serial.println("Sending Time.....");
+    //Serial.println("Sending Time.....");
     SendMillis();
   }
 
+  //  if (controlData[2] == CONTROL_GET_RSSI) {
+  //    // get current RSSI value
+  //    Serial.println("sending current RSSI");
+  //    for (int i = 0; i < NumRecievers; i++) {
+  //      SendCurrRSSI(i);
+  //    }
+  //  }
+
+
   if (controlData[2] == 'a') {
-    Serial.println("Sending All Data");
-    if (CurrNodeAddrLaps < NumRecievers) {
-      SendAllSettings(CurrNodeAddrLaps);
-    } else {
-      CurrNodeAddrLaps = 0;
+    //Serial.println("Sending All Data");
+    //        if (CurrNodeAddrLaps < NumRecievers) {
+    //          //SendNumberOfnodes(NodeAddrByte);
+    //          SendAllSettings(CurrNodeAddrLaps);
+    //        } else {
+    //          CurrNodeAddrLaps = 0;
+    //        }
+    //        CurrNodeAddrLaps++;
+    //      }
+
+
+    for (int i = 0; i < NumRecievers; i++) {
+      SendAllSettings(i);
+      delay(50);
     }
-    CurrNodeAddrLaps++;
   }
 
   if (controlData[2] == RESPONSE_API_VERSION) {
@@ -668,9 +728,10 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
     }
   }
 
+
   ControlByte = controlData[2]; //This is dirty but we rewrite this byte....
 
-  if (length > 3) { // set value commands
+  if (length > 4) { // set value commands  changed to n+1 ie, 3+1 = 4.
 
     switch (ControlByte) {
 
@@ -716,19 +777,20 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         InString += (char)controlData[6];
         RXfrequencies[NodeAddr] = InString.toInt();
         setModuleFrequency(RXfrequencies[NodeAddrByte], NodeAddrByte);
-        Serial.println("Set Freq");
-        Serial.print(NodeAddr);
-        Serial.print(" ");
-        Serial.println(RXfrequencies[NodeAddr]);
+        //Serial.println("Set Freq");
+        //Serial.print(NodeAddr);
+        //Serial.print(" ");
+        //Serial.println(RXfrequencies[NodeAddr]);
         isConfigured = 1;
         break;
 
       case CONTROL_RSSI_MON_INTERVAL:
         rssiMonitorInterval = (HEX_TO_UINT16((uint8_t*)&controlData[3]));
-        Serial.print("RSSI monitor Interval: ");
-        Serial.println(rssiMonitorInterval);
+        //Serial.print("RSSI monitor Interval: ");
+        //Serial.println(rssiMonitorInterval);
         lastRssiMonitorReading = 0;
         isConfigured = 1;
+        SendRSSImonitorInterval(NodeAddrByte);
         break;
 
       case CONTROL_MIN_LAP_TIME:
@@ -747,7 +809,11 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         //        }
         //addToSendQueue(SEND_SOUND_STATE);
         //playClickTones();
+        for (int i = 0; i < NumRecievers; i++) {
+          SendSoundMode(i);
+        }
         isConfigured = 1;
+
         break;
 
       case CONTROL_THRESHOLD:
@@ -778,7 +844,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   } else { // get value and other instructions
     switch (ControlByte) {
       case CONTROL_GET_TIME:
-        millisUponRequest = millis();
+        //millisUponRequest = millis();
         //addToSendQueue(SEND_TIME);
         break;
       case CONTROL_WAIT_FIRST_LAP:
@@ -803,13 +869,18 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendMinLap(NodeAddrByte);
         break;
       case CONTROL_SOUND:
-        //addToSendQueue(SEND_SOUND_STATE);
+        for (int i = 0; i < NumRecievers; i++) {
+          SendSoundMode(i);
+        }
         break;
       case CONTROL_THRESHOLD:
         SendThresholdValue(NodeAddrByte);
         break;
       case CONTROL_GET_RSSI: // get current RSSI value
-        SendCurrRSSI(NodeAddrByte);
+        //Serial.println("sending current RSSI");
+        for (int i = 0; i < NumRecievers; i++) {
+          SendCurrRSSI(i);
+        }
         break;
       case CONTROL_GET_VOLTAGE: //get battery voltage
         //addToSendQueue(SEND_VOLTAGE);

@@ -44,7 +44,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Booting....");
   InitHTTPserver();
-  delay(1000);
+  delay(500);
 
   server.begin();
   server.setNoDelay(true);
@@ -61,11 +61,11 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   setModuleChannelBand(0); // inits module with defaults
-  delay(100);
+  delay(10);
   setModuleChannelBand(1);
-  delay(100);
+  delay(10);
   setModuleChannelBand(2);
-  delay(100);
+  delay(10);
   setModuleChannelBand(3);
 
 #ifdef BluetoothEnabled
@@ -104,7 +104,3 @@ void IRAM_ATTR CheckRSSIthresholdExceeded() {
     }
   }
 }
-
-
-
-

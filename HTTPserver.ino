@@ -16,7 +16,7 @@ void InitHTTPserver(void) {
   // provided IP to all DNS request
   dnsServer.start(DNS_PORT, "*", apIP);
 
-  delay(2000);
+  //delay(2000);
 
   MDNS.begin(host);
   HTTPserver.on("/", HTTP_GET, []() {
