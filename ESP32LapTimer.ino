@@ -74,6 +74,7 @@ void setup() {
   //delay(5000);
   InitADCtimer();
 
+  oledSetup();
 }
 
 void loop() {
@@ -85,7 +86,7 @@ void loop() {
 #ifdef BluetoothEnabled
   HandleBluetooth();
 #endif
-
+  oledUpdate();
 }
 
 void IRAM_ATTR CheckRSSIthresholdExceeded() {
