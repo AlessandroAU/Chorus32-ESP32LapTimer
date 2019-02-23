@@ -145,3 +145,33 @@ uint16_t setModuleFrequency(uint16_t frequency, uint8_t NodeAddr) {
   return frequency;
 }
 
+String getBandLabel(int band) {
+  
+  switch (band) {
+    case 0:
+      return "R";
+      break;
+    case 1:
+      return "A";
+      break;
+    case 2:
+      return "B";
+      break;
+    case 3:
+      return "E";
+      break;
+    case 4:
+      return "F";
+      break;
+    case 5:
+      return "D";
+      break;
+    case 6:
+      return "X";
+      break;
+    case 7:
+      return "XX";
+      break;
+  }
+  
+}
