@@ -3,6 +3,10 @@
 #include <driver/timer.h>
 #include "HardwareConfig.h"
 #include "Comms.h"
+#include <Wire.h>
+#include <Adafruit_INA219.h>
+
+Adafruit_INA219 ina219; // A0+A1=GND
 
 uint32_t ADCstartMicros;
 uint32_t ADCfinishMicros;
@@ -22,7 +26,9 @@ void IRAM_ATTR ShiftArray(uint16_t data[], int length) {
 }
 
 void ReadVBAT() {
-  VbatReading = adc1_get_raw(ADCvbat);
+  VbatReading = ina219.getBusVoltage_V();
+  Serial.print("VbatReading = ");
+  Serial.println(VbatReading);
 }
 
 void IRAM_ATTR readADCs() {
@@ -103,6 +109,10 @@ void ConfigureADC() {
   adc1_config_channel_atten(ADC3, ADC_ATTEN_6db);
   adc1_config_channel_atten(ADC4, ADC_ATTEN_6db);
 
+  ina219.begin();
+  ina219.setCalibration_16V_400mA();
+  ReadVBAT();
+  
 }
 
 void InitADCtimer() {

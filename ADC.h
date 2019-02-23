@@ -25,7 +25,7 @@ int ADC2value;
 int ADC3value;
 int ADC4value;
 
-int VbatReading;
+float VbatReading;
 
 int FilteredADCvalues[NumRecievers];
 int ADCvalues[NumRecievers];
