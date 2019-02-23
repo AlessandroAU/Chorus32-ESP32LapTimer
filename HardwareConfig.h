@@ -20,7 +20,5 @@ void InitHardwarePins();
 #define ADC3 ADC1_CHANNEL_7
 #define ADC4 ADC1_CHANNEL_3
 
-#define ADCvbat ADC1_CHANNEL_4
-
 #define MIN_TUNE_TIME 30
 
