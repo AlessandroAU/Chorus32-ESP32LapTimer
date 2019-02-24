@@ -73,16 +73,18 @@ void setup() {
 #endif
   //delay(5000);
 
-
+#ifdef OLED
   oledSetup();
   oledUpdate();
-  
+#endif
   InitADCtimer();
 
 }
 
 void loop() {
+#ifdef OLED
   OLED_CheckIfUpdateReq();
+#endif
   HandleSerialRead();
   HandleServerUDP();
   SendCurrRSSIloop();
