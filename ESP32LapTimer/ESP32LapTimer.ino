@@ -7,6 +7,7 @@
 #include "RX5808.h"
 #include "HTTPserver.h"
 #include "Bluetooth.h"
+#include "settings_eeprom.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
@@ -41,6 +42,10 @@ uint32_t MinLapTime = 5000;  //this is in millis
 
 void setup() {
 
+  EepromSettings.setup();
+  EepromSettings.defaults(); // only for testing
+  EepromSettings.load();     // only for testing
+  
   Serial.begin(115200);
   Serial.println("Booting....");
   InitHTTPserver();
@@ -93,5 +98,5 @@ void loop() {
 #ifdef BluetoothEnabled
   HandleBluetooth();
 #endif
-
 }
+

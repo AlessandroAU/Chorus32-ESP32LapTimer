@@ -135,8 +135,11 @@ int32_t timeAdjustment = 0;
 
 ////////////////Array Variables///////////
 uint16_t RXfrequencies[NumRecievers];
-volatile uint8_t RXBand[NumRecievers] = {4, 4, 4, 4};
-volatile uint8_t RXChannel[NumRecievers] = {0, 2, 4, 6};
+//volatile uint8_t RXBand[NumRecievers] = {4, 4, 4, 4};
+//volatile uint8_t RXChannel[NumRecievers] = {0, 2, 4, 6};
+volatile uint8_t RXBand[NumRecievers];
+volatile uint8_t RXChannel[NumRecievers];
+
 
 
 //----- read/write bufs ---------------------------
@@ -905,3 +908,4 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
     }
   }
 }
+

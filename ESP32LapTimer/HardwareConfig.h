@@ -1,9 +1,10 @@
 void InitHardwarePins();
 
+#define VERSION_NUMBER 1 // Increment when eeprom struct modified
+
 #define NumRecievers 4
 
 #define OLED //uncomment this to enable OLED support
-
 
 ///Define Pin configuration here, these are the defaults as given on github
 
@@ -41,3 +42,4 @@ void InitHardwarePins();
   #define CS2 2
   #define CS3 0
 #endif
+
