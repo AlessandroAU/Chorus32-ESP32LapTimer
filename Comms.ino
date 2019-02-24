@@ -299,35 +299,35 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   uint32_t AvgValue = 0;
   uint16_t Result = 0;
 
-  if (rssiMonitorInterval > 0) {
-
-    switch (NodeAddr) {
-      case 0:
-        for (int i = 0; i < (rssiMonitorInterval); i++) {
-          AvgValue =  AvgValue + ADC1readings[i];
-        }
-        break;
-      case 1:
-        for (int i = 0; i < (rssiMonitorInterval); i++) {
-          AvgValue =  AvgValue + ADC2readings[i];
-        }
-        break;
-      case 2:
-        for (int i = 0; i < (rssiMonitorInterval); i++) {
-          AvgValue =  AvgValue + ADC3readings[i];
-        }
-        break;
-      case 3:
-        for (int i = 0; i < (rssiMonitorInterval); i++) {
-          AvgValue =  AvgValue + ADC4readings[i];
-        }
-        break;
-
-    }
-
-    Result = AvgValue / (rssiMonitorInterval);
-
-  } else {
+//  if (rssiMonitorInterval > 0) {
+//
+//    switch (NodeAddr) {
+//      case 0:
+//        for (int i = 0; i < (rssiMonitorInterval); i++) {
+//          AvgValue =  AvgValue + ADC1readingsRAW[i];
+//        }
+//        break;
+//      case 1:
+//        for (int i = 0; i < (rssiMonitorInterval); i++) {
+//          AvgValue =  AvgValue + ADC2readingsRAW[i];
+//        }
+//        break;
+//      case 2:
+//        for (int i = 0; i < (rssiMonitorInterval); i++) {
+//          AvgValue =  AvgValue + ADC3readingsRAW[i];
+//        }
+//        break;
+//      case 3:
+//        for (int i = 0; i < (rssiMonitorInterval); i++) {
+//          AvgValue =  AvgValue + ADC4readingsRAW[i];
+//        }
+//        break;
+//
+//    }
+//
+//    Result = AvgValue / (rssiMonitorInterval);
+//
+//  } else {
 
     switch (NodeAddr) {
       case 0:
@@ -344,7 +344,7 @@ void SendCurrRSSI(uint8_t NodeAddr) {
         break;
     }
 
-  }
+  //}
 
   //MirrorToSerial = false;  // this so it doesn't spam the serial console with RSSI updates
   addToSendQueue('S');

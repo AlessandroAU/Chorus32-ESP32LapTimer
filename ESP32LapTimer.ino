@@ -72,12 +72,17 @@ void setup() {
   SerialBT.begin("Chorus Laptimer SPP");
 #endif
   //delay(5000);
-  InitADCtimer();
+
 
   oledSetup();
+  oledUpdate();
+  
+  InitADCtimer();
+
 }
 
 void loop() {
+  OLED_CheckIfUpdateReq();
   HandleSerialRead();
   HandleServerUDP();
   SendCurrRSSIloop();
@@ -86,22 +91,5 @@ void loop() {
 #ifdef BluetoothEnabled
   HandleBluetooth();
 #endif
-  oledUpdate();
-}
 
-void IRAM_ATTR CheckRSSIthresholdExceeded() {
-  uint32_t CurrTime = millis();
-
-  for (uint8_t i = 0; i < NumRecievers; i++) {
-    if ( ADCvalues[i] > RSSIthresholds[i]) {
-
-      if (CurrTime > (MinLapTime + LapTimes[i][LapTimePtr[i]])) {
-
-        LapTimePtr[i] = LapTimePtr[i] + 1;
-        LapTimes[i][LapTimePtr[i]] = CurrTime;
-
-        sendLap(LapTimePtr[i], i);
-      }
-    }
-  }
 }

@@ -2,6 +2,8 @@
 
 #include "EEPROM.h"
 
+///eeprom not used yet
+
 extern uint16_t RXfrequencies[NumRecievers];
 extern volatile uint8_t RXBand[NumRecievers];
 extern volatile uint8_t RXChannel[NumRecievers];
@@ -32,4 +34,3 @@ extern volatile uint8_t RXChannel[NumRecievers];
 //
 //  }
 //}
-

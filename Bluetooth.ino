@@ -1,7 +1,3 @@
-
-
-
-
 #ifdef BluetoothEnabled
 
 void ReadfromBLE() {
@@ -39,4 +35,3 @@ void HandleBluetooth() {
 }
 
 #endif 
-
