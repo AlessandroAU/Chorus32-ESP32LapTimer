@@ -8,6 +8,8 @@
 #include "Filter.h"
 
 
+float VBATcalibration = 0.935;
+
 FilterBeLp2 Filter1;
 FilterBeLp2 Filter2;
 FilterBeLp2 Filter3;
@@ -68,10 +70,10 @@ void IRAM_ATTR readADCs() {
   ADC3ReadingRAW = adc1_get_raw(ADC3);
   ADC4ReadingRAW = adc1_get_raw(ADC4);
 
+#ifdef VbatADC
   ADCVBATreadingRAW = adc1_get_raw(ADCVBAT);
-
-
-
+  VbatReadingSmooth = FilterVBAT.step(ADCVBATreadingRAW);
+#endif
 
   //  uint32_t cp_state = xthal_get_cpenable();
   //
@@ -112,7 +114,7 @@ void IRAM_ATTR readADCs() {
   ADCvalues[2] = Filter3.step(ADC3ReadingRAW);
   ADCvalues[3] = Filter4.step(ADC4ReadingRAW);
 
-  VbatReadingSmooth = FilterVBAT.step(ADCVBATreadingRAW);
+
 
 
   if (raceMode > 0) {
@@ -144,14 +146,14 @@ void IRAM_ATTR CheckRSSIthresholdExceeded() {
   }
 }
 
-void SmoothValues(uint16_t data[], uint16_t dataOut[], int length, float ETAvalue) {
-  uint16_t Output;
-  for (int i = length; i > 0; i--) {
-    Output = (uint16_t)(ETAvalue * data[i] + (1 - ETAvalue) * data[i - 1]);
-    dataOut[i - 1] = Output;
-  }
-  //dataOut[0] = dataOut[1];
-}
+//void SmoothValues(uint16_t data[], uint16_t dataOut[], int length, float ETAvalue) {
+//  uint16_t Output;
+//  for (int i = length; i > 0; i--) {
+//    Output = (uint16_t)(ETAvalue * data[i] + (1 - ETAvalue) * data[i - 1]);
+//    dataOut[i - 1] = Output;
+//  }
+//  //dataOut[0] = dataOut[1];
+//}
 
 void ConfigureADC() {
 
@@ -163,8 +165,6 @@ void ConfigureADC() {
   adc1_config_channel_atten(ADC4, ADC_ATTEN_6db);
 
   adc1_config_channel_atten(ADCVBAT, ADC_ATTEN_6db);
-
-  //FilterVBAT.reset((uint16_t)adc1_get_raw(ADCVBAT));  //we do this so we don't have to wait for the filter to rise up from zero (takes awhile);
 
   ina219.begin();
   ina219.setCalibration_16V_400mA();

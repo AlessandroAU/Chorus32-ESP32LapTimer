@@ -299,50 +299,50 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   uint32_t AvgValue = 0;
   uint16_t Result = 0;
 
-//  if (rssiMonitorInterval > 0) {
-//
-//    switch (NodeAddr) {
-//      case 0:
-//        for (int i = 0; i < (rssiMonitorInterval); i++) {
-//          AvgValue =  AvgValue + ADC1readingsRAW[i];
-//        }
-//        break;
-//      case 1:
-//        for (int i = 0; i < (rssiMonitorInterval); i++) {
-//          AvgValue =  AvgValue + ADC2readingsRAW[i];
-//        }
-//        break;
-//      case 2:
-//        for (int i = 0; i < (rssiMonitorInterval); i++) {
-//          AvgValue =  AvgValue + ADC3readingsRAW[i];
-//        }
-//        break;
-//      case 3:
-//        for (int i = 0; i < (rssiMonitorInterval); i++) {
-//          AvgValue =  AvgValue + ADC4readingsRAW[i];
-//        }
-//        break;
-//
-//    }
-//
-//    Result = AvgValue / (rssiMonitorInterval);
-//
-//  } else {
+  //  if (rssiMonitorInterval > 0) {
+  //
+  //    switch (NodeAddr) {
+  //      case 0:
+  //        for (int i = 0; i < (rssiMonitorInterval); i++) {
+  //          AvgValue =  AvgValue + ADC1readingsRAW[i];
+  //        }
+  //        break;
+  //      case 1:
+  //        for (int i = 0; i < (rssiMonitorInterval); i++) {
+  //          AvgValue =  AvgValue + ADC2readingsRAW[i];
+  //        }
+  //        break;
+  //      case 2:
+  //        for (int i = 0; i < (rssiMonitorInterval); i++) {
+  //          AvgValue =  AvgValue + ADC3readingsRAW[i];
+  //        }
+  //        break;
+  //      case 3:
+  //        for (int i = 0; i < (rssiMonitorInterval); i++) {
+  //          AvgValue =  AvgValue + ADC4readingsRAW[i];
+  //        }
+  //        break;
+  //
+  //    }
+  //
+  //    Result = AvgValue / (rssiMonitorInterval);
+  //
+  //  } else {
 
-    switch (NodeAddr) {
-      case 0:
-        Result =  ADCvalues[0];
-        break;
-      case 1:
-        Result =  ADCvalues[2];
-        break;
-      case 2:
-        Result =  ADCvalues[2];
-        break;
-      case 3:
-        Result =  ADCvalues[3];
-        break;
-    }
+  switch (NodeAddr) {
+    case 0:
+      Result =  ADCvalues[0];
+      break;
+    case 1:
+      Result =  ADCvalues[2];
+      break;
+    case 2:
+      Result =  ADCvalues[2];
+      break;
+    case 3:
+      Result =  ADCvalues[3];
+      break;
+  }
 
   //}
 
@@ -585,9 +585,10 @@ void SendLipoVoltage() {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(0));
   addToSendQueue('v');
-  int voltage = 70;
+  //int voltage = 70;
   uint8_t buf[4];
-  intToHex(buf, voltage);
+  float VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 4) * 55.0 * 1.5) / 1024;
+  intToHex(buf, int(VbatFloat));
   addToSendQueue(buf, 4);
   addToSendQueue('\n');
 }
@@ -884,6 +885,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
       case CONTROL_GET_VOLTAGE: //get battery voltage
         //addToSendQueue(SEND_VOLTAGE);
+        SendLipoVoltage();
         break;
       case CONTROL_GET_ALL_DATA: // request all data
         //addToSendQueue(SEND_ALL_DEVICE_STATE);

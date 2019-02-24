@@ -37,7 +37,7 @@ void OLED_CheckIfUpdateReq() {
     OLED_LastUpdated = millis();
   }
   //Serial.println(VbatReadingRaw);
-  VbatReadingFloat = fmap(VbatReadingSmooth, 0, 4096, 0, 4.1142);
+  VbatReadingFloat = fmap(VbatReadingSmooth * VBATcalibration, 0, 4096, 0, 4.4);
   //Serial.println(VbatReading);
 
 }
@@ -98,7 +98,12 @@ void oledUpdate(void)
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   for (int i = 0; i < NumRecievers; i++) {
-    display.drawString(0, 13 + i * 13, String(i + 1) + ") " + getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
+    display.drawString(0, 13 + i * 13, getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
+  }
+
+  // RF level barcharts
+  for (int i = 0; i < NumRecievers; i++) {
+    display.drawProgressBar(40, 15 + i * 13, 127 - 42, 8, map(ADCvalues[i], 750, 4096, 0, 85));
   }
 
   display.display();
