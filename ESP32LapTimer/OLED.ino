@@ -8,9 +8,9 @@ unsigned long OLED_LastUpdated  = 0;
 unsigned int OLED_UpdateInterval = 50;
 
 #ifdef AlessandroDevBoard
-  SSD1306  display(0x3c, 5, 4);
+SSD1306  display(0x3c, 5, 4);
 #else
-  SSD1306  display(0x3c, 21, 22);  // 21 and 22 are default pins
+SSD1306  display(0x3c, 21, 22);  // 21 and 22 are default pins
 #endif
 
 const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
@@ -37,7 +37,7 @@ void OLED_CheckIfUpdateReq() {
     OLED_LastUpdated = millis();
   }
   //Serial.println(VbatReadingRaw);
-  VbatReadingFloat = fmap(VbatReadingSmooth, 0, 4096, 0, 4.026);
+  VbatReadingFloat = fmap(VbatReadingSmooth, 0, 4096, 0, 4.1142);
   //Serial.println(VbatReading);
 
 }
@@ -93,12 +93,12 @@ void oledUpdate(void)
 
   // Voltage
   display.setTextAlignment(TEXT_ALIGN_RIGHT);
-  display.drawString(127, 0, String(VbatReadingFloat) + "V");
+  display.drawString(127, 0, String(VbatReadingFloat, 3) + "V");
 
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   for (int i = 0; i < NumRecievers; i++) {
-    display.drawString(0, 13 + i * 13, String(i + 1) + ") " + getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i]/12));
+    display.drawString(0, 13 + i * 13, String(i + 1) + ") " + getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
   }
 
   display.display();

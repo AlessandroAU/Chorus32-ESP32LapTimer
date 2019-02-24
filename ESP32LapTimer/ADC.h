@@ -17,6 +17,13 @@ uint16_t ADC4readingsRAW[ADCmemLen];
 uint16_t ADCVBATreadingsRAW[ADCmemLen];
 
 
+uint16_t ADC1ReadingRAW;
+uint16_t ADC2ReadingRAW;
+uint16_t ADC3ReadingRAW;
+uint16_t ADC4ReadingRAW;
+uint16_t ADCVBATreadingRAW;
+
+
 //uint16_t ADC1ptr = 0; //not really pointer just keeps track of which sample we are up too
 //uint16_t ADC2ptr = 0; //same as above
 //uint16_t ADC3ptr = 0;

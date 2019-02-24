@@ -7,6 +7,7 @@
 #include "RX5808.h"
 #include "HTTPserver.h"
 #include "Bluetooth.h"
+#include "OLED.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
@@ -20,6 +21,7 @@ WiFiUDP UDPserver;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void readADCs();
+
 
 extern uint16_t ADCcaptime;
 
@@ -73,16 +75,18 @@ void setup() {
 #endif
   //delay(5000);
 
-
+#ifdef OLED
   oledSetup();
-  oledUpdate();
-  
+#endif
+
   InitADCtimer();
 
 }
 
 void loop() {
+#ifdef OLED
   OLED_CheckIfUpdateReq();
+#endif
   HandleSerialRead();
   HandleServerUDP();
   SendCurrRSSIloop();
