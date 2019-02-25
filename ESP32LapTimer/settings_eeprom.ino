@@ -1,5 +1,6 @@
 #include <EEPROM.h>
 #include "settings_eeprom.h"
+#include "Comms.h"
 
 struct EepromSettingsStruct EepromSettings;
 
@@ -11,21 +12,16 @@ void EepromSettingsStruct::setup() {
 void EepromSettingsStruct::load() {
   EEPROM.get(0, *this);
 
-  if (this->eepromVersionNumber != VERSION_NUMBER)
+  if (this->eepromVersionNumber != VERSION_NUMBER) {
     this->defaults();
+  }
 }
 
 void EepromSettingsStruct::save() {
   if (eepromSaveRquired) {
-    for (int i = 0; i < NumRecievers; i++) {
-      this->RXBand[i] = RXBand[i];
-      this->RXChannel[i] = RXChannel[i];
-      this->RXfrequencies[i] = RXfrequencies[i];
-      this->RSSIthresholds[i] = RSSIthresholds[i];
-    }
-    
     EEPROM.put(0, *this);
-    EEPROM.commit();    
+    EEPROM.commit();   
+    eepromSaveRquired = false;
   }
 }
 

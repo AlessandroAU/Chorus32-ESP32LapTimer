@@ -5,6 +5,7 @@
 #include "Comms.h"
 #include <Wire.h>
 #include <Adafruit_INA219.h>
+#include "settings_eeprom.h"
 
 Adafruit_INA219 ina219; // A0+A1=GND
 
@@ -33,7 +34,7 @@ void ReadVBAT() {
 
 void IRAM_ATTR readADCs() {
 
-  if (HTTPupdating == true) {
+  if (HTTPupdating || eepromSaveRquired) {
     return;
   }
 

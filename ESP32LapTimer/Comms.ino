@@ -221,6 +221,8 @@ void SetThresholdValue(uint16_t threshold, uint8_t NodeAddr) {
     //addToSendQueue(SEND_THRESHOLD_SETUP_MODE);
   }
   RSSIthresholds[NodeAddr] = threshold * 12;
+  EepromSettings.RSSIthresholds[NodeAddr] = RSSIthresholds[NodeAddr];
+  eepromSaveRquired = true;
   if (threshold != 0) {
     //playClickTones();
   } else {
@@ -757,6 +759,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendVRxBand(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
+        EepromSettings.RXBand[NodeAddrByte] = RXBand[NodeAddrByte];
         eepromSaveRquired = true;
         break;
 
@@ -767,6 +770,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendVRxChannel(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
+        EepromSettings.RXChannel[NodeAddrByte] = RXChannel[NodeAddrByte];
         eepromSaveRquired = true;
         break;
 
@@ -777,6 +781,8 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         InString += (char)controlData[5];
         InString += (char)controlData[6];
         RXfrequencies[NodeAddr] = InString.toInt();
+        EepromSettings.RXfrequencies[NodeAddr] = RXfrequencies[NodeAddr];
+        eepromSaveRquired = true;
         setModuleFrequency(RXfrequencies[NodeAddrByte], NodeAddrByte);
         //Serial.println("Set Freq");
         //Serial.print(NodeAddr);

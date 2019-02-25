@@ -44,7 +44,6 @@ void setup() {
   Serial.println("Booting....");
   
   EepromSettings.setup();
-  EepromSettings.defaults();
   
   InitHTTPserver();
   delay(500);
