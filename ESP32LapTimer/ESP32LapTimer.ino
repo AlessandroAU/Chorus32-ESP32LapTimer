@@ -8,6 +8,7 @@
 #include "HTTPserver.h"
 #include "Bluetooth.h"
 #include "settings_eeprom.h"
+#include "OLED.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
@@ -21,6 +22,7 @@ WiFiUDP UDPserver;
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void readADCs();
+
 
 extern uint16_t ADCcaptime;
 
@@ -81,6 +83,7 @@ void setup() {
   oledSetup();
   oledUpdate();
 #endif
+  
   InitADCtimer();
 }
 
