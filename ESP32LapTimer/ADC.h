@@ -16,6 +16,7 @@ uint16_t ADC3readingsRAW[ADCmemLen];
 uint16_t ADC4readingsRAW[ADCmemLen];
 uint16_t ADCVBATreadingsRAW[ADCmemLen];
 
+int RSSIthresholds[NumRecievers];
 
 uint16_t ADC1ReadingRAW;
 uint16_t ADC2ReadingRAW;
@@ -46,3 +47,4 @@ int ADCvalues[NumRecievers];
 void ConfigureADC();
 void InitADCtimer();
 void IRAM_ATTR CheckRSSIthresholdExceeded();
+

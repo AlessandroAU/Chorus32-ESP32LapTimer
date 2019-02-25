@@ -1,9 +1,10 @@
 void InitHardwarePins();
 
+#define VERSION_NUMBER 1 // Increment when eeprom struct modified
+
 #define NumRecievers 4
 
-//#define OLED //uncomment this to enable OLED support
-
+#define OLED //uncomment this to enable OLED support
 
 ///Define Pin configuration here, these are the defaults as given on github
 
@@ -28,8 +29,8 @@ void InitHardwarePins();
 ///////Vbat Monitoring///////
 //vbat can either measured over I2S by an INA219 or directly via the ADC. CHOOSE ONE option by uncommenting 
 
-//#define VbatINA219 
-#define VbatADC
+#define VbatINA219 
+//#define VbatADC
 
 
 
@@ -41,3 +42,4 @@ void InitHardwarePins();
   #define CS2 2
   #define CS3 0
 #endif
+

@@ -37,7 +37,11 @@ void OLED_CheckIfUpdateReq() {
     OLED_LastUpdated = millis();
   }
   //Serial.println(VbatReadingRaw);
-  VbatReadingFloat = fmap(VbatReadingSmooth * VBATcalibration, 0, 4096, 0, 4.4);
+  #ifdef VbatADC
+    VbatReadingFloat = fmap(VbatReadingSmooth, 0, 4096, 0, 4.026);
+  #else
+    VbatReadingFloat = fmap(VbatReadingSmooth * VBATcalibration, 0, 4096, 0, 4.4);
+  #endif
   //Serial.println(VbatReading);
 
 }

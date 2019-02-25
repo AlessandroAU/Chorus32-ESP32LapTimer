@@ -7,6 +7,7 @@
 #include "RX5808.h"
 #include "HTTPserver.h"
 #include "Bluetooth.h"
+#include "settings_eeprom.h"
 #include "OLED.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
@@ -33,8 +34,6 @@ extern int ADC4value;
 const char* ssid = "Chorus";
 const char* password = "Chorus123";
 
-int RSSIthresholds[NumRecievers] = {3500, 3500, 3500, 3500};
-
 volatile uint32_t LapTimes[NumRecievers][100];
 volatile int LapTimePtr[NumRecievers] = {0, 0, 0, 0}; //Keep track of what lap we are up too
 bool LapModeREL = true;  // lap move is realtive, ie lap is millis() difference from previous lap
@@ -45,6 +44,9 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println("Booting....");
+  
+  EepromSettings.setup();
+  
   InitHTTPserver();
   delay(500);
 
@@ -62,6 +64,8 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
+  commsSetup();
+  
   setModuleChannelBand(0); // inits module with defaults
   delay(10);
   setModuleChannelBand(1);
@@ -77,10 +81,10 @@ void setup() {
 
 #ifdef OLED
   oledSetup();
+  oledUpdate();
 #endif
-
+  
   InitADCtimer();
-
 }
 
 void loop() {
@@ -95,5 +99,6 @@ void loop() {
 #ifdef BluetoothEnabled
   HandleBluetooth();
 #endif
-
+  EepromSettings.save();
 }
+
