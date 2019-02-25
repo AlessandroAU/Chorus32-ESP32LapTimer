@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "HardwareConfig.h"
 #include "UDP.h"
+#include "settings_eeprom.h"
 
 ///////This is mostly from the original Chorus Laptimer, need to cleanup unused functions and variables
 
@@ -131,17 +132,6 @@ uint32_t raceStartTime = 0;
 // * set to INFINITE_TIME_ADJUSTMENT, means time adjustment was performed, but no need to adjust
 int32_t timeAdjustment = 0;
 
-
-
-////////////////Array Variables///////////
-uint16_t RXfrequencies[NumRecievers];
-//volatile uint8_t RXBand[NumRecievers] = {4, 4, 4, 4};
-//volatile uint8_t RXChannel[NumRecievers] = {0, 2, 4, 6};
-volatile uint8_t RXBand[NumRecievers];
-volatile uint8_t RXChannel[NumRecievers];
-
-
-
 //----- read/write bufs ---------------------------
 #define READ_BUFFER_SIZE 20
 uint8_t readBuf[READ_BUFFER_SIZE];
@@ -156,7 +146,13 @@ uint8_t CurrNodeAddrAPI = 0;  //used for functions like R*# and R*a to enumerate
 uint8_t CurrNodeAddrLaps = 0;  //used for functions like R*# and R*a to enumerate over all node ids
 bool holeShot[NumRecievers] = {true, true, true, true}; //wait for first trigger, IE holeshot.
 
-
+void commsSetup() {
+  for (int i = 0; i < NumRecievers; i++) {
+    RXBand[i] = EepromSettings.RXBand[i];
+    RXChannel[i] = EepromSettings.RXChannel[i];
+    RXfrequencies[i] = EepromSettings.RXfrequencies[i];
+  }
+}
 
 void setRaceMode(uint8_t mode) {
   if (mode == 0) { // stop race
@@ -761,6 +757,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendVRxBand(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
+        eepromSaveRquired = true;
         break;
 
       case CONTROL_CHANNEL:
@@ -770,6 +767,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendVRxChannel(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
+        eepromSaveRquired = true;
         break;
 
       case CONTROL_FREQUENCY:

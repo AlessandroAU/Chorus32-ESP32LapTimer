@@ -16,6 +16,7 @@ uint16_t ADC3readingsRAW[ADCmemLen];
 uint16_t ADC4readingsRAW[ADCmemLen];
 uint16_t ADCVBATreadingsRAW[ADCmemLen];
 
+int RSSIthresholds[NumRecievers];
 
 //uint16_t ADC1ptr = 0; //not really pointer just keeps track of which sample we are up too
 //uint16_t ADC2ptr = 0; //same as above
@@ -39,3 +40,4 @@ int ADCvalues[NumRecievers];
 void ConfigureADC();
 void InitADCtimer();
 void IRAM_ATTR CheckRSSIthresholdExceeded();
+

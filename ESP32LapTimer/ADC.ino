@@ -145,6 +145,10 @@ void ConfigureADC() {
 
   adc1_config_channel_atten(ADCVBAT, ADC_ATTEN_6db);
 
+  for (int i = 0; i < NumRecievers; i++) {
+    RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
+  }
+  
   ina219.begin();
   ina219.setCalibration_16V_400mA();
   ReadVBAT();
@@ -166,3 +170,4 @@ void StopADCtimer() {
   HTTPupdating = true;
 
 }
+

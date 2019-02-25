@@ -4,7 +4,7 @@
 struct EepromSettingsStruct EepromSettings;
 
 void EepromSettingsStruct::setup() {
-  EEPROM.begin(2048);
+  EEPROM.begin(512);
   this->load();
 }
 
@@ -13,23 +13,20 @@ void EepromSettingsStruct::load() {
 
   if (this->eepromVersionNumber != VERSION_NUMBER)
     this->defaults();
-
-  for (int i = 0; i < NumRecievers; i++) {
-    RXBand[i] = this->RXBand[i];
-    RXChannel[i] = this->RXChannel[i];
-    RXfrequencies[i] = this->RXfrequencies[i];
-  }
 }
 
 void EepromSettingsStruct::save() {
-  for (int i = 0; i < NumRecievers; i++) {
-    this->RXBand[i] = RXBand[i];
-    this->RXChannel[i] = RXChannel[i];
-    this->RXfrequencies[i] = RXfrequencies[i];
+  if (eepromSaveRquired) {
+    for (int i = 0; i < NumRecievers; i++) {
+      this->RXBand[i] = RXBand[i];
+      this->RXChannel[i] = RXChannel[i];
+      this->RXfrequencies[i] = RXfrequencies[i];
+      this->RSSIthresholds[i] = RSSIthresholds[i];
+    }
+    
+    EEPROM.put(0, *this);
+    EEPROM.commit();    
   }
-  
-  EEPROM.put(0, *this);
-  EEPROM.commit();    
 }
 
 void EepromSettingsStruct::defaults() {
