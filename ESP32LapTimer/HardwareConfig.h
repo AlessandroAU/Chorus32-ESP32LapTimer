@@ -29,8 +29,8 @@ void InitHardwarePins();
 ///////Vbat Monitoring///////
 //vbat can either measured over I2S by an INA219 or directly via the ADC. CHOOSE ONE option by uncommenting 
 
-#define VbatINA219 
-//#define VbatADC
+//#define VbatINA219 
+#define VbatADC
 
 
 
@@ -42,4 +42,3 @@ void InitHardwarePins();
   #define CS2 2
   #define CS3 0
 #endif
-

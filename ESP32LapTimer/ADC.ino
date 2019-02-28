@@ -23,18 +23,18 @@ uint32_t ADCstartMicros;
 uint32_t ADCfinishMicros;
 uint16_t ADCcaptime;
 
-extern bool HTTPupdating;
+bool HTTPupdating;
 
 uint32_t cp0_regs[18];
 
 hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
-void IRAM_ATTR ShiftArray(uint16_t data[], int length) {
-  for (int i = length; i  >= 0; i--) {
-    data[i + 1] = data[i];
-  }
-}
+//void IRAM_ATTR ShiftArray(uint16_t data[], int length) {
+//  for (int i = length; i  >= 0; i--) {
+//    data[i + 1] = data[i];
+//  }
+//}
 
 void ReadVBAT() {
   VbatReadingFloat = ina219.getBusVoltage_V();
@@ -108,7 +108,7 @@ void IRAM_ATTR readADCs() {
   //  ADCvalues[1] = ADC2readingsRAW[0];
   //  ADCvalues[2] = ADC3readingsRAW[0];
   //  ADCvalues[3] = ADC4readingsRAW[0];
-
+  //
   ADCvalues[0] = Filter1.step(ADC1ReadingRAW);
   ADCvalues[1] = Filter2.step(ADC2ReadingRAW);
   ADCvalues[2] = Filter3.step(ADC3ReadingRAW);
@@ -169,7 +169,7 @@ void ConfigureADC() {
   for (int i = 0; i < NumRecievers; i++) {
     RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
   }
-  
+
   ina219.begin();
   ina219.setCalibration_16V_400mA();
   ReadVBAT();
@@ -191,4 +191,3 @@ void StopADCtimer() {
   HTTPupdating = true;
 
 }
-

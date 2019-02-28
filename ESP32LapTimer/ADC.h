@@ -47,4 +47,3 @@ int ADCvalues[NumRecievers];
 void ConfigureADC();
 void InitADCtimer();
 void IRAM_ATTR CheckRSSIthresholdExceeded();
-

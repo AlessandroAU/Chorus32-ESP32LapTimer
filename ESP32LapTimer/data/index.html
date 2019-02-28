@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Chorus32 RF lap Timing System</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/slider.css" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+	</head>
+	<body>
+	<!-- OI you! get out of my source code!!! -->
+
+		<!-- Header -->
+			<section id="header">
+				<div class="inner">
+					<img src="flag.svg" height="250" width="250" style="padding:20px;"></a>
+					<h1>Welcome to your <strong>Chorus32</strong><br/> configuration Page<br/>
+					</h1>
+					<p>From here you can change any settings on your timer<br/>
+					<p>
+					
+					<b>Firmware Rev.  </b><var id="FirmVersion">1.0</var><p>
+					<!--
+					<b>Platform:</b> var_currPlatform<br><p>
+					<b>RF Module:</b> var_currRadioModule<br><p>
+					-->
+					
+				</div>
+			</section>
+			
+			<section id="Status RFPWR" class="main style1">
+			<div class="container">
+					<br>				
+					<div align="left">	
+			<legend><h2><b>Status:</b></h2></legend>
+				<table style="width:100%">
+				  <tr>
+					<th><b>Vbat: </b><var id="Var_VBAT", class="StatusText">5.05V</var></th>
+					<th><b>Wifi Clients: </b><var id="Var_OUTPWR", class="StatusText">1</var></th> 
+					<th><b>Current Mode: </b>Idle</th>
+				  </tr>
+				</table>
+			</section>
+			
+			<!--
+			<section id="Status Wifi" class="main style1">
+			<div class="container">
+					<br>				
+					<div align="left">	
+			<legend><h3><b>Wifi Status:</b></h3></legend>
+				<table style="width:100%">
+				  <tr>
+					<th><b>Clients:</b> 1</th>
+					<th><b>Output Power: </b>25 mW</th> 
+					<th><b>Update Rate: </b>100 Hz</th>
+				  </tr>
+				  <tr>
+					<td><b>Temp: </b>39°C</td>
+					<td><b>High Power Mode: </b>Allowed</td> 
+					<td><b>CRC Errors: </b> 0</td>
+				  </tr>
+				  <tr>
+					<td><b>Fan: </b>Off</td>
+					<td><b>RSSI: </b>-79 dBm</td> 
+					<td><b>Packet Loss: </b>0.00%</td>
+				  </tr>
+				</table>
+			</section>
+			-->
+		<!-- One -->
+			<section id="one" class="main style1">
+				<div class="container">
+					<br>				
+					<div align="left">									
+					<form action="/updateGeneral.html">
+					  <fieldset>
+						<legend><h2><b>General Configuration</b></h2></legend>
+						Wifi Security:<br>
+						    <select name="WifiSecurity">
+
+								<option selected value="None">No Password (open)</option>
+								<option value="WPA">WPA2</option>
+							</select>
+						<br>
+						Serial UART Mode:<br>
+							<select name="UART_Mode">
+								<option value="OFF">Debug Only</option>
+								<option value="Mirror">Mirror Control Packets</option>
+								<option selected value="DebugMirror">Serial Debug + Mirror</option>
+							</select>
+						<br>
+						<input type="submit" value="&nbsp;Update&nbsp;">
+					  </fieldset>
+					</form>
+					
+					
+
+					<br>
+					<form method="get" action="/updateFilters.html">
+					  <fieldset>
+						<legend><h2><b>Filtering</b></h2></legend>
+						RX ADC Filter<br>
+							<select name="RXFilter">
+								<option value="10">10Hz Bessel LPF</option>
+								<option selected value="20">20Hz Bessel LPF</option>
+								<option value="50">50Hz Bessel LPF</option>
+								<option value="100">100Hz Bessel LPF</option>
+								
+							</select>
+						<br>
+						<input type="submit" value="&nbsp;Update&nbsp;">
+					  </fieldset>
+					</form>
+
+					
+					 <fieldset>
+					
+					Here you can update module firmware, 
+					be careful to upload the correct file as it is possible to brick the timer. A bricked timer will require reflashing with a serial cable
+					<br><br>
+					<legend><h2>Firmware Update:</h2></legend>
+					
+
+					<form method='POST' action='/update' enctype='multipart/form-data'>	<input type='file' name='update'>	<input type='submit' value='Update'></form>
+					</form>
+					</fieldset>					
+											
+						
+						
+</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+	</body>
+</html>

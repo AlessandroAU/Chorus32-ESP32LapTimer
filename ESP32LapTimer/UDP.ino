@@ -56,14 +56,14 @@ void IRAM_ATTR ProcessSerialCommand(char * BuffIn, byte StartIndex, byte Length)
 
   memcpy(DatatoProcess, &BuffIn[+StartIndex], Length);
   //
-    uint8_t ControlPacket = DatatoProcess[0];   ///fix this when you have the chance and seperate the serial and UDP functions
-    uint8_t NodeAddr = DatatoProcess[1];
-  
-    handleSerialControlInput(DatatoProcess, ControlPacket, NodeAddr, Length);
+  uint8_t ControlPacket = DatatoProcess[0];   ///fix this when you have the chance and seperate the serial and UDP functions
+  uint8_t NodeAddr = DatatoProcess[1];
 
-//  for (int i = 0; i < Length; i++) {
-//    Serial.print(DatatoProcess[i]);
-//  }
+  handleSerialControlInput(DatatoProcess, ControlPacket, NodeAddr, Length);
+
+  //  for (int i = 0; i < Length; i++) {
+  //    Serial.print(DatatoProcess[i]);
+  //  }
 
 }
 
@@ -88,10 +88,10 @@ void IRAM_ATTR HandleSerialRead() {
     if (SerialBuffIn[i] == endMarker) {
       for (int j = 0; j <= i; j++) {
         //Serial.print(SerialBuffIn[j]);
-        ProcessSerialCommand(SerialBuffIn, 0, i+1);
+        ProcessSerialCommand(SerialBuffIn, 0, i + 1);
         break;
       }
-      memcpy(SerialBuffIn, &SerialBuffIn[i+1], 50 - i);
+      memcpy(SerialBuffIn, &SerialBuffIn[i + 1], 50 - i);
       for (int i = 0; i < 20; i++) {
         if (SerialBuffIn[i] == 0)
           ndx = i;
@@ -158,7 +158,7 @@ void IRAM_ATTR HandleServerUDP() {
   SendUDPpacket(); //Send Back any reply or actions that needed to be taken
 
   int packetSize = UDPserver.parsePacket();
-  if (packetSize) {
+  if (packetSize > 0) {
     int len = UDPserver.read(packetBuffer, 255);
     if (len > 0) packetBuffer[len] = 0;
     Serial.print(packetBuffer);
@@ -168,4 +168,3 @@ void IRAM_ATTR HandleServerUDP() {
     handleSerialControlInput(UDPin, ControlPacket, NodeAddr, len);
   }
 }
-

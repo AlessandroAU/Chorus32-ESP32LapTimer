@@ -3,6 +3,10 @@
 
 #include "HardwareConfig.h"
 
+enum RXADCfilter_ {LPF_10Hz, LPF_20Hz, LPF_50Hz, LPF_100Hz};
+
+
+
 bool eepromSaveRquired = false;
 
 struct EepromSettingsStruct {
@@ -12,6 +16,7 @@ struct EepromSettingsStruct {
   uint8_t RXChannel[NumRecievers];
   uint16_t RXfrequencies[NumRecievers];
   int RSSIthresholds[NumRecievers];
+  RXADCfilter_ RXADCfilter;
   
   void setup();
   void load();
@@ -26,6 +31,7 @@ const struct {
   uint8_t RXChannel[NumRecievers] = {0, 2, 4, 6};
   uint16_t RXfrequencies[NumRecievers] = {5740, 5780, 5820, 5860};
   int RSSIthresholds[NumRecievers] = {3500, 3500, 3500, 3500};
+  RXADCfilter_ RXADCfilter = LPF_20Hz;
   
 } EepromDefaults;
 
