@@ -9,7 +9,6 @@ Hardware construction is also simplified as both parts are 3.3v logic and there 
 Updates:
 -----
 Some users have had issues with Bluetooth causing crashes, I am looking into a fix.
-Vbat monitoring is not yet implemented, the 3.76v reading is just a dummy reading
 Auto RSSI threshold setup is also not implemented, just set thresholds manually for now.
 
 Application Support:
@@ -22,10 +21,10 @@ Hardware:
 -----
 Construction is easy and only requires some basic point to point wiring of each module to the ESP32 board.
 
-See HardwareConfig.h for pin assignments, it is possible to change any pin assignments apart from ADC channels. Note that pin assignments are GPIO hardware pin numbers and not pin numbers specific to the particular ESP32 development board you may be using.
+See HardwareConfig.h for pin assignments, it is possible to change any pin assignments apart from ADC channels and I2C pins 21 & 22. Note that pin assignments are GPIO hardware pin numbers and not pin numbers specific to the particular ESP32 development board you may be using.
 
 ![alt text](img/wiring.png)
-The images below show a construction using an ESP32 OLED board, it is recommended  to use the more standard NodeMCU at the moment. There is no OLED functionality  currently implemented.
+The images below show a construction using an ESP32 OLED board, it is recommended  to use the more standard NodeMCU at the moment.
 ![alt text](img/hardwareImage1.png)
 ![alt text](img/HardwareImage2.png)
 
