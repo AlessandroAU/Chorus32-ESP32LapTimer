@@ -37,9 +37,13 @@ portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 //}
 
 void ReadVBAT() {
-  VbatReadingFloat = ina219.getBusVoltage_V();
+  VbatReadingFloat = ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV() / 1000);
   Serial.print("VbatReading = ");
   Serial.println(VbatReadingFloat);
+  
+  mAReadingFloat = ina219.getCurrent_mA();
+  Serial.print("mAReadingFloat = ");
+  Serial.println(mAReadingFloat);
 }
 
 void IRAM_ATTR readADCs() {
@@ -171,7 +175,6 @@ void ConfigureADC() {
   }
 
   ina219.begin();
-  ina219.setCalibration_16V_400mA();
   ReadVBAT();
 
 }
