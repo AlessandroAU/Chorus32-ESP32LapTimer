@@ -8,6 +8,9 @@ void InitHardwarePins();
 
 ///Define Pin configuration here, these are the defaults as given on github
 
+//#define USE_VSPI
+#define USE_HSPI
+
 #define SCK 14
 #define MOSI 12
 #define MISO 13
