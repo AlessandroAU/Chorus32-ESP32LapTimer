@@ -32,8 +32,8 @@ extern int ADC2value;
 extern int ADC3value;
 extern int ADC4value;
 
-volatile uint32_t LapTimes[NumRecievers][100];
-volatile int LapTimePtr[NumRecievers] = {0, 0, 0, 0}; //Keep track of what lap we are up too
+volatile uint32_t LapTimes[MaxNumRecievers][100];
+volatile int LapTimePtr[MaxNumRecievers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
 bool LapModeREL = true;  // lap move is realtive, ie lap is millis() difference from previous lap
 
 uint32_t MinLapTime = 5000;  //this is in millis

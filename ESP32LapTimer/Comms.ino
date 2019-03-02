@@ -144,7 +144,7 @@ uint8_t proxyBufDataSize = 0;
 //-----------
 uint8_t CurrNodeAddrAPI = 0;  //used for functions like R*# and R*a to enumerate over all node ids
 uint8_t CurrNodeAddrLaps = 0;  //used for functions like R*# and R*a to enumerate over all node ids
-bool holeShot[NumRecievers] = {true, true, true, true}; //wait for first trigger, IE holeshot.
+bool holeShot[MaxNumRecievers] = {true, true, true, true, true, true}; //wait for first trigger, IE holeshot.
 
 void commsSetup() {
   for (int i = 0; i < NumRecievers; i++) {
@@ -343,6 +343,12 @@ void SendCurrRSSI(uint8_t NodeAddr) {
     case 3:
       Result =  ADCvalues[3];
       break;
+    case 4:
+      Result =  ADCvalues[4];
+      break;
+    case 5:
+      Result =  ADCvalues[5];
+      break;
   }
 
   //}
@@ -473,7 +479,7 @@ void SendAllLaps(uint8_t NodeAddr) {
     //    Serial.print("Sending Lap: ");
     //    Serial.println(NodeAddr);
     sendLap(i, NodeAddr);
-    SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer
+    SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer with all the data we might send
   }
 }
 
@@ -587,11 +593,11 @@ void SendLipoVoltage() {
   addToSendQueue(TO_HEX(0));
   addToSendQueue('v');
   uint8_t buf[4];
-  #ifdef VbatADC
-    float VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 4) * 55.0 * 1.5) / 1024;
-  #else
-    float VbatFloat = (VbatReadingFloat / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
-  #endif
+#ifdef VbatADC
+  float VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 4) * 55.0 * 1.5) / 1024;
+#else
+  float VbatFloat = (VbatReadingFloat / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
+#endif
   intToHex(buf, int(VbatFloat));
   addToSendQueue(buf, 4);
   addToSendQueue('\n');

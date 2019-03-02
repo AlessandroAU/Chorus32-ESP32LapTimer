@@ -25,9 +25,8 @@ uint32_t millisUponRequest = 0;
 
 uint32_t RaceStartTime = 0;
 
-uint16_t RXfrequencies[NumRecievers];
-volatile uint8_t RXBand[NumRecievers];
-volatile uint8_t RXChannel[NumRecievers];
+uint16_t RXfrequencies[MaxNumRecievers];
+volatile uint8_t RXBand[MaxNumRecievers];
+volatile uint8_t RXChannel[MaxNumRecievers];
 
 #endif
-

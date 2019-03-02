@@ -12,12 +12,12 @@ bool eepromSaveRquired = false;
 struct EepromSettingsStruct {
   uint16_t eepromVersionNumber;
 
-  uint8_t RXBand[NumRecievers];
-  uint8_t RXChannel[NumRecievers];
-  uint16_t RXfrequencies[NumRecievers];
-  int RSSIthresholds[NumRecievers];
+  uint8_t RXBand[MaxNumRecievers];
+  uint8_t RXChannel[MaxNumRecievers];
+  uint16_t RXfrequencies[MaxNumRecievers];
+  int RSSIthresholds[MaxNumRecievers];
   RXADCfilter_ RXADCfilter;
-  
+
   void setup();
   void load();
   void save();
@@ -25,14 +25,14 @@ struct EepromSettingsStruct {
 };
 
 const struct {
-  uint16_t eepromVersionNumber = VERSION_NUMBER;
-  
-  uint8_t RXBand[NumRecievers] = {4, 4, 4, 4};
-  uint8_t RXChannel[NumRecievers] = {0, 2, 4, 6};
-  uint16_t RXfrequencies[NumRecievers] = {5740, 5780, 5820, 5860};
-  int RSSIthresholds[NumRecievers] = {3500, 3500, 3500, 3500};
+  uint16_t eepromVersionNumber = EEPROM_VERSION_NUMBER;
+
+  uint8_t RXBand[MaxNumRecievers] = {4, 4, 4, 4, 0, 0};
+  uint8_t RXChannel[MaxNumRecievers] = {0, 2, 4, 6, 0, 8};
+  uint16_t RXfrequencies[MaxNumRecievers] = {5740, 5780, 5820, 5860, 5658, 5917};
+  int RSSIthresholds[MaxNumRecievers] = {3500, 3500, 3500, 3500, 3500, 3500};
   RXADCfilter_ RXADCfilter = LPF_20Hz;
-  
+
 } EepromDefaults;
 
 extern EepromSettingsStruct EepromSettings;

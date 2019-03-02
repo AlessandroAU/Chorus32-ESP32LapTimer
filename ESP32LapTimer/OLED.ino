@@ -99,12 +99,12 @@ void oledUpdate(void)
 
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < 4; i++) {
     display.drawString(0, 13 + i * 13, getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
   }
 
   // RF level barcharts
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < 4; i++) {
     display.drawProgressBar(40, 15 + i * 13, 127 - 42, 8, map(ADCvalues[i], 750, 4096, 0, 85));
   }
 

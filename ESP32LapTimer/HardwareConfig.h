@@ -1,8 +1,9 @@
 void InitHardwarePins();
 
-#define VERSION_NUMBER 1 // Increment when eeprom struct modified
+#define EEPROM_VERSION_NUMBER 2 // Increment when eeprom struct modified
 
-#define NumRecievers 4
+#define MaxNumRecievers 6
+#define NumRecievers 6
 
 #define OLED //uncomment this to enable OLED support
 
@@ -19,6 +20,8 @@ void InitHardwarePins();
 #define CS2 5
 #define CS3 4
 #define CS4 15
+#define CS5 25
+#define CS6 26
 
 #define ADC1 ADC1_CHANNEL_0
 #define ADC2 ADC1_CHANNEL_6
@@ -41,9 +44,9 @@ void InitHardwarePins();
 
 
 ///////Vbat Monitoring///////
-//vbat can either measured over I2S by an INA219 or directly via the ADC. CHOOSE ONE option by uncommenting 
+//vbat can either measured over I2S by an INA219 or directly via the ADC. CHOOSE ONE option by uncommenting
 
-#define VbatINA219 
+#define VbatINA219
 //#define VbatADC
 
 
@@ -52,7 +55,7 @@ void InitHardwarePins();
 #define AlessandroDevBoard //because Alessandro was silly he has to mess around with a different pin configuration 
 
 #ifdef AlessandroDevBoard
-  #define OLED
-  #define CS2 2
-  #define CS3 0
+#define OLED
+#define CS2 2
+#define CS3 0
 #endif

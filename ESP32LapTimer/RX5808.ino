@@ -12,12 +12,12 @@
 uint16_t freq = 5820;
 
 void InitSPI() {
-  #ifdef USE_HSPI
-    SPI.begin(SCK, MISO, MOSI, -1);
-  #endif
-  #ifdef USE_VSPI
-    SPI.begin();
-  #endif
+#ifdef USE_HSPI
+  SPI.begin(SCK, MISO, MOSI, -1);
+#endif
+#ifdef USE_VSPI
+  SPI.begin();
+#endif
 }
 
 void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
@@ -87,6 +87,14 @@ uint16_t setModuleChannelBand(uint8_t NodeAddr) {
     case 3:
       rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS4);
       break;
+
+    case 4:
+      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS5);
+      break;
+
+    case 5:
+      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS6);
+      break;
   }
 
 
@@ -121,6 +129,14 @@ uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
     case 3:
       rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS4);
       break;
+
+    case 4:
+      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS5);
+      break;
+
+    case 5:
+      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS6);
+      break;
   }
 
 
@@ -146,12 +162,20 @@ uint16_t setModuleFrequency(uint16_t frequency, uint8_t NodeAddr) {
     case 3:
       rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS4);
       break;
+
+    case 4:
+      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS5);
+      break;
+
+    case 5:
+      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS6);
+      break;
   }
   return frequency;
 }
 
 String getBandLabel(int band) {
-  
+
   switch (band) {
     case 0:
       return "R";
@@ -178,5 +202,5 @@ String getBandLabel(int band) {
       return "XX";
       break;
   }
-  
+
 }
