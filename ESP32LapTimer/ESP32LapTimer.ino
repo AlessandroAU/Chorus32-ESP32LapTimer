@@ -13,14 +13,13 @@
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
 
-//WiFiClient client;
-//WiFiServer server(23);
+
 
 
 WiFiUDP UDPserver;
-
-#define MAX_SRV_CLIENTS 5
-WiFiClient serverClients[MAX_SRV_CLIENTS];
+//
+//#define MAX_SRV_CLIENTS 5
+//WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void readADCs();
 
@@ -64,13 +63,13 @@ void setup() {
 
   commsSetup();
 
-  setModuleChannelBand(0); // inits module with defaults
-  delay(10);
-  setModuleChannelBand(1);
-  delay(10);
-  setModuleChannelBand(2);
-  delay(10);
-  setModuleChannelBand(3);
+  //  setModuleChannelBand(0); // inits module with defaults
+  //  delay(10);
+  //  setModuleChannelBand(1);
+  //  delay(10);
+  //  setModuleChannelBand(2);
+  //  delay(10);
+  //  setModuleChannelBand(3);
 
 #ifdef BluetoothEnabled
   SerialBT.begin("Chorus Laptimer SPP");
@@ -81,33 +80,29 @@ void setup() {
   oledSetup();
   oledUpdate();
 #endif
-
-
-
-
   // InitWebServer();
 
   //  InitWifiAP();
   InitWebServer();
   UDPserver.begin(9000);
-  delay(500);
-
   InitADCtimer();
 }
 
 void loop() {
-  if (shouldReboot) {  //checks if reboot is needed
-    Serial.println("Rebooting...");
-    delay(100);
-    ESP.restart();
-  }
+//  if (shouldReboot) {  //checks if reboot is needed
+//    Serial.println("Rebooting...");
+//    delay(100);
+//    ESP.restart();
+//  }
 #ifdef OLED
   OLED_CheckIfUpdateReq();
 #endif
   HandleSerialRead();
   HandleServerUDP();
   SendCurrRSSIloop();
-  //HandleWebserver();
+  dnsServer.processNextRequest();
+  webServer.handleClient();
+  //  HandleWebserver();
   //HTTPserver.handleClient();
   //  dnsServer.processNextRequest();
 #ifdef BluetoothEnabled
