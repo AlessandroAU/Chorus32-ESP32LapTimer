@@ -12,10 +12,10 @@
 uint16_t freq = 5820;
 
 void InitSPI() {
-  #ifdef HSPI
+  #ifdef USE_HSPI
     SPI.begin(SCK, MISO, MOSI, -1);
   #endif
-  #ifdef VSPI
+  #ifdef USE_VSPI
     SPI.begin();
   #endif
 }
