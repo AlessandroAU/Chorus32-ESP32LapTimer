@@ -102,7 +102,7 @@ void oledUpdate(void)
 
   // Voltage
   display.setTextAlignment(TEXT_ALIGN_RIGHT);
-  display.drawString(127, 0, String(VbatReadingFloat, 3) + "V");
+  display.drawString(127, 0, String(VbatReadingFloat, 2) + "V");
 
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
