@@ -5,7 +5,7 @@
 #include "SSD1306.h"
 
 unsigned long OLED_LastUpdated  = 0;
-unsigned int OLED_UpdateInterval = 50;
+unsigned int OLED_UpdateInterval = 100;
 
 #ifdef AlessandroDevBoard
 SSD1306  display(0x3c, 5, 4);
@@ -20,15 +20,15 @@ void oledSetup(void) {
   display.init();
   display.flipScreenVertically();
 
-  //  xTaskCreate(
-  //    oledUpdate,          /* Task function. */
-  //    "OLED Update",        /* String with name of task. */
-  //    50000,            /* Stack size in bytes. */
-  //    NULL,             /* Parameter passed as input of the task */
-  //    1,                /* Priority of the task. */
-  //    NULL);            /* Task handle. */
+//  xTaskCreate(
+//    oledUpdateTask,          /* Task function. */
+//    "oledUpdateTask",        /* String with name of task. */
+//    10000,            /* Stack size in bytes. */
+//    NULL,             /* Parameter passed as input of the task */
+//    10,                /* Priority of the task. */
+//    NULL);            /* Task handle. */
 
-  delay(100);
+  //delay(100);
 }
 
 void OLED_CheckIfUpdateReq() {
@@ -37,9 +37,9 @@ void OLED_CheckIfUpdateReq() {
     OLED_LastUpdated = millis();
   }
   //Serial.println(VbatReadingRaw);
-  #ifdef VbatADC
-    VbatReadingFloat = fmap(VbatReadingSmooth, 0, 4096, 0, 4.026);
-  #endif
+#ifdef VbatADC
+  VbatReadingFloat = fmap(VbatReadingSmooth, 0, 4096, 0, 4.026);
+#endif
   //Serial.println(VbatReading);
 
 }
@@ -60,6 +60,13 @@ void OLED_CheckIfUpdateReq() {
 //
 //  delay(10);
 //}
+
+void oledUpdateTask( void * parameter ) {
+  while (1) {
+    oledUpdate();
+    vTaskDelay(500);
+  }
+}
 
 
 void oledUpdate(void)

@@ -3,7 +3,7 @@
 //http://www.schwietering.com/jayduino/filtuino/index.php
 
 //Low pass bessel filter order=2 alpha1=0.02, ie 20hz at 1000hz sample rate
-class IRAM_ATTR FilterBeLp2
+class FilterBeLp2
 {
   public:
     FilterBeLp2()
@@ -32,7 +32,7 @@ class IRAM_ATTR FilterBeLp2
 //Low pass bessel filter order=2 alpha1=5.0E-5
 
 //Low pass bessel filter order=2 alpha1=0.0002
-class IRAM_ATTR FilterBeLp2Slow
+class FilterBeLp2Slow
 {
   public:
     FilterBeLp2Slow()

@@ -1,10 +1,20 @@
 #pragma once
-
+#include <esp_wifi.h>
 #include <DNSServer.h>
+//#include <WiFiClient.h>
+#include <FS.h>
+#include <WiFiUdp.h>
+#include "WebServer.h"
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include "SPIFFS.h"
+#include <Update.h>
 
 const byte DNS_PORT = 53;
 IPAddress apIP(192, 168, 4, 1);
 DNSServer dnsServer;
+WebServer  webServer(80);
+//WiFiClient client = webServer.client();
 
 //flag to use from web update to reboot the ESP
 bool shouldReboot = false;
