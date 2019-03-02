@@ -8,12 +8,14 @@
 #include "Bluetooth.h"
 #include "settings_eeprom.h"
 #include "OLED.h"
+#include "WebServer.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
 
 //WiFiClient client;
 //WiFiServer server(23);
+
 
 WiFiUDP UDPserver;
 
@@ -85,8 +87,8 @@ void setup() {
 
   // InitWebServer();
 
-  InitWifiAP();
-  initWebSever();
+  //  InitWifiAP();
+  InitWebServer();
   UDPserver.begin(9000);
   delay(500);
 
@@ -94,13 +96,18 @@ void setup() {
 }
 
 void loop() {
+  if (shouldReboot) {  //checks if reboot is needed
+    Serial.println("Rebooting...");
+    delay(100);
+    ESP.restart();
+  }
 #ifdef OLED
   OLED_CheckIfUpdateReq();
 #endif
   HandleSerialRead();
   HandleServerUDP();
   SendCurrRSSIloop();
-  HandleWebserver();
+  //HandleWebserver();
   //HTTPserver.handleClient();
   //  dnsServer.processNextRequest();
 #ifdef BluetoothEnabled

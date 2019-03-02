@@ -24,7 +24,18 @@ void InitHardwarePins();
 #define ADC2 ADC1_CHANNEL_6
 #define ADC3 ADC1_CHANNEL_7
 #define ADC4 ADC1_CHANNEL_3
-#define ADCVBAT ADC1_CHANNEL_4
+#define ADC5 ADC1_CHANNEL_4
+#define ADC6 ADC1_CHANNEL_5
+
+
+#define ADC1_GPIO 36
+#define ADC2_GPIO 34
+#define ADC3_GPIO 35
+#define ADC4_GPIO 39
+#define ADC5_GPIO 32
+#define ADC6_GPIO 33
+
+
 
 #define MIN_TUNE_TIME 30
 
@@ -38,7 +49,7 @@ void InitHardwarePins();
 
 
 /////////Custom Hardware options///////////
-//#define AlessandroDevBoard //because Alessandro was silly he has to mess around with a different pin configuration 
+#define AlessandroDevBoard //because Alessandro was silly he has to mess around with a different pin configuration 
 
 #ifdef AlessandroDevBoard
   #define OLED

@@ -22,6 +22,8 @@ uint16_t ADC1ReadingRAW;
 uint16_t ADC2ReadingRAW;
 uint16_t ADC3ReadingRAW;
 uint16_t ADC4ReadingRAW;
+uint16_t ADC5ReadingRAW;
+uint16_t ADC6ReadingRAW;
 uint16_t ADCVBATreadingRAW;
 
 
@@ -37,12 +39,13 @@ int ADC3value;
 int ADC4value;
 
 float VbatReadingFloat;
+float mAReadingFloat;
 
 unsigned int VbatReadingRaw;
 unsigned int VbatReadingSmooth;
 
-int FilteredADCvalues[NumRecievers];
-int ADCvalues[NumRecievers];
+int FilteredADCvalues[6];
+int ADCvalues[6];
 
 void ConfigureADC();
 void InitADCtimer();
