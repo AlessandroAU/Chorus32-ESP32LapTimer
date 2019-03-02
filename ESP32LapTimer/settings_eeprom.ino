@@ -12,7 +12,7 @@ void EepromSettingsStruct::setup() {
 void EepromSettingsStruct::load() {
   EEPROM.get(0, *this);
 
-  if (this->eepromVersionNumber != VERSION_NUMBER) {
+  if (this->eepromVersionNumber != EEPROM_VERSION_NUMBER) {
     this->defaults();
   }
 }
@@ -30,4 +30,3 @@ void EepromSettingsStruct::defaults() {
   EEPROM.put(0, *this);
   EEPROM.commit();    
 }
-

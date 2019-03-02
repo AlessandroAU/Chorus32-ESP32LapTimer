@@ -16,7 +16,7 @@ uint16_t ADC3readingsRAW[ADCmemLen];
 uint16_t ADC4readingsRAW[ADCmemLen];
 uint16_t ADCVBATreadingsRAW[ADCmemLen];
 
-int RSSIthresholds[NumRecievers];
+int RSSIthresholds[MaxNumRecievers];
 
 uint16_t ADC1ReadingRAW;
 uint16_t ADC2ReadingRAW;
@@ -44,8 +44,8 @@ float mAReadingFloat;
 unsigned int VbatReadingRaw;
 unsigned int VbatReadingSmooth;
 
-int FilteredADCvalues[6];
-int ADCvalues[6];
+int FilteredADCvalues[MaxNumRecievers];
+int ADCvalues[MaxNumRecievers];
 
 void ConfigureADC();
 void InitADCtimer();

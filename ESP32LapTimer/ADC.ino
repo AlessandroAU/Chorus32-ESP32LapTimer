@@ -46,7 +46,7 @@ SemaphoreHandle_t xBinarySemaphore;
 bool BeginADCReading = false;
 bool ADCreadingBusy = false;
 byte currentADCpin = 0;
-bool ADCattached[6] = {false, false, false, false, false, false,};
+//bool ADCattached[6] = {false, false, false, false, false, false,};
 
 void IRAM_ATTR nbADCread( void * pvParameters ) {
 
