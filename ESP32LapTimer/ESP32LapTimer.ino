@@ -109,4 +109,7 @@ void loop() {
   HandleBluetooth();
 #endif
   EepromSettings.save();
+#ifdef VbatINA219
+  ReadVBAT();
+#endif
 }

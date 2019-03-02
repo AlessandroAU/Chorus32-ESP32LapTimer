@@ -7,7 +7,10 @@
 #include <Adafruit_INA219.h>
 #include "settings_eeprom.h"
 #include "Filter.h"
+#include "Timer.h"
 
+Timer ina219Timer = Timer(1000);
+  
 float VBATcalibration = 0.935;
 
 FilterBeLp2 Filter1;
@@ -140,13 +143,17 @@ void StartNB_ADCread() {
 
 
 void ReadVBAT() {
-  VbatReadingFloat = ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV() / 1000);
-  Serial.print("VbatReading = ");
-  Serial.println(VbatReadingFloat);
-  
-  mAReadingFloat = ina219.getCurrent_mA();
-  Serial.print("mAReadingFloat = ");
-  Serial.println(mAReadingFloat);
+  if (ina219Timer.hasTicked()) {
+    VbatReadingFloat = ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV() / 1000);
+    Serial.print("VbatReading = ");
+    Serial.println(VbatReadingFloat);
+    
+    mAReadingFloat = ina219.getCurrent_mA();
+    Serial.print("mAReadingFloat = ");
+    Serial.println(mAReadingFloat);
+
+    ina219Timer.reset();
+  }
 }
 
 void IRAM_ATTR readADCs() {
