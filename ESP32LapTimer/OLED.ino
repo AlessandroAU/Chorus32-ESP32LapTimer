@@ -3,9 +3,9 @@
 
 #include <Wire.h>
 #include "SSD1306.h"
+#include "Timer.h"
 
-unsigned long OLED_LastUpdated  = 0;
-unsigned int OLED_UpdateInterval = 100;
+Timer oledTimer = Timer(100);
 
 #ifdef AlessandroDevBoard
 SSD1306  display(0x3c, 5, 4);
@@ -32,9 +32,9 @@ void oledSetup(void) {
 }
 
 void OLED_CheckIfUpdateReq() {
-  if (millis() > OLED_LastUpdated + OLED_UpdateInterval) {
+  if (oledTimer.hasTicked()) {
     oledUpdate();
-    OLED_LastUpdated = millis();
+    oledTimer.reset();
   }
   //Serial.println(VbatReadingRaw);
 #ifdef VbatADC
@@ -102,7 +102,7 @@ void oledUpdate(void)
 
   // Voltage
   display.setTextAlignment(TEXT_ALIGN_RIGHT);
-  display.drawString(127, 0, String(VbatReadingFloat, 3) + "V");
+  display.drawString(127, 0, String(VbatReadingFloat, 2) + "V");
 
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
