@@ -586,9 +586,12 @@ void SendLipoVoltage() {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(0));
   addToSendQueue('v');
-  //int voltage = 70;
   uint8_t buf[4];
-  float VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 4) * 55.0 * 1.5) / 1024;
+  #ifdef VbatADC
+    float VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 4) * 55.0 * 1.5) / 1024;
+  #else
+    float VbatFloat = (VbatReadingFloat / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
+  #endif
   intToHex(buf, int(VbatFloat));
   addToSendQueue(buf, 4);
   addToSendQueue('\n');
@@ -914,4 +917,3 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
     }
   }
 }
-
