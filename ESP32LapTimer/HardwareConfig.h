@@ -8,6 +8,9 @@ void InitHardwarePins();
 
 ///Define Pin configuration here, these are the defaults as given on github
 
+//#define USE_VSPI
+#define USE_HSPI
+
 #define SCK 14
 #define MOSI 12
 #define MISO 13
@@ -40,8 +43,8 @@ void InitHardwarePins();
 ///////Vbat Monitoring///////
 //vbat can either measured over I2S by an INA219 or directly via the ADC. CHOOSE ONE option by uncommenting 
 
-//#define VbatINA219 
-#define VbatADC
+#define VbatINA219 
+//#define VbatADC
 
 
 

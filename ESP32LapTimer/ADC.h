@@ -39,6 +39,7 @@ int ADC3value;
 int ADC4value;
 
 float VbatReadingFloat;
+float mAReadingFloat;
 
 unsigned int VbatReadingRaw;
 unsigned int VbatReadingSmooth;

@@ -12,7 +12,12 @@
 uint16_t freq = 5820;
 
 void InitSPI() {
-  SPI.begin(SCK, MISO, MOSI, -1);
+  #ifdef USE_HSPI
+    SPI.begin(SCK, MISO, MOSI, -1);
+  #endif
+  #ifdef USE_VSPI
+    SPI.begin();
+  #endif
 }
 
 void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
