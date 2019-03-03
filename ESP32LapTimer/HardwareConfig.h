@@ -1,9 +1,10 @@
+#pragma once
 void InitHardwarePins();
 
 #define EEPROM_VERSION_NUMBER 2 // Increment when eeprom struct modified
 
 #define MaxNumRecievers 6
-#define NumRecievers 6
+byte NumRecievers;
 
 #define OLED //uncomment this to enable OLED support
 
@@ -30,7 +31,6 @@ void InitHardwarePins();
 #define ADC5 ADC1_CHANNEL_4
 #define ADC6 ADC1_CHANNEL_5
 
-
 #define ADC1_GPIO 36
 #define ADC2_GPIO 34
 #define ADC3_GPIO 35
@@ -39,16 +39,11 @@ void InitHardwarePins();
 #define ADC6_GPIO 33
 
 
-
 #define MIN_TUNE_TIME 30
 
 
 ///////Vbat Monitoring///////
-//vbat can either measured over I2S by an INA219 or directly via the ADC. CHOOSE ONE option by uncommenting
-
-//#define VbatINA219
-#define VbatADC
-
+//vbat can either measured over I2S by an INA219 or directly via the ADC. Use the bult in web interface at 192.168.4.1 to select
 
 
 /////////Custom Hardware options///////////

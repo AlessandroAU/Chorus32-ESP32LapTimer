@@ -1,4 +1,7 @@
+#pragma once
+
 #include "HardwareConfig.h"
+#include "Filter.h"
 
 #define ADCmemLen 150
 
@@ -18,6 +21,8 @@ uint16_t ADCVBATreadingsRAW[ADCmemLen];
 
 int RSSIthresholds[MaxNumRecievers];
 
+uint16_t ADCReadingsRAW[MaxNumRecievers];
+
 uint16_t ADC1ReadingRAW;
 uint16_t ADC2ReadingRAW;
 uint16_t ADC3ReadingRAW;
@@ -26,17 +31,12 @@ uint16_t ADC5ReadingRAW;
 uint16_t ADC6ReadingRAW;
 uint16_t ADCVBATreadingRAW;
 
-
-//uint16_t ADC1ptr = 0; //not really pointer just keeps track of which sample we are up too
-//uint16_t ADC2ptr = 0; //same as above
-//uint16_t ADC3ptr = 0;
-//uint16_t ADC4ptr = 0;
-//uint16_t ADCVBATptr = 0;
-
 int ADC1value;
 int ADC2value;
 int ADC3value;
 int ADC4value;
+
+float VBATcalibration;
 
 float VbatReadingFloat;
 float mAReadingFloat;
@@ -50,3 +50,8 @@ int ADCvalues[MaxNumRecievers];
 void ConfigureADC();
 void InitADCtimer();
 void IRAM_ATTR CheckRSSIthresholdExceeded();
+
+FilterBeLp2_10HZ Filter_10HZ[6] = {FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ()};
+FilterBeLp2_20HZ Filter_20HZ[6] = {FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ()};
+FilterBeLp2_50HZ Filter_50HZ[6] = {FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ()};
+FilterBeLp2_100HZ Filter_100HZ[6] = {FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ()};

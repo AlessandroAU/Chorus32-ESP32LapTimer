@@ -4,19 +4,24 @@
 #include "HardwareConfig.h"
 
 enum RXADCfilter_ {LPF_10Hz, LPF_20Hz, LPF_50Hz, LPF_100Hz};
+enum ADCVBATmode_ {OFF, ADC_CH5, ADC_CH6, INA219};
 
-
+RXADCfilter_ RXADCfilter;
+ADCVBATmode_ ADCVBATmode;
 
 bool eepromSaveRquired = false;
 
 struct EepromSettingsStruct {
   uint16_t eepromVersionNumber;
-
   uint8_t RXBand[MaxNumRecievers];
   uint8_t RXChannel[MaxNumRecievers];
   uint16_t RXfrequencies[MaxNumRecievers];
   int RSSIthresholds[MaxNumRecievers];
   RXADCfilter_ RXADCfilter;
+  ADCVBATmode_ ADCVBATmode;
+  float VBATcalibration;
+  byte NumRecievers;
+  
 
   void setup();
   void load();
@@ -32,6 +37,9 @@ const struct {
   uint16_t RXfrequencies[MaxNumRecievers] = {5740, 5780, 5820, 5860, 5658, 5917};
   int RSSIthresholds[MaxNumRecievers] = {3500, 3500, 3500, 3500, 3500, 3500};
   RXADCfilter_ RXADCfilter = LPF_20Hz;
+  ADCVBATmode_ ADCVBATmode = ADC_CH5;
+  float VBATcalibration = 1.000;
+  byte NumRecievers = 6;
 
 } EepromDefaults;
 

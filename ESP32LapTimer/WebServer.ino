@@ -1,17 +1,16 @@
 
-//
-//////////Variables that the webserver needs access to////////////////////
-////
-////extern SerialRXmode SerRXmode;
-////extern TrainerMode TrainTXmode;
-////extern SerialTXmode SerTXmode;
-////extern SerialTelmMode SerTelmMode;
-////extern BluetoothMode BleMode;
-//
-///////////////////////////////////////////////////////////////////////////
-//
 bool firstRedirect = true;
 bool HasSPIFFsBegun = false;
+
+///////////Extern Variable we need acces too///////////////////////
+
+extern RXADCfilter_ RXADCfilter;
+extern ADCVBATmode_ ADCVBATmode;
+
+extern byte NumRecievers;
+extern float VBATcalibration;
+
+//////////////////////////////////////////////////////////////////
 
 String getMacAddress() {
   byte mac[6];
@@ -81,60 +80,6 @@ String getContentType(String filename) { // convert the file extension to the MI
   else if (filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
 }
-
-
-//const char* ap_name = "Chorus32";
-//const char* pass = "";
-//
-//esp_err_t event_handler(void* ctx, system_event_t* event)
-//{
-//  return ESP_OK;
-//}
-//
-//void init_wifi(wifi_mode_t mode)
-//{
-//  const uint8_t protocol = WIFI_PROTOCOL_LR;
-//  tcpip_adapter_init();
-//  ESP_ERROR_CHECK( esp_event_loop_init(event_handler, NULL) );
-//  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-//  ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
-//  ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
-//  ESP_ERROR_CHECK( esp_wifi_set_mode(mode) );
-//  wifi_event_group = xEventGroupCreate();
-//
-//  if (mode == WIFI_MODE_STA) {
-//    ESP_ERROR_CHECK( esp_wifi_set_protocol(WIFI_IF_STA, protocol) );
-//    wifi_config_t config = {
-//      .sta = {
-//        .ssid = ap_name,
-//        .password = pass,
-//        .bssid_set = false
-//      }
-//    };
-//    ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_STA, &config) );
-//    ESP_ERROR_CHECK( esp_wifi_start() );
-//    ESP_ERROR_CHECK( esp_wifi_connect() );
-//
-//    xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
-//                        false, true, portMAX_DELAY);
-//    ESP_LOGI(TAG, "Connected to AP");
-//  } else {
-//    ESP_ERROR_CHECK( esp_wifi_set_protocol(WIFI_IF_AP, protocol) );
-//    wifi_config_t config = {
-//      .ap = {
-//        .ssid = ap_name,
-//        .password = pass,
-//        .ssid_len = 0,
-//        .authmode = WIFI_AUTH_WPA_WPA2_PSK,
-//        .ssid_hidden = false,
-//        .max_connection = 3,
-//        .beacon_interval = 100,
-//      }
-//    };
-//    ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_AP, &config) );
-//    ESP_ERROR_CHECK( esp_wifi_start() );
-//  }
-//}
 
 void InitWifiAP() {
   HTTPupdating = true;
@@ -218,22 +163,12 @@ void InitWebServer() {
     }
   });
 
-  //webServer.on("/updateIO.html", ProcessIOconfig);
+  webServer.on("/StatusVars", SendStatusVars);
+  webServer.on("/StaticVars", SendStaticVars);
 
-  //    webServer.on("/generate_204", HTTP_GET, []() {
-  //      HTTPupdating = true;
-  //      Serial.println("off");
-  //      webServer.sendHeader("Location", "/", true);  //Redirect to our html web page
-  //      webServer.send(302, "text/plain", "");
-  //      //    webServer.sendHeader("Connection", "close");
-  //      //    File file = SPIFFS.open("/index.html", "r");                 // Open it
-  //      //    size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
-  //      //    file.close();
-  //
-  //
-  //      HTTPupdating = false;
-  //      Serial.println("on");
-  //    });
+  webServer.on("/updateGeneral", ProcessGeneralSettingsUpdate);
+  webServer.on("/updateFilters", ProcessADCRXFilterUpdate);
+  webServer.on("/ADCVBATsettings", ProcessVBATModeUpdate);
 
   webServer.on("/", HTTP_GET, []() {
     firstRedirect = false; //wait for it to hit the index page one time
@@ -286,6 +221,8 @@ void InitWebServer() {
   //client.setNoDelay(1);
   delay(1000);
 
+
+  /////////////////////////////////////Not Using FreeRTOS tasks at the moment/////////////////////
   //  xTaskCreate(
   //    HandleWebServer,          /* Task function. */
   //    "HandleWebServer",        /* String with name of task. */
@@ -301,101 +238,74 @@ void InitWebServer() {
   //    NULL,             /* Parameter passed as input of the task */
   //    1,                /* Priority of the task. */
   //    NULL);            /* Task handle. */
-
+  ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 }
 
 
-//void ProcessIOconfig() {
-//
-//#ifdef ARDUINO_ESP8266_ESP01
-//  noInterrupts();
-//#endif
-//
-//  String SerialRXMode = webServer.arg("SerialRXMode");
-//  String Telm_Output = webServer.arg("Telm_Output");
-//  String Ble_Mode = webServer.arg("Ble_Mode");
-//
-//  if (SerialRXMode == "PPM") {
-//    Serial.println("RC mode set to PPM");
-//    SerRXmode = PROTO_RX_NONE;
-//  }
-//    Serial.println("RC mode set to SBUS");
-//    SerRXmode = PROTO_RX_SBUS;
-//  }
-//  if (SerialRXMode == "PPX") {
-//    Serial.println("RC mode set to PXX");
-//    SerRXmode = PROTO_RX_PXX;
-//  }
-//  if (SerialRXMode == "CRSF") {
-//    Serial.println("RC mode set to CRSF");
-//    SerRXmode = PROTO_RX_CRSF;
-//  }
-//
-//  if (Telm_Output == "NONE") {
-//    Serial.println("Telemetry mode set to NONE");
-//    SerTelmMode = TLM_None;
-//  }
-//  if (Telm_Output == "SPORT") {
-//    Serial.println("Telemetry mode set to SPORT");
-//    SerTelmMode = PROTO_TLM_SPORT;
-//  }
-//  if (Telm_Output == "CRSF") {
-//    Serial.println("Telemetry mode set to CRSF");
-//    SerTelmMode = PROTO_TLM_CRSF;
-//  }
-//  if (Telm_Output == "FRSKY") {
-//    Serial.println("Telemetry mode set to FRSKY");
-//  }
-//
-//  if (Ble_Mode == "OFF") {
-//    Serial.println("Bluetooth mode set to OFF");
-//    BleMode = BLE_OFF;
-//  }
-//  if (Ble_Mode == "Mirror Telemetry") {
-//    Serial.println("Bluetooth mode set to Mirror Telemetry");
-//    BleMode = BLE_MIRROR_TLM;
-//  }
-//  if (Ble_Mode == "Serial Debug") {
-//    Serial.println("Bluetooth mode set to Serial Debug");
-//    BleMode = BLE_SER_DBG;
-//  }
-//
-//  webServer.sendHeader("Connection", "close");
-//  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
-//  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
-//  file.close();
-//
-//  SaveEEPROMvars(); //save updated variables to EEPROM
-//
-//#ifdef ARDUINO_ESP8266_ESP01
-//  interrupts();
-//#endif
-//
-//}
-//
-//void ProcessRFconfig() {
-//
-//#ifdef ARDUINO_ESP8266_ESP01
-//  noInterrupts();
-//#endif
-//
-//  String SerialRXMode = webServer.arg("SerialRXMode");
-//  String Telm_Output = webServer.arg("Telm_Output");
-//  String Ble_Mode = webServer.arg("Ble_Mode");
-//
-//  webServer.sendHeader("Connection", "close");
-//  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
-//  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
-//  file.close();
-//
-//  SaveEEPROMvars(); //save updated variables to EEPROM
-//
-//#ifdef ARDUINO_ESP8266_ESP01
-//  interrupts();
-//#endif
-//}
+void SendStatusVars() {
+  webServer.send(200, "application/json", "{\"Var_VBAT\": " + String(VbatReadingFloat, 2) + ", \"Var_WifiClients\": 1, \"Var_CurrMode\": \"IDLE\"}");
+
+}
+
+
+void SendStaticVars() {
+
+  webServer.send(200, "application/json", "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + "}");
+}
+
+
+void ProcessGeneralSettingsUpdate() {
+  String NumRXs = webServer.arg("NumRXs");
+
+  NumRecievers = (byte)NumRXs.toInt();
+  EepromSettings.NumRecievers = NumRecievers;
+
+  Serial.println(EepromSettings.NumRecievers);
+
+
+
+  webServer.sendHeader("Connection", "close");
+  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
+  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  file.close();
+  eepromSaveRquired = true;
+}
+
+void ProcessVBATModeUpdate() {
+  String inADCVBATmode = webServer.arg("ADCVBATmode");
+  String inADCcalibValue = webServer.arg("ADCcalibValue");
+
+  ADCVBATmode = (ADCVBATmode_)(byte)inADCVBATmode.toInt();
+  VBATcalibration =  inADCcalibValue.toFloat();
+
+  EepromSettings.ADCVBATmode = ADCVBATmode;
+  EepromSettings.VBATcalibration = VBATcalibration;
+  eepromSaveRquired = true;
+
+  webServer.sendHeader("Connection", "close");
+  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
+  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  file.close();
+  eepromSaveRquired = true;
+}
+
+void ProcessADCRXFilterUpdate() {
+  String inRXFilter = webServer.arg("RXFilter");
+  RXADCfilter = (RXADCfilter_)(byte)inRXFilter.toInt();
+
+  EepromSettings.RXADCfilter = RXADCfilter;
+
+
+
+  webServer.sendHeader("Connection", "close");
+  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
+  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  file.close();
+  eepromSaveRquired = true;
+
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -697,4 +607,58 @@ void InitWebServer() {
 //  //  });
 //
 //  server.begin();
+//}
+
+
+//const char* ap_name = "Chorus32";
+//const char* pass = "";
+//
+//esp_err_t event_handler(void* ctx, system_event_t* event)
+//{
+//  return ESP_OK;
+//}
+//
+//void init_wifi(wifi_mode_t mode)
+//{
+//  const uint8_t protocol = WIFI_PROTOCOL_LR;
+//  tcpip_adapter_init();
+//  ESP_ERROR_CHECK( esp_event_loop_init(event_handler, NULL) );
+//  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+//  ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
+//  ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+//  ESP_ERROR_CHECK( esp_wifi_set_mode(mode) );
+//  wifi_event_group = xEventGroupCreate();
+//
+//  if (mode == WIFI_MODE_STA) {
+//    ESP_ERROR_CHECK( esp_wifi_set_protocol(WIFI_IF_STA, protocol) );
+//    wifi_config_t config = {
+//      .sta = {
+//        .ssid = ap_name,
+//        .password = pass,
+//        .bssid_set = false
+//      }
+//    };
+//    ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_STA, &config) );
+//    ESP_ERROR_CHECK( esp_wifi_start() );
+//    ESP_ERROR_CHECK( esp_wifi_connect() );
+//
+//    xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
+//                        false, true, portMAX_DELAY);
+//    ESP_LOGI(TAG, "Connected to AP");
+//  } else {
+//    ESP_ERROR_CHECK( esp_wifi_set_protocol(WIFI_IF_AP, protocol) );
+//    wifi_config_t config = {
+//      .ap = {
+//        .ssid = ap_name,
+//        .password = pass,
+//        .ssid_len = 0,
+//        .authmode = WIFI_AUTH_WPA_WPA2_PSK,
+//        .ssid_hidden = false,
+//        .max_connection = 3,
+//        .beacon_interval = 100,
+//      }
+//    };
+//    ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_AP, &config) );
+//    ESP_ERROR_CHECK( esp_wifi_start() );
+//  }
 //}

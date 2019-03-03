@@ -44,24 +44,13 @@ void setup() {
 
   EepromSettings.setup();
 
-  //InitHTTPserver();
   delay(500);
-
-  //server.begin();
-  //server.setNoDelay(true);
-
   InitHardwarePins();
   ConfigureADC();
 
   InitSPI();
-  //
 
-
-  Serial.println("Ready");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-
-  commsSetup();
+  
 
   // inits modules with defaults
   for (int i = 0; i < NumRecievers; i++) {
@@ -72,22 +61,25 @@ void setup() {
 #ifdef BluetoothEnabled
   SerialBT.begin("Chorus Laptimer SPP");
 #endif
-  //delay(5000);
 
-  // InitWebServer();
-
-  //  InitWifiAP();
   InitWebServer();
   UDPserver.begin(9000);
   InitADCtimer();
+
+  RXADCfilter = EepromSettings.RXADCfilter;
+  ADCVBATmode = EepromSettings.ADCVBATmode;
+  VBATcalibration = EepromSettings.VBATcalibration;
+  NumRecievers = EepromSettings.NumRecievers;
+  commsSetup();
+
 }
 
 void loop() {
-//  if (shouldReboot) {  //checks if reboot is needed
-//    Serial.println("Rebooting...");
-//    delay(100);
-//    ESP.restart();
-//  }
+  //  if (shouldReboot) {  //checks if reboot is needed
+  //    Serial.println("Rebooting...");
+  //    delay(100);
+  //    ESP.restart();
+  //  }
 #ifdef OLED
   OLED_CheckIfUpdateReq();
 #endif
@@ -96,14 +88,12 @@ void loop() {
   SendCurrRSSIloop();
   dnsServer.processNextRequest();
   webServer.handleClient();
-  //  HandleWebserver();
-  //HTTPserver.handleClient();
-  //  dnsServer.processNextRequest();
 #ifdef BluetoothEnabled
   HandleBluetooth();
 #endif
   EepromSettings.save();
-#ifdef VbatINA219
-  ReadVBAT();
-#endif
+
+  if (ADCVBATmode == INA219) {
+    ReadVBAT_INA219();
+  }
 }

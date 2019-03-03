@@ -18,4 +18,4 @@ WebServer  webServer(80);
 
 //flag to use from web update to reboot the ESP
 bool shouldReboot = false;
-const char NOSPIFFS[] PROGMEM = "You have not uploaded the SPIFFs filesystem, Please install the <b><a href=\"https://github.com/me-no-dev/arduino-esp32fs-plugin\">following plugin</a></b> then select <b>Tools > ESP32 Sketch Data Upload</b>.<br>. The web interface will not work until you do this.";
+const char NOSPIFFS[] PROGMEM = "You have not uploaded the SPIFFs filesystem!!!, Please install the <b><a href=\"https://github.com/me-no-dev/arduino-esp32fs-plugin\">following plugin</a></b>.<br> Place the plugin file here: <b>\"C:\ Program Files (x86)\ Arduino \ tools \ ESP32FS \ tool \ esp32fs.jar\"</b>.<br><br> Next select <b>Tools > ESP32 Sketch Data Upload</b>.<br>NOTE: This is a seperate upload to the normal arduino upload!!!<br><br> The web interface will not work until you do this.";

@@ -300,42 +300,12 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   uint32_t AvgValue = 0;
   uint16_t Result = 0;
 
-  //  if (rssiMonitorInterval > 0) {
-  //
-  //    switch (NodeAddr) {
-  //      case 0:
-  //        for (int i = 0; i < (rssiMonitorInterval); i++) {
-  //          AvgValue =  AvgValue + ADC1readingsRAW[i];
-  //        }
-  //        break;
-  //      case 1:
-  //        for (int i = 0; i < (rssiMonitorInterval); i++) {
-  //          AvgValue =  AvgValue + ADC2readingsRAW[i];
-  //        }
-  //        break;
-  //      case 2:
-  //        for (int i = 0; i < (rssiMonitorInterval); i++) {
-  //          AvgValue =  AvgValue + ADC3readingsRAW[i];
-  //        }
-  //        break;
-  //      case 3:
-  //        for (int i = 0; i < (rssiMonitorInterval); i++) {
-  //          AvgValue =  AvgValue + ADC4readingsRAW[i];
-  //        }
-  //        break;
-  //
-  //    }
-  //
-  //    Result = AvgValue / (rssiMonitorInterval);
-  //
-  //  } else {
-
   switch (NodeAddr) {
     case 0:
       Result =  ADCvalues[0];
       break;
     case 1:
-      Result =  ADCvalues[2];
+      Result =  ADCvalues[1];
       break;
     case 2:
       Result =  ADCvalues[2];
@@ -351,8 +321,6 @@ void SendCurrRSSI(uint8_t NodeAddr) {
       break;
   }
 
-  //}
-
   //MirrorToSerial = false;  // this so it doesn't spam the serial console with RSSI updates
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
@@ -365,8 +333,6 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   lastRSSIsent = millis();
 
 }
-
-
 
 void setupThreshold(uint8_t phase) {
   // this process assumes the following:
@@ -468,16 +434,9 @@ void SendNumberOfnodes(byte NodeAddr) {
   }
 }
 
-void SendAllLaps(uint8_t NodeAddr) {
+void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
   uint8_t Pointer = LapTimePtr[NodeAddr];
-  //  Serial.print("Node ADDR: ");
-  //  Serial.println(NodeAddr);
-  //  Serial.print("Num Laps: ");
-  //  Serial.println(Pointer);
-
   for (uint8_t i = 0; i < Pointer; i++) {
-    //    Serial.print("Sending Lap: ");
-    //    Serial.println(NodeAddr);
     sendLap(i, NodeAddr);
     SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer with all the data we might send
   }
@@ -550,8 +509,6 @@ void SendAllSettings(uint8_t NodeAddr) {
   //  sendAPIversion(); // #
   //  SendXdone(NodeAddr); //x
 
-
-  //delay(100);
   SendVRxChannel(NodeAddr);
   SendRaceMode(NodeAddr);
   SendMinLap(NodeAddr);
@@ -566,7 +523,6 @@ void SendAllSettings(uint8_t NodeAddr) {
   sendAPIversion();
   SendSetThresholdMode(NodeAddr);
   SendXdone(NodeAddr);
-  //delay(100);
 
 }
 
@@ -593,11 +549,20 @@ void SendLipoVoltage() {
   addToSendQueue(TO_HEX(0));
   addToSendQueue('v');
   uint8_t buf[4];
-#ifdef VbatADC
-  float VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 4) * 55.0 * 1.5) / 1024;
-#else
-  float VbatFloat = (VbatReadingFloat / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
-#endif
+  float VbatFloat;
+
+  switch (ADCVBATmode) {
+    case ADC_CH5:
+      VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 11) * (1024.0 / 4.53)) / 1024;
+      break;
+    case ADC_CH6:
+      VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 11) * (1024.0 / 4.53)) / 1024;
+      break;
+    case INA219:
+      VbatFloat = (VbatReadingFloat / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
+      break;
+  }
+
   intToHex(buf, int(VbatFloat));
   addToSendQueue(buf, 4);
   addToSendQueue('\n');
@@ -706,27 +671,8 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
     SendMillis();
   }
 
-  //  if (controlData[2] == CONTROL_GET_RSSI) {
-  //    // get current RSSI value
-  //    Serial.println("sending current RSSI");
-  //    for (int i = 0; i < NumRecievers; i++) {
-  //      SendCurrRSSI(i);
-  //    }
-  //  }
-
 
   if (controlData[2] == 'a') {
-    //Serial.println("Sending All Data");
-    //        if (CurrNodeAddrLaps < NumRecievers) {
-    //          //SendNumberOfnodes(NodeAddrByte);
-    //          SendAllSettings(CurrNodeAddrLaps);
-    //        } else {
-    //          CurrNodeAddrLaps = 0;
-    //        }
-    //        CurrNodeAddrLaps++;
-    //      }
-
-
     for (int i = 0; i < NumRecievers; i++) {
       SendAllSettings(i);
       delay(50);
@@ -794,17 +740,11 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         EepromSettings.RXfrequencies[NodeAddr] = RXfrequencies[NodeAddr];
         eepromSaveRquired = true;
         setModuleFrequency(RXfrequencies[NodeAddrByte], NodeAddrByte);
-        //Serial.println("Set Freq");
-        //Serial.print(NodeAddr);
-        //Serial.print(" ");
-        //Serial.println(RXfrequencies[NodeAddr]);
         isConfigured = 1;
         break;
 
       case CONTROL_RSSI_MON_INTERVAL:
         rssiMonitorInterval = (HEX_TO_UINT16((uint8_t*)&controlData[3]));
-        //Serial.print("RSSI monitor Interval: ");
-        //Serial.println(rssiMonitorInterval);
         lastRssiMonitorReading = 0;
         isConfigured = 1;
         SendRSSImonitorInterval(NodeAddrByte);

@@ -1,6 +1,8 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
+	<script src="jquery-3.3.1.min.js"></script>
+	<script src="UpdateStatusVars.js"></script>
 		<title>Chorus32 RF lap Timing System</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,14 +35,14 @@
 			
 			<section id="Status RFPWR" class="main style1">
 			<div class="container">
-					<br>				
+									
 					<div align="left">	
 			<legend><h2><b>Status:</b></h2></legend>
 				<table style="width:100%">
 				  <tr>
-					<th><b>Vbat: </b><var id="Var_VBAT", class="StatusText">5.05V</var></th>
-					<th><b>Wifi Clients: </b><var id="Var_OUTPWR", class="StatusText">1</var></th> 
-					<th><b>Current Mode: </b>Idle</th>
+					<th><b>VBAT: </b><span id="Var_VBAT", class="StatusText">5.05V</span></th>
+					<th><b>Wifi Clients: </b><span id="Var_WifiClients", class="StatusText">1</span></th> 
+					<th><b>Current Mode: </b><span id="Var_CurrMode", class="StatusText">Idle</span></th>
 				  </tr>
 				</table>
 			</section>
@@ -73,41 +75,62 @@
 		<!-- One -->
 			<section id="one" class="main style1">
 				<div class="container">
-					<br>				
+								
 					<div align="left">									
-					<form action="/updateGeneral.html">
+					<form action="/updateGeneral">
 					  <fieldset>
 						<legend><h2><b>General Configuration</b></h2></legend>
-						Wifi Security:<br>
-						    <select name="WifiSecurity">
+						Number of Receivers:<br>
+						    <select name="NumRXs" id="NumRXs">
 
-								<option selected value="None">No Password (open)</option>
-								<option value="WPA">WPA2</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>																		
+								<option value="5">5</option>
+								<option value="6">6</option>
 							</select>
 						<br>
-						Serial UART Mode:<br>
+						<!--Serial UART Mode:<br>
 							<select name="UART_Mode">
 								<option value="OFF">Debug Only</option>
 								<option value="Mirror">Mirror Control Packets</option>
 								<option selected value="DebugMirror">Serial Debug + Mirror</option>
 							</select>
-						<br>
+						<br> -->
 						<input type="submit" value="&nbsp;Update&nbsp;">
 					  </fieldset>
 					</form>
 					
-					
+					<form action="/ADCVBATsettings">
+					  <fieldset>
+						<legend><h2><b>VBAT Configuration</b></h2></legend>
+						VBAT Measurement Mode:<br>
+						    <select name="ADCVBATmode" id="ADCVBATmode">
+								<option value="0">OFF (6CH Mode, no VBAT)</option>
+								<option value="1">VBAT ADC Channel 5 (GPIO 32)</option>
+								<option value="2">VBAT ADC Channel 6 (GPIO 33)</option>
+								<option value="3">VBAT INA219 (6 Channel Mode)</option>
+							</select>
+						<br>
+						ADC calibration Constant:<br>
+							<input type="float" name="ADCcalibValue" min="0" max="999999999" value="1.000" id="ADCcalibValue">
+						<br>
+						<br>
+						<input type="submit" value="&nbsp;Update&nbsp;">
+					  </fieldset>
+					</form>
 
 					<br>
-					<form method="get" action="/updateFilters.html">
+					<form method="get" action="/updateFilters">
 					  <fieldset>
 						<legend><h2><b>Filtering</b></h2></legend>
 						RX ADC Filter<br>
-							<select name="RXFilter">
-								<option value="10">10Hz Bessel LPF</option>
-								<option selected value="20">20Hz Bessel LPF</option>
-								<option value="50">50Hz Bessel LPF</option>
-								<option value="100">100Hz Bessel LPF</option>
+							<select name="RXFilter" id ="RXFilter">
+								<option value="0">10Hz Bessel LPF</option>
+								<option value="1">20Hz Bessel LPF</option>
+								<option value="2">50Hz Bessel LPF</option>
+								<option value="3">100Hz Bessel LPF</option>
 								
 							</select>
 						<br>
@@ -137,4 +160,5 @@
 			</section>
 
 	</body>
+	<script src="GetStaticVars.js"></script>
 </html>

@@ -25,14 +25,14 @@ void oledSetup(void) {
   display.drawFastImage(0, 0, 128, 64, ChorusLaptimerLogo_Screensaver);
   display.display();
   display.setFont(Dialog_plain_9);
-  
-//  xTaskCreate(
-//    oledUpdateTask,          /* Task function. */
-//    "oledUpdateTask",        /* String with name of task. */
-//    10000,            /* Stack size in bytes. */
-//    NULL,             /* Parameter passed as input of the task */
-//    10,                /* Priority of the task. */
-//    NULL);            /* Task handle. */
+
+  //  xTaskCreate(
+  //    oledUpdateTask,          /* Task function. */
+  //    "oledUpdateTask",        /* String with name of task. */
+  //    10000,            /* Stack size in bytes. */
+  //    NULL,             /* Parameter passed as input of the task */
+  //    10,                /* Priority of the task. */
+  //    NULL);            /* Task handle. */
 
   //delay(100);
 }
@@ -43,9 +43,9 @@ void OLED_CheckIfUpdateReq() {
     oledTimer.reset();
   }
   //Serial.println(VbatReadingRaw);
-#ifdef VbatADC
-  VbatReadingFloat = fmap(VbatReadingSmooth, 0, 4096, 0, 4.026);
-#endif
+
+  VbatReadingFloat = fmap(VbatReadingSmooth * VBATcalibration, 0, 4096, 0, 4.4);
+
   //Serial.println(VbatReading);
 
 }
@@ -112,7 +112,7 @@ void oledUpdate(void)
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   for (int i = 0; i < NumRecievers; i++) {
     display.drawString(0, 9 + i * 9, getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
-    display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(ADCvalues[i], 750, 4096, 0, 85));
+    display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(ADCvalues[i], 100, 4096, 0, 85));
   }
 
   display.display();

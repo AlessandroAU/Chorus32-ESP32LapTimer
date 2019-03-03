@@ -1,3 +1,5 @@
+#pragma once
+
 #include "BluetoothSerial.h"
 
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
