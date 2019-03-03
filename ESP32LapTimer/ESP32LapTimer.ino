@@ -50,13 +50,9 @@ void setup() {
 
   InitSPI();
 
-  
 
-  // inits modules with defaults
-  for (int i = 0; i < NumRecievers; i++) {
-    setModuleChannelBand(i);
-    delay(10);
-  }
+
+  delay(500);
 
 #ifdef BluetoothEnabled
   SerialBT.begin("Chorus Laptimer SPP");
@@ -71,6 +67,11 @@ void setup() {
   VBATcalibration = EepromSettings.VBATcalibration;
   NumRecievers = EepromSettings.NumRecievers;
   commsSetup();
+  // inits modules with defaults
+  for (int i = 0; i < NumRecievers; i++) {
+    setModuleChannelBand(i);
+    delay(10);
+  }
 
 }
 
