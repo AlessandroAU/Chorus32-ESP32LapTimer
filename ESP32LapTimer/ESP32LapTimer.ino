@@ -39,6 +39,10 @@ uint32_t MinLapTime = 5000;  //this is in millis
 
 void setup() {
 
+#ifdef OLED
+  oledSetup();
+#endif
+
   Serial.begin(115200);
   Serial.println("Booting....");
 
@@ -76,10 +80,6 @@ void setup() {
 #endif
   //delay(5000);
 
-#ifdef OLED
-  oledSetup();
-  oledUpdate();
-#endif
   // InitWebServer();
 
   //  InitWifiAP();

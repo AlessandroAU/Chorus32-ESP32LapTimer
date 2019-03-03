@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include "SSD1306.h"
 #include "Timer.h"
+#include "Screensaver.h"
 
 Timer oledTimer = Timer(100);
 
@@ -19,7 +20,9 @@ void oledSetup(void) {
 
   display.init();
   display.flipScreenVertically();
-
+  display.clear();
+  display.drawFastImage(0, 0, 128, 64, ChorusLaptimerLogo_Screensaver);
+  display.display();
 //  xTaskCreate(
 //    oledUpdateTask,          /* Task function. */
 //    "oledUpdateTask",        /* String with name of task. */
