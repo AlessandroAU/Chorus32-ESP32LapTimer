@@ -7,7 +7,7 @@
 #include "Timer.h"
 #include "Screensaver.h"
 
-Timer oledTimer = Timer(100);
+Timer oledTimer = Timer(50);
 
 #ifdef AlessandroDevBoard
 SSD1306  display(0x3c, 5, 4);
@@ -21,14 +21,11 @@ void oledSetup(void) {
 
   display.init();
   display.flipScreenVertically();
-<<<<<<< HEAD
   display.clear();
   display.drawFastImage(0, 0, 128, 64, ChorusLaptimerLogo_Screensaver);
   display.display();
-=======
   display.setFont(Dialog_plain_9);
   
->>>>>>> parent of 85f0f3a... Revert "adds 6 rx to oled"
 //  xTaskCreate(
 //    oledUpdateTask,          /* Task function. */
 //    "oledUpdateTask",        /* String with name of task. */

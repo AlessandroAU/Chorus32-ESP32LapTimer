@@ -12,10 +12,6 @@
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
-
-
-
-
 WiFiUDP UDPserver;
 //
 //#define MAX_SRV_CLIENTS 5
