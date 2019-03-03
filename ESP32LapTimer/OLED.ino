@@ -3,7 +3,6 @@
 
 #include <Wire.h>
 #include "SSD1306.h"
-#include "Font.h"
 #include "Timer.h"
 
 Timer oledTimer = Timer(100);
@@ -20,8 +19,7 @@ void oledSetup(void) {
 
   display.init();
   display.flipScreenVertically();
-  display.setFont(Dialog_plain_9);
-  
+
 //  xTaskCreate(
 //    oledUpdateTask,          /* Task function. */
 //    "oledUpdateTask",        /* String with name of task. */
@@ -79,6 +77,8 @@ void oledUpdate(void)
 
   display.clear();
 
+  display.drawLine(0, 11, 127, 11);
+
   // Display on time
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   // Hours
@@ -106,9 +106,13 @@ void oledUpdate(void)
 
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  for (int i = 0; i < NumRecievers; i++) {
-    display.drawString(0, 9 + i * 9, getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
-    display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(ADCvalues[i], 750, 4096, 0, 85));
+  for (int i = 0; i < 4; i++) {
+    display.drawString(0, 13 + i * 13, getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
+  }
+
+  // RF level barcharts
+  for (int i = 0; i < 4; i++) {
+    display.drawProgressBar(40, 15 + i * 13, 127 - 42, 8, map(ADCvalues[i], 750, 4096, 0, 85));
   }
 
   display.display();

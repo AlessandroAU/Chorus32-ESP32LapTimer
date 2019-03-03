@@ -63,13 +63,11 @@ void setup() {
 
   commsSetup();
 
-  //  setModuleChannelBand(0); // inits module with defaults
-  //  delay(10);
-  //  setModuleChannelBand(1);
-  //  delay(10);
-  //  setModuleChannelBand(2);
-  //  delay(10);
-  //  setModuleChannelBand(3);
+  // inits modules with defaults
+  for (int i = 0; i < NumRecievers; i++) {
+    setModuleChannelBand(i);
+    delay(10);
+  }
 
 #ifdef BluetoothEnabled
   SerialBT.begin("Chorus Laptimer SPP");
