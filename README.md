@@ -8,7 +8,7 @@ Hardware construction is also simplified as both parts are 3.3v logic and there 
 
 Updates:
 -----
-Some users have had issues with Bluetooth causing crashes, I am looking into a fix.
+Added OLED and VBAT measurement support
 Auto RSSI threshold setup is also not implemented, just set thresholds manually for now.
 
 Application Support:
@@ -38,4 +38,6 @@ The Chorus32 Lap timer was compared to the $600USD ImmersionRC LapRF 8-Way at a 
 
 Compiling the Project:
 -----
-Due to the fact that both the Bluetooth and Wifi stack are used quite alot of program memory is required. To compile the project you must choose 'Partition Scheme' -> Minimal SPIFFS in the Arduino IDE. Board should be selected as 'ESP32 Dev Module' in most cases.
+~~Due to the fact that both the Bluetooth and Wifi stack are used quite alot of program memory is required. To compile the project you must choose 'Partition Scheme' -> Minimal SPIFFS in the Arduino IDE. Board should be selected as 'ESP32 Dev Module' in most cases.~~
+
+As we are not supoorting bluetooth for now and are using the SPIFFS partition leave the Partition Scheme as 'default'
