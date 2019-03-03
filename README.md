@@ -11,6 +11,9 @@ Updates:
 Added OLED and VBAT measurement support
 Auto RSSI threshold setup is also not implemented, just set thresholds manually for now.
 
+Added inital webserver configuration portal
+https://www.youtube.com/watch?v=BVd2t0yO_5A/0.jpg
+
 Application Support:
 -----
 This devices communicates using the Chorus RF Laptimer API and _should_ work with LiveTime (untested) as well as the Chorus RF Lap timer  app
