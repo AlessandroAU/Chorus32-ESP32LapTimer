@@ -47,7 +47,7 @@ byte NumRecievers;
 
 
 /////////Custom Hardware options///////////
-#define AlessandroDevBoard //because Alessandro was silly he has to mess around with a different pin configuration 
+//#define AlessandroDevBoard //because Alessandro was silly he has to mess around with a different pin configuration 
 
 #ifdef AlessandroDevBoard
 #define OLED
