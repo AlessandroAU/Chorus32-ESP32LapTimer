@@ -1,12 +1,28 @@
 void IRAM_ATTR SendUDPpacket() {
 
   if (UDPoutQuePtr > 0) {
+
     IPAddress remoteIp = UDPserver.remoteIP();
     uint16_t port = UDPserver.remotePort();
     UDPserver.beginPacket(remoteIp, port);
+
+    for (int i = 0; i < UDPoutQuePtr; i++) {
+      if (MirrorToSerial) {
+        Serial.print((char)UDPoutQue[i]);
+      }
+    }
+
+
     UDPserver.write((const uint8_t *)UDPoutQue, UDPoutQuePtr);
+
+
+
     UDPserver.endPacket();
+    //Serial.println("");
     UDPoutQuePtr = 0;
+
+
+    //delay(1);
   }
 }
 
@@ -20,9 +36,7 @@ void IRAM_ATTR addToSendQueue(uint8_t item) {
   BluetoothBuffOutPointer++;
 #endif
 
-  if (MirrorToSerial) {
-    Serial.print(char(item));
-  }
+
 }
 
 
@@ -37,9 +51,9 @@ void IRAM_ATTR addToSendQueue(uint8_t * buff, uint8_t length) {
     BluetoothBuffOutPointer++;
 #endif
 
-    if (MirrorToSerial) {
-      Serial.print(char(buff[i]));
-    }
+    //    if (MirrorToSerial) {
+    //      Serial.print(char(buff[i]));
+    //    }
   }
 }
 

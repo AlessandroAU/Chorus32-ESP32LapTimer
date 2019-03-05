@@ -8,6 +8,7 @@
 #include "settings_eeprom.h"
 #include "ADC.h"
 #include "Timer.h"
+#include "UDP.h"
 
 Timer ina219Timer = Timer(1000);
 
@@ -52,10 +53,6 @@ void ConfigureADC() {
   adc1_config_channel_atten(ADC4, ADC_ATTEN_6db);
   adc1_config_channel_atten(ADC5, ADC_ATTEN_6db);
   adc1_config_channel_atten(ADC6, ADC_ATTEN_6db);
-
-  for (int i = 0; i < NumRecievers; i++) {
-    RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
-  }
 
   ina219.begin();
   ReadVBAT_INA219();
@@ -156,6 +153,10 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
         break;
     }
 
+    if (raceMode > 0) {
+      CheckRSSIthresholdExceeded();
+    }
+
 
     //ADCcaptime = micros() - ADCstartMicros;
     // Serial.println(ADCcaptime);
@@ -200,11 +201,6 @@ void IRAM_ATTR readADCs() {
   if ( xHigherPriorityTaskWoken) {
     portYIELD_FROM_ISR(); // this wakes up sample_timer_task immediately
   }
-
-  if (raceMode > 0) {
-    CheckRSSIthresholdExceeded();
-  }
-
 }
 
 void IRAM_ATTR CheckRSSIthresholdExceeded() {

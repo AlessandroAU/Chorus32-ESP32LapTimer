@@ -14,8 +14,8 @@
 
 WiFiUDP UDPserver;
 //
-//#define MAX_SRV_CLIENTS 5
-//WiFiClient serverClients[MAX_SRV_CLIENTS];
+#define MAX_SRV_CLIENTS 5
+WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 void readADCs();
 
@@ -57,10 +57,10 @@ void setup() {
 #ifdef BluetoothEnabled
   SerialBT.begin("Chorus Laptimer SPP");
 #endif
+  InitWifiAP();
 
   InitWebServer();
-  UDPserver.begin(9000);
-  InitADCtimer();
+
 
   RXADCfilter = EepromSettings.RXADCfilter;
   ADCVBATmode = EepromSettings.ADCVBATmode;
@@ -72,6 +72,14 @@ void setup() {
     setModuleChannelBand(i);
     delay(10);
   }
+  for (int i = 0; i < NumRecievers; i++) {
+    RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
+  }
+  UDPserver.begin(9000);
+
+
+
+  InitADCtimer();
 
 }
 
@@ -88,7 +96,11 @@ void loop() {
   HandleServerUDP();
   SendCurrRSSIloop();
   dnsServer.processNextRequest();
+
+  //if (raceMode == 0) {
   webServer.handleClient();
+  // }
+
 #ifdef BluetoothEnabled
   HandleBluetooth();
 #endif

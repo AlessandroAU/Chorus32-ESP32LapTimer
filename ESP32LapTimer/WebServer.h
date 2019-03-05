@@ -14,7 +14,7 @@ const byte DNS_PORT = 53;
 IPAddress apIP(192, 168, 4, 1);
 DNSServer dnsServer;
 WebServer  webServer(80);
-//WiFiClient client = webServer.client();
+WiFiClient client = webServer.client();
 
 //flag to use from web update to reboot the ESP
 bool shouldReboot = false;

@@ -96,7 +96,7 @@ void InitWifiAP() {
   WiFi.mode( WIFI_AP );
   //ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_AP, WIFI_PROTOCOL_11N));
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  WiFi.setSleep(false);
+  //WiFi.setSleep(false);
   WiFi.softAP("Chorus32 LapTimer");
 
 
@@ -115,7 +115,7 @@ bool DoesSPIFFsExist() {
 
 
 void InitWebServer() {
-  InitWifiAP();
+  
 
   HasSPIFFsBegun = SPIFFS.begin();
   //delay(1000);
@@ -218,7 +218,7 @@ void InitWebServer() {
 
   webServer.begin();                           // Actually start the server
   Serial.println("HTTP server started");
-  //client.setNoDelay(1);
+  client.setNoDelay(1);
   delay(1000);
 
 
