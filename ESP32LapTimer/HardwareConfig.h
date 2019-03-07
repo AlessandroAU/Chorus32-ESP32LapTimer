@@ -1,7 +1,7 @@
 #pragma once
 void InitHardwarePins();
 
-#define EEPROM_VERSION_NUMBER 2 // Increment when eeprom struct modified
+#define EEPROM_VERSION_NUMBER 3 // Increment when eeprom struct modified
 
 #define MaxNumRecievers 6
 byte NumRecievers;
