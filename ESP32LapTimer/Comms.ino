@@ -247,30 +247,13 @@ void SendMillis() {
   uint8_t buf[8];
   longToHex(buf, CurrMillis);
 
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(0));
-  addToSendQueue('t');
-  addToSendQueue(buf, 8);
-  addToSendQueue('\n');
-
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(1));
-  addToSendQueue('t');
-  addToSendQueue(buf, 8);
-  addToSendQueue('\n');
-
-
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(2));
-  addToSendQueue('t');
-  addToSendQueue(buf, 8);
-  addToSendQueue('\n');
-
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(3));
-  addToSendQueue('t');
-  addToSendQueue(buf, 8);
-  addToSendQueue('\n');
+  for (int i = 0; i < NumRecievers; i ++) {
+    addToSendQueue('S');
+    addToSendQueue(TO_HEX(i));
+    addToSendQueue('t');
+    addToSendQueue(buf, 8);
+    addToSendQueue('\n');
+  }
 }
 
 void SendThresholdValue(uint8_t NodeAddr) {
@@ -329,7 +312,7 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   intToHex(buf, Result / 12);
   addToSendQueue(buf, 4);
   addToSendQueue('\n');
-  MirrorToSerial = true;
+  //MirrorToSerial = true;
   lastRSSIsent = millis();
 
 }
@@ -527,6 +510,7 @@ void SendAllSettings(uint8_t NodeAddr) {
 }
 
 void SendRSSImonitorInterval(uint8_t NodeAddr) {
+
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   uint8_t buf[4];

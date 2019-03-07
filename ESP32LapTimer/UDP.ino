@@ -36,7 +36,9 @@ void IRAM_ATTR addToSendQueue(uint8_t item) {
   BluetoothBuffOutPointer++;
 #endif
 
-
+  if (item == '\n') {
+    SendUDPpacket();
+  }
 }
 
 

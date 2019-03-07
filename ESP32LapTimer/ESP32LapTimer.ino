@@ -98,7 +98,9 @@ void loop() {
   dnsServer.processNextRequest();
 
   //if (raceMode == 0) {
-  webServer.handleClient();
+  if (client.connected()) {
+    webServer.handleClient();
+  }
   // }
 
 #ifdef BluetoothEnabled
