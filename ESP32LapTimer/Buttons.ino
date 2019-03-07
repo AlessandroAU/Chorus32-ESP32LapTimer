@@ -8,6 +8,9 @@ bool buttonTwoTouched = false;
 long buttonOneLastTouchedTime = 0;
 long buttonTwoLastTouchedTime = 0;
 
+void IRAM_ATTR buttonOneInterrupt();
+void IRAM_ATTR buttonTwoInterrupt();
+
 void buttonSetup() {
   touchAttachInterrupt(T4, buttonOneInterrupt, buttonTouchThreshold);
   touchAttachInterrupt(T7, buttonTwoInterrupt, buttonTouchThreshold);
@@ -33,10 +36,10 @@ void buttonUpdate() {
   }
 }
 
-void buttonOneInterrupt() {
+void IRAM_ATTR buttonOneInterrupt() {
   buttonOneTouched = true;
 }
 
-void buttonTwoInterrupt() {
+void IRAM_ATTR buttonTwoInterrupt() {
   buttonTwoTouched = true;
 }
