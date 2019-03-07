@@ -42,6 +42,8 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Booting....");
 
+  buttonSetup();
+  
   EepromSettings.setup();
 
   delay(500);
@@ -89,6 +91,7 @@ void loop() {
   //    delay(100);
   //    ESP.restart();
   //  }
+  buttonUpdate();
 #ifdef OLED
   OLED_CheckIfUpdateReq();
 #endif
