@@ -182,12 +182,12 @@ void StartNB_ADCread() {
 void ReadVBAT_INA219() {
   if (ina219Timer.hasTicked()) {
     VbatReadingFloat = ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV() / 1000);
-    Serial.print("VbatReading = ");
-    Serial.println(VbatReadingFloat);
+//    Serial.print("VbatReading = ");
+//    Serial.println(VbatReadingFloat);
 
     mAReadingFloat = ina219.getCurrent_mA();
-    Serial.print("mAReadingFloat = ");
-    Serial.println(mAReadingFloat);
+//    Serial.print("mAReadingFloat = ");
+//    Serial.println(mAReadingFloat);
 
     ina219Timer.reset();
   }
