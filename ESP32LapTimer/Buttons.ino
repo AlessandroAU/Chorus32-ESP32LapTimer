@@ -19,6 +19,7 @@ void buttonSetup() {
 void buttonUpdate() {
   if(buttonOneTouched && millis() > (buttonOneLastTouchedTime + buttonDeBounce)) {
     Serial.println("buttonOneTouched");
+    beep();
     // Do button1 stuff in here
     buttonOneTouched = false;
     buttonOneLastTouchedTime = millis();
@@ -28,6 +29,7 @@ void buttonUpdate() {
   
   if(buttonTwoTouched && millis() > (buttonTwoLastTouchedTime + buttonDeBounce)) {
     Serial.println("buttonTwoTouched");
+    beep();
     // Do button2 stuff in here
     buttonTwoTouched = false;
     buttonTwoLastTouchedTime = millis();

@@ -10,6 +10,8 @@ byte NumRecievers;
 
 ///Define Pin configuration here, these are the defaults as given on github
 
+#define BEEPER 26
+
 //#define USE_VSPI
 #define USE_HSPI
 

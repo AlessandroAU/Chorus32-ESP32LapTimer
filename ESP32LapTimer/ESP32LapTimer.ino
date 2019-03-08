@@ -9,6 +9,7 @@
 #include "settings_eeprom.h"
 #include "OLED.h"
 #include "WebServer.h"
+#include "Beeper.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
@@ -78,11 +79,10 @@ void setup() {
     RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
   }
   UDPserver.begin(9000);
-
-
-
+  
   InitADCtimer();
-
+  
+  beep();
 }
 
 void loop() {
@@ -114,4 +114,5 @@ void loop() {
   if (ADCVBATmode == INA219) {
     ReadVBAT_INA219();
   }
+  beeperUpdate();
 }
