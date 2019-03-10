@@ -427,6 +427,9 @@ void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
 
 void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
+//  Serial.print("SendLap: ");
+//  Serial.println(String(Lap) + " " + String(NodeAddr));
+
   uint32_t RequestedLap;
 
   if (Lap == 1) {  ///ugh need to fix this logic at some point but it works for now

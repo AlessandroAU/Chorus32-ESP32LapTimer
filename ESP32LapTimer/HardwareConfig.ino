@@ -9,6 +9,8 @@ void InitHardwarePins() {
   pinMode(CS2, OUTPUT);
   pinMode(CS3, OUTPUT);
   pinMode(CS4, OUTPUT);
+  pinMode(CS5, OUTPUT);
+  pinMode(CS6, OUTPUT);
   pinMode(MISO, INPUT);
   pinMode(BEEPER, OUTPUT);
   digitalWrite(BEEPER, LOW);

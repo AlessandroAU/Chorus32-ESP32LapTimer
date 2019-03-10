@@ -207,6 +207,7 @@ void IRAM_ATTR CheckRSSIthresholdExceeded() {
   uint32_t CurrTime = millis();
 
   for (uint8_t i = 0; i < NumRecievers; i++) {
+
     if ( ADCvalues[i] > RSSIthresholds[i]) {
 
       if (CurrTime > (MinLapTime + LapTimes[i][LapTimePtr[i]])) {

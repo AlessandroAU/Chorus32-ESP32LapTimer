@@ -12,11 +12,8 @@ void IRAM_ATTR SendUDPpacket() {
       }
     }
 
-
     UDPserver.write((const uint8_t *)UDPoutQue, UDPoutQuePtr);
-
-
-
+    
     UDPserver.endPacket();
     //Serial.println("");
     UDPoutQuePtr = 0;
@@ -36,9 +33,9 @@ void IRAM_ATTR addToSendQueue(uint8_t item) {
   BluetoothBuffOutPointer++;
 #endif
 
-  if (item == '\n') {
-    SendUDPpacket();
-  }
+ // if (item == '\n') {
+ //   SendUDPpacket();
+ // }
 }
 
 
