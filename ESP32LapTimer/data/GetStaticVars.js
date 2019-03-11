@@ -2,6 +2,20 @@
 	var StatusData;
     // request data updates every 5000 milliseconds
     setInterval(requestData, 200);
+	var testData = {
+		"numRXs":3,
+		"Band":{
+			"1":0,
+			"2":1,
+			"3":2
+		},
+		"Channel":{
+			"1":0,
+			"2":1,
+			"3":2
+		}
+	}
+	//updateBandChannel(testData)
     function requestData() {
 
       var xhr = new XMLHttpRequest();
@@ -66,7 +80,7 @@
         }
 
         for(var i=1;i<=numRXs;i++){ // FILL BAND AND CHANNEL FOR EACH ONE
-            document.getElementById('band'+i).selectedIndex=datasssss.Band[i];
-            document.getElementById('channel'+i).selectedIndex=datasssss.Channel[i];
+            document.getElementById('band'+i).selectedIndex=data.Band[i];
+            document.getElementById('channel'+i).selectedIndex=data.Channel[i];
         }
     }
