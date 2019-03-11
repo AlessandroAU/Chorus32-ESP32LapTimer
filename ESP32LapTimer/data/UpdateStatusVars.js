@@ -1,6 +1,6 @@
-    requestData(); // get intial data straight away 
+    requestData(); // get intial data straight away
 	var StatusData;
-  
+
     // request data updates every 5000 milliseconds
     setInterval(requestData, 500);
 
@@ -16,7 +16,7 @@
 
             StatusData = JSON.parse(JSON.stringify(xhr.responseText));
 			var data = JSON.parse(StatusData);
-			
+
             document.getElementById("Var_VBAT").innerText = data.Var_VBAT.toFixed(2);
             document.getElementById("Var_WifiClients").innerText = data.Var_WifiClients;
             document.getElementById("Var_CurrMode").innerText = data.Var_CurrMode;
@@ -36,6 +36,6 @@
 
         }
       };
-      
+
       xhr.send();
     }

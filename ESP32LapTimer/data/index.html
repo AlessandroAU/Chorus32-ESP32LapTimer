@@ -1,100 +1,112 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
+
+<head>
 	<script src="jquery-3.3.1.min.js"></script>
 	<script src="UpdateStatusVars.js"></script>
-		<title>Chorus32 RF lap Timing System</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<link rel="stylesheet" href="assets/css/slider.css" />
-		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
-		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
-	</head>
-	<body>
+	<title>Chorus32 RF lap Timing System</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<link rel="stylesheet" href="assets/css/slider.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+	<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+</head>
+
+<body>
 	<!-- OI you! get out of my source code!!! -->
 
-		<!-- Header -->
-			<section id="header">
-				<div class="inner">
-					<img src="flag.svg" height="250" width="250" style="padding:20px;"></a>
-					<h1>Welcome to your <strong>Chorus32</strong><br/> configuration Page<br/>
-					</h1>
-					<p>From here you can change any settings on your timer<br/>
+	<!-- Header -->
+	<section id="header">
+		<div class="inner">
+			<img src="flag.svg" height="250" width="250" style="padding:20px;"></a>
+			<h1>Welcome to your <strong>Chorus32</strong><br /> configuration Page<br />
+			</h1>
+			<p>From here you can change any settings on your timer<br />
+				<p>
+
+					<b>Firmware Rev. </b><var id="FirmVersion">1.0</var>
 					<p>
-					
-					<b>Firmware Rev.  </b><var id="FirmVersion">1.0</var><p>
-					<!--
+						<!--
 					<b>Platform:</b> var_currPlatform<br><p>
 					<b>RF Module:</b> var_currRadioModule<br><p>
 					-->
-					
-				</div>
-			</section>
-			
-			<section id="Status RFPWR" class="main style1">
-			<div class="container">
-									
-					<div align="left">	
-			<legend><h2><b>Status:</b></h2></legend>
+
+		</div>
+	</section>
+
+	<section id="Status RFPWR" class="main style1">
+		<div class="container">
+
+			<div align="left">
+				<legend>
+					<h2><b>Status:</b></h2>
+				</legend>
 				<table style="width:80%">
-				  <tr>
-					<th><b>VBAT: </b><span id="Var_VBAT", class="StatusText"></span></th>
-<!-- 					<th><b>Wifi Clients: </b><span id="Var_WifiClients", class="StatusText">1</span></th> 
+					<tr>
+						<th><b>VBAT: </b><span id="Var_VBAT" , class="StatusText"></span></th>
+						<!-- 					<th><b>Wifi Clients: </b><span id="Var_WifiClients", class="StatusText">1</span></th>
 					<th><b>Current Mode: </b><span id="Var_CurrMode", class="StatusText">Idle</span></th> -->
-					
-				  </tr>
-				  <br>
+
+					</tr>
+					<br>
 				</table>
-				
-			</section>
-			
-			<!--
+
+	</section>
+
+	<!--
 			<section id="Status Wifi" class="main style1">
 			<div class="container">
-					<br>				
-					<div align="left">	
+					<br>
+					<div align="left">
 			<legend><h3><b>Wifi Status:</b></h3></legend>
 				<table style="width:100%">
 				  <tr>
 					<th><b>Clients:</b> 1</th>
-					<th><b>Output Power: </b>25 mW</th> 
+					<th><b>Output Power: </b>25 mW</th>
 					<th><b>Update Rate: </b>100 Hz</th>
 				  </tr>
 				  <tr>
 					<td><b>Temp: </b>39°C</td>
-					<td><b>High Power Mode: </b>Allowed</td> 
+					<td><b>High Power Mode: </b>Allowed</td>
 					<td><b>CRC Errors: </b> 0</td>
 				  </tr>
 				  <tr>
 					<td><b>Fan: </b>Off</td>
-					<td><b>RSSI: </b>-79 dBm</td> 
+					<td><b>RSSI: </b>-79 dBm</td>
 					<td><b>Packet Loss: </b>0.00%</td>
 				  </tr>
-				</table>
+			  </table>
 			</section>
 			-->
-		<!-- One -->
-			<section id="one" class="main style1">
-				<div class="container">
-								
-					<div align="left">									
-					<form action="/updateGeneral">
-					  <fieldset>
-						<legend><h2><b>General Configuration</b></h2></legend>
-						Number of Receivers:<br>
-						    <select name="NumRXs" id="NumRXs">
+	<!-- One -->
+	<section id="one" class="main style1">
+		<div class="container">
 
-								<option value="1">1</option>
-								<option value="2">2</option>
-								<option value="3">3</option>
-								<option value="4">4</option>																		
-								<option value="5">5</option>
-								<option value="6">6</option>
-								<option selected value="7"></option>
-							</select>
-						<br>
+			<div align="left">
+				<form action="/updateGeneral">
+					<fieldset>
+						<legend>
+							<h2><b>General Configuration</b></h2>
+						</legend>
+						Number of Receivers:<br>
+						<select name="NumRXs" id="NumRXs">
+
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+							<option selected value="7"></option>
+						</select>
+						<div id="bandChannel">
+							<br>Band and channel:</br>
+						</div>
+						<!-- <div id="bandChannel" name="channel_and_band">
+						</div> -->
+
 						<!--Serial UART Mode:<br>
 							<select name="UART_Mode">
 								<option value="OFF">Debug Only</option>
@@ -102,70 +114,78 @@
 								<option selected value="DebugMirror">Serial Debug + Mirror</option>
 							</select>
 						<br> -->
-						
+
 						<input type="submit" value="&nbsp;Update&nbsp;">
-					  </fieldset>
-					</form>
-					
-					<form action="/ADCVBATsettings">
-					  <fieldset>
-						<legend><h2><b>VBAT Configuration</b></h2></legend>
+					</fieldset>
+				</form>
+
+				<form action="/ADCVBATsettings">
+					<fieldset>
+						<legend>
+							<h2><b>VBAT Configuration</b></h2>
+						</legend>
 						VBAT Measurement Mode:<br>
-						    <select name="ADCVBATmode" id="ADCVBATmode">
-								<option value="0">OFF (6CH Mode, no VBAT)</option>
-								<option value="1">VBAT ADC Channel 5 (GPIO 32)</option>
-								<option value="2">VBAT ADC Channel 6 (GPIO 33)</option>
-								<option value="3">VBAT INA219 (6 Channel Mode)</option>
-								<option selected value="4"></option>
-							</select>
+						<select name="ADCVBATmode" id="ADCVBATmode">
+							<option value="0">OFF (6CH Mode, no VBAT)</option>
+							<option value="1">VBAT ADC Channel 5 (GPIO 32)</option>
+							<option value="2">VBAT ADC Channel 6 (GPIO 33)</option>
+							<option value="3">VBAT INA219 (6 Channel Mode)</option>
+							<option selected value="4"></option>
+						</select>
 						<br>
 						ADC calibration Constant:<br>
-							<input type="float" name="ADCcalibValue" min="0" max="999999999" value="" id="ADCcalibValue">
+						<input type="float" name="ADCcalibValue" min="0" max="999999999" value="" id="ADCcalibValue">
 						<br>
 						<br>
 						<input type="submit" value="&nbsp;Update&nbsp;">
-					  </fieldset>
-					</form>
+					</fieldset>
+				</form>
 
-					<br>
-					<form method="get" action="/updateFilters">
-					  <fieldset>
-						<legend><h2><b>Filtering</b></h2></legend>
+				<br>
+				<form method="get" action="/updateFilters">
+					<fieldset>
+						<legend>
+							<h2><b>Filtering</b></h2>
+						</legend>
 						RX ADC Filter<br>
-							<select name="RXFilter" id ="RXFilter">
-								<option value="0">10Hz Bessel LPF</option>
-								<option value="1">20Hz Bessel LPF</option>
-								<option value="2">50Hz Bessel LPF</option>
-								<option value="3">100Hz Bessel LPF</option>
-								<option selected value="4"></option>
-								
-							</select>
+						<select name="RXFilter" id="RXFilter">
+							<option value="0">10Hz Bessel LPF</option>
+							<option value="1">20Hz Bessel LPF</option>
+							<option value="2">50Hz Bessel LPF</option>
+							<option value="3">100Hz Bessel LPF</option>
+							<option selected value="4"></option>
+
+						</select>
 						<br>
 						<input type="submit" value="&nbsp;Update&nbsp;">
-					  </fieldset>
-					</form>
+					</fieldset>
+				</form>
 
-					
-					 <fieldset>
-					
-					Here you can update module firmware, 
+
+				<fieldset>
+
+					Here you can update module firmware,
 					be careful to upload the correct file as it is possible to brick the timer. A bricked timer will require reflashing with a serial cable
 					<br><br>
-					<legend><h2>Firmware Update:</h2></legend>
-					
+					<legend>
+						<h2>Firmware Update:</h2>
+					</legend>
 
-					<form method='POST' action='/update' enctype='multipart/form-data'>	<input type='file' name='update'>	<input type='submit' value='Update'></form>
+
+					<form method='POST' action='/update' enctype='multipart/form-data'> <input type='file' name='update'> <input type='submit' value='Update'></form>
 					</form>
-					</fieldset>					
-											
-						
-						
-</div>
-						</div>
-					</div>
-				</div>
-			</section>
+				</fieldset>
 
-	</body>
-	<script src="GetStaticVars.js"></script>
+
+
+			</div>
+		</div>
+		</div>
+		</div>
+	</section>
+
+</body>
+<script src="GetStaticVars.js"></script>
+<script src="SendData.js"></script>
+
 </html>

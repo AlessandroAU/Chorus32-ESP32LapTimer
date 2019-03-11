@@ -1,10 +1,7 @@
-    requestData(); // get intial data straight away 
+    requestData(); // get intial data straight away
 	var StatusData;
-  
     // request data updates every 5000 milliseconds
-    //setInterval(requestData, 200);
-	
-
+    setInterval(requestData, 200);
     function requestData() {
 
       var xhr = new XMLHttpRequest();
@@ -17,15 +14,59 @@
 
             StatusData = JSON.parse(JSON.stringify(xhr.responseText));
 			var data = JSON.parse(StatusData); //yeah not sure why I need to do this twice, but otherwise it doesn't work....
-			
+
             document.getElementById("NumRXs").selectedIndex = parseInt(data.NumRXs);
 			document.getElementById("ADCVBATmode").selectedIndex = parseInt(data.ADCVBATmode);
             document.getElementById("RXFilter").selectedIndex = parseInt(data.RXFilter);
 			document.getElementById('ADCcalibValue').value = parseFloat(data.ADCcalibValue);
-			
+            updateBandChannel(data)
+
           }
         }else{requestData() }
       };
-      
+
       xhr.send();
+    }
+
+    function updateBandChannel(data) {
+        console.log(data)
+        numRXs = data.numRXs;
+        for(var i=1;i<=numRXs;i++){ // GENERATE HTML
+            $("#bandChannel").append('<fieldset class="bandChannel" id="RX'+i+'">');
+            $("#RX"+i).append('<legend id=legenditem'+i+'>RX '+i+'</legend>');
+            $("#RX"+i).append('<table class="tg" id="table'+i+'">');
+            $("#table"+i).append('<tr>');
+            $("#table"+i).append('<td class="table-cell-text">Band:</td>');
+            $("#table"+i).append('<td class="table-cell">')
+            $("#table"+i).append('<select name="band'+i+'" id="band'+i+'">')
+            document.getElementById("band"+i).style.width = "80%";
+            $("#band"+i).append('<option selected value="0">R</option>')
+            $("#band"+i).append('<option value="1">A</option>')
+            $("#band"+i).append('<option value="2">B</option>')
+            $("#band"+i).append('<option value="3">E</option>')
+            $("#band"+i).append('<option value="4">F</option>')
+            $("#band"+i).append('<option value="5">D</option>')
+            $("#band"+i).append('<option value="6">Connex</option>')
+            $("#band"+i).append('<option value="7">Connex2</option>')
+            $("#table"+i).append('</select></td>')
+            $("#table"+i).append('<td class="table-cell-text"> Channel:</td>');
+            $("#table"+i).append('<select name="channel'+i+'" id="channel'+i+'">')
+            document.getElementById("channel"+i).style.width = "100%";
+            $("#channel"+i).append('<option value="0">1</option>')
+            $("#channel"+i).append('<option value="1">2</option>')
+            $("#channel"+i).append('<option value="2">3</option>')
+            $("#channel"+i).append('<option value="3">4</option>')
+            $("#channel"+i).append('<option value="4">5</option>')
+            $("#channel"+i).append('<option value="5">6</option>')
+            $("#channel"+i).append('<option value="6">7</option>')
+            $("#channel"+i).append('<option value="7">8</option>')
+            $("#table"+i).append('</select></td>')
+            $("#table"+i).append('</tr>');
+            $("#bandChannel").append('</fieldset>');
+        }
+
+        for(var i=1;i<=numRXs;i++){ // FILL BAND AND CHANNEL FOR EACH ONE
+            document.getElementById('band'+i).selectedIndex=datasssss.Band[i];
+            document.getElementById('channel'+i).selectedIndex=datasssss.Channel[i];
+        }
     }
