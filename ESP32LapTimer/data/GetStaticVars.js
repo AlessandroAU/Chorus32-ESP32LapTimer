@@ -16,6 +16,7 @@
 		}
 	}
 	//updateBandChannel(testData)
+    var data
     function requestData() {
 
       var xhr = new XMLHttpRequest();
@@ -25,9 +26,11 @@
         if (xhr.status === 200) {
 
           if (xhr.responseText) { // if the returned data is not null, update the values
-
+            console.log(xhr.responseText)
             StatusData = JSON.parse(JSON.stringify(xhr.responseText));
-			var data = JSON.parse(StatusData); //yeah not sure why I need to do this twice, but otherwise it doesn't work....
+            console.log(StatusData);
+			data = JSON.parse(StatusData); //yeah not sure why I need to do this twice, but otherwise it doesn't work....
+            console.log(data);
 
             document.getElementById("NumRXs").selectedIndex = parseInt(data.NumRXs);
 			document.getElementById("ADCVBATmode").selectedIndex = parseInt(data.ADCVBATmode);

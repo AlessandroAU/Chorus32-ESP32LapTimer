@@ -252,19 +252,23 @@ void SendStatusVars() {
 
 void SendStaticVars() {
 
-  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3)
-  sendStr += "\"Band\":{\"";
+  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3);
+  sendSTR = sendSTR + ",\"Band\":{";
   for(int i=0;i<NumRecievers;i++){
-      sendSTR += "\""+i+"\":"+EepromSettings.RXBand[i]+"\"",
+      sendSTR = sendSTR +"\""+i+"\":"+EepromSettings.RXBand[i];
+      // if(NumRecievers>0 && NumRecievers-i != 0) {sendSTR = sendSTR + ",";}
   }
-  sendStr += "},"
-  sendStr += "\"Channel\":{\"";
+  sendSTR = sendSTR + "},";
+  sendSTR = sendSTR + "\"Channel\":{";
   for(int i=0;i<NumRecievers;i++){
-    sendSTR += "\""+i+"\":"+EepromSettings.RXChannel[i]+"\"",
+    sendSTR = sendSTR +"\""+i+"\":"+EepromSettings.RXChannel[i];
+    // if(NumRecievers>0 && NumRecievers-i != 0) {sendSTR = sendSTR + ",";}
   }
-  sendStr += "}"
-  sendSTR +=  "}";
+  sendSTR = sendSTR + "}";
+  sendSTR = sendSTR +  "}";
 
+  Serial.print("sendSTR : ");
+  Serial.println(sendSTR);
   // webServer.send(200, "application/json", "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + "}");
   webServer.send(200, "application/json", sendSTR);
 }
@@ -289,39 +293,39 @@ void ProcessGeneralSettingsUpdate() {
 
   NumRecievers = (byte)NumRXs.toInt();
 
-  int Band1 = (byte)Band1.toInt();
-  int Band2 = (byte)Band2.toInt();
-  int Band3 = (byte)Band3.toInt();
-  int Band4 = (byte)Band4.toInt();
-  int Band5 = (byte)Band5.toInt();
-  int Band6 = (byte)Band6.toInt();
+  int band1 = (byte)Band1.toInt();
+  int band2 = (byte)Band2.toInt();
+  int band3 = (byte)Band3.toInt();
+  int band4 = (byte)Band4.toInt();
+  int band5 = (byte)Band5.toInt();
+  int band6 = (byte)Band6.toInt();
 
-  int Channel1 = (byte)Channel1.toInt();
-  int Channel2 = (byte)Channel2.toInt();
-  int Channel3 = (byte)Channel3.toInt();
-  int Channel4 = (byte)Channel4.toInt();
-  int Channel5 = (byte)Channel5.toInt();
-  int Channel6 = (byte)Channel6.toInt();
+  int channel1 = (byte)Channel1.toInt();
+  int channel2 = (byte)Channel2.toInt();
+  int channel3 = (byte)Channel3.toInt();
+  int channel4 = (byte)Channel4.toInt();
+  int channel5 = (byte)Channel5.toInt();
+  int channel6 = (byte)Channel6.toInt();
 
 
   EepromSettings.NumRecievers = NumRecievers;
 
-  EepromSettings.RXBand[0]=Band1;
-  EepromSettings.RXBand[1]=Band2;
-  EepromSettings.RXBand[2]=Band3;
-  EepromSettings.RXBand[3]=Band4;
-  EepromSettings.RXBand[4]=Band5;
-  EepromSettings.RXBand[5]=Band6;
+  EepromSettings.RXBand[0]=band1;
+  EepromSettings.RXBand[1]=band2;
+  EepromSettings.RXBand[2]=band3;
+  EepromSettings.RXBand[3]=band4;
+  EepromSettings.RXBand[4]=band5;
+  EepromSettings.RXBand[5]=band6;
 
-  EepromSettings.RXChannel[0]=Channel1;
-  EepromSettings.RXChannel[1]=Channel2;
-  EepromSettings.RXChannel[2]=Channel3;
-  EepromSettings.RXChannel[3]=Channel4;
-  EepromSettings.RXChannel[4]=Channel5;
-  EepromSettings.RXChannel[5]=Channel6;
+  EepromSettings.RXChannel[0]=channel1;
+  EepromSettings.RXChannel[1]=channel2;
+  EepromSettings.RXChannel[2]=channel3;
+  EepromSettings.RXChannel[3]=channel4;
+  EepromSettings.RXChannel[4]=channel5;
+  EepromSettings.RXChannel[5]=channel6;
 
-  unit8_t index = RXChannel[NodeAddr] + (8 * RXBand[NodeAddr]);
-  EepromSettings.RXfrequencies[0]=channelFreqTable[index];
+  // unit8_t index = RXChannel[NodeAddr] + (8 * RXBand[NodeAddr]);
+  // EepromSettings.RXfrequencies[0]=channelFreqTable[index];
 
   Serial.println(EepromSettings.NumRecievers);
 
