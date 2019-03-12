@@ -273,59 +273,34 @@ void SendStaticVars() {
   webServer.send(200, "application/json", sendSTR);
 }
 
+void updateRx (int rx) {
 
+    String bandArg = "band" + rx;
+    String channelArg = "channel" + rx;
+
+    String Band = webServer.arg(bandArg);
+    String Channel = webServer.arg(channelArg);
+    int band = (byte)Band.toInt();
+    int channel = (byte)Channel.toInt();
+
+    Serial.print(bandArg);Serial.print(":\t");Serial.println(band);
+    Serial.print(channelArg);Serial.print(":\t");Serial.println(channel);
+
+    setModuleChannelBand(band,channel,rx);
+    EepromSettings.RXBand[reciever]=band;
+    EepromSettings.RXChannel[reciever]=channel;
+    // unit8_t index = RXChannel[NodeAddr] + (8 * RXBand[NodeAddr]);
+    // EepromSettings.RXfrequencies[0]=channelFreqTable[index];
+}
 void ProcessGeneralSettingsUpdate() {
   String NumRXs = webServer.arg("NumRXs");
-  // String Band1 = webServer.arg("band1");
-  // String Band2 = webServer.arg("band2");
-  // String Band3 = webServer.arg("band3");
-  // String Band4 = webServer.arg("band4");
-  // String Band5 = webServer.arg("band5");
-  // String Band6 = webServer.arg("band6");
-  //
-  // String Channel1 = webServer.arg("channel1");
-  // String Channel2 = webServer.arg("channel2");
-  // String Channel3 = webServer.arg("channel3");
-  // String Channel4 = webServer.arg("channel4");
-  // String Channel5 = webServer.arg("channel5");
-  // String Channel6 = webServer.arg("channel6");
-
-
   NumRecievers = (byte)NumRXs.toInt();
 
-  // int band1 = (byte)Band1.toInt();
-  // int band2 = (byte)Band2.toInt();
-  // int band3 = (byte)Band3.toInt();
-  // int band4 = (byte)Band4.toInt();
-  // int band5 = (byte)Band5.toInt();
-  // int band6 = (byte)Band6.toInt();
-  //
-  // int channel1 = (byte)Channel1.toInt();
-  // int channel2 = (byte)Channel2.toInt();
-  // int channel3 = (byte)Channel3.toInt();
-  // int channel4 = (byte)Channel4.toInt();
-  // int channel5 = (byte)Channel5.toInt();
-  // int channel6 = (byte)Channel6.toInt();
-
+  for (int i = 0; i < NumRecievers+1; i++) {
+      updateRx(i);
+  }
 
   EepromSettings.NumRecievers = NumRecievers;
-
-  // EepromSettings.RXBand[0]=band1;
-  // EepromSettings.RXBand[1]=band2;
-  // EepromSettings.RXBand[2]=band3;
-  // EepromSettings.RXBand[3]=band4;
-  // EepromSettings.RXBand[4]=band5;
-  // EepromSettings.RXBand[5]=band6;
-  //
-  // EepromSettings.RXChannel[0]=channel1;
-  // EepromSettings.RXChannel[1]=channel2;
-  // EepromSettings.RXChannel[2]=channel3;
-  // EepromSettings.RXChannel[3]=channel4;
-  // EepromSettings.RXChannel[4]=channel5;
-  // EepromSettings.RXChannel[5]=channel6;
-
-  // unit8_t index = RXChannel[NodeAddr] + (8 * RXBand[NodeAddr]);
-  // EepromSettings.RXfrequencies[0]=channelFreqTable[index];
 
   Serial.println(EepromSettings.NumRecievers);
 
