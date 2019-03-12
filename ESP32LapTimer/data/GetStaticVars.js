@@ -1,7 +1,6 @@
     requestData(); // get intial data straight away
 	var StatusData;
-    // request data updates every 5000 milliseconds
-    setInterval(requestData, 200);
+
 	var testData = {
 		"numRXs":3,
 		"Band":{
@@ -16,7 +15,6 @@
 		}
 	}
 	//updateBandChannel(testData)
-    var data
     function requestData() {
 
       var xhr = new XMLHttpRequest();
@@ -26,18 +24,21 @@
         if (xhr.status === 200) {
 
           if (xhr.responseText) { // if the returned data is not null, update the values
+            console.log("xhr.responseText")
             console.log(xhr.responseText)
             StatusData = JSON.parse(JSON.stringify(xhr.responseText));
+            console.log("StatusData: ");
             console.log(StatusData);
-			data = JSON.parse(StatusData); //yeah not sure why I need to do this twice, but otherwise it doesn't work....
+			var data = JSON.parse(StatusData); //yeah not sure why I need to do this twice, but otherwise it doesn't work....
+            console.log("data");
             console.log(data);
 
             document.getElementById("NumRXs").selectedIndex = parseInt(data.NumRXs);
 			document.getElementById("ADCVBATmode").selectedIndex = parseInt(data.ADCVBATmode);
             document.getElementById("RXFilter").selectedIndex = parseInt(data.RXFilter);
 			document.getElementById('ADCcalibValue').value = parseFloat(data.ADCcalibValue);
+            createBandChannel(data.NumRXs)
             updateBandChannel(data)
-
           }
         }else{requestData() }
       };
@@ -45,9 +46,8 @@
       xhr.send();
     }
 
-    function updateBandChannel(data) {
-        console.log(data)
-        numRXs = data.numRXs;
+    function createBandChannel(numRXs) {
+        numRXs = numRXs +1;
         for(var i=1;i<=numRXs;i++){ // GENERATE HTML
             $("#bandChannel").append('<fieldset class="bandChannel" id="RX'+i+'">');
             $("#RX"+i).append('<legend id=legenditem'+i+'>RX '+i+'</legend>');
@@ -81,7 +81,10 @@
             $("#table"+i).append('</tr>');
             $("#bandChannel").append('</fieldset>');
         }
-
+    }
+    function updateBandChannel(data){
+        console.log("****updateBandChannel****")
+        console.log(data)
         for(var i=1;i<=numRXs;i++){ // FILL BAND AND CHANNEL FOR EACH ONE
             document.getElementById('band'+i).selectedIndex=data.Band[i];
             document.getElementById('channel'+i).selectedIndex=data.Channel[i];
