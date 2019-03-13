@@ -14,6 +14,8 @@
 			document.getElementById("ADCVBATmode").selectedIndex = parseInt(data.ADCVBATmode);
             document.getElementById("RXFilter").selectedIndex = parseInt(data.RXFilter);
 			document.getElementById('ADCcalibValue').value = parseFloat(data.ADCcalibValue);
+            document.getElementById('RSSIthreshold').value = updateRSSIThreshold(parseInt(data.RSSIthreshold))
+
             createBandChannel(data.NumRXs)
             updateBandChannel(data)
           }
@@ -22,7 +24,11 @@
 
       xhr.send();
     }
-
+    function updateRSSIThreshold(rssi){
+        var Rmin = 100,Rmax=4092, Tmin = 10,Tmax=100
+        var result = ((rssi - Rmin)/(Rmax-Rmin))*(Tmax-Tmin)+Tmin
+        return Math.floor(result)
+    }
     function createBandChannel(numRXs) {
         numRXs = numRXs +1;
         for(var i=1;i<=numRXs;i++){ // GENERATE HTML

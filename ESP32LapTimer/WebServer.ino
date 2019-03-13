@@ -252,7 +252,7 @@ void SendStatusVars() {
 
 void SendStaticVars() {
 
-  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3);
+  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(RSSIthresholds[0]);
   sendSTR = sendSTR + ",\"Band\":{";
   for(int i=0;i<NumRecievers;i++){
       sendSTR = sendSTR +"\""+i+"\":"+EepromSettings.RXBand[i];
@@ -333,11 +333,19 @@ void ProcessGeneralSettingsUpdate() {
   }
 
   EepromSettings.NumRecievers = NumRecievers;
-  
-  for(int i=0;i<MaxNumRecievers;i++){EepromSettings.RSSIthresholds[i]=webServer.arg("RSSIthreshold");}
 
-  Serial.print("NumRecievers -> ");
-  Serial.println(EepromSettings.NumRecievers);
+  String Rssi = webServer.arg("RSSIthreshold");
+  int rssi = (byte)Rssi.toInt();
+  int value = map(rssi,10,100,100,4096);
+  Serial.print("RSSIthreshold: ");Serial.print(rssi);Serial.print("%\t");Serial.println(value);
+  for(int i=0 ; i<MaxNumRecievers;i++){
+      EepromSettings.RSSIthresholds[i]=value;
+      RSSIthresholds[i]=value;
+  }
+
+
+  // Serial.print("NumRecievers -> ");
+  // Serial.println(EepromSettings.NumRecievers);
 
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
