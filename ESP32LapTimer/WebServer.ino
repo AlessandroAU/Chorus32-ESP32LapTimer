@@ -273,35 +273,68 @@ void SendStaticVars() {
   webServer.send(200, "application/json", sendSTR);
 }
 
-void updateRx (int rx) {
-
-    String bandArg = "band" + rx;
-    String channelArg = "channel" + rx;
-
-    String Band = webServer.arg(bandArg);
-    String Channel = webServer.arg(channelArg);
-    int band = (byte)Band.toInt();
-    int channel = (byte)Channel.toInt();
-
-    Serial.print(bandArg);Serial.print(":\t");Serial.println(band);
-    Serial.print(channelArg);Serial.print(":\t");Serial.println(channel);
-
+void updateRx (int band, int channel, int rx) {
+    rx = rx - 1;
     setModuleChannelBand(band,channel,rx);
-    EepromSettings.RXBand[reciever]=band;
-    EepromSettings.RXChannel[reciever]=channel;
-    // unit8_t index = RXChannel[NodeAddr] + (8 * RXBand[NodeAddr]);
-    // EepromSettings.RXfrequencies[0]=channelFreqTable[index];
+    EepromSettings.RXBand[rx]=band;
+    RXBand[rx]=band;
+    EepromSettings.RXChannel[rx]=channel;
+    RXChannel[rx]=channel;
+    uint16_t index = RXChannel[rx] + (8 * RXBand[rx]);
+    EepromSettings.RXfrequencies[rx]=channelFreqTable[index];
 }
+
 void ProcessGeneralSettingsUpdate() {
   String NumRXs = webServer.arg("NumRXs");
   NumRecievers = (byte)NumRXs.toInt();
 
-  for (int i = 0; i < NumRecievers+1; i++) {
-      updateRx(i);
+  if(NumRecievers>=0){
+      String Band1 = webServer.arg("band1");
+      String Channel1 = webServer.arg("channel1");
+      int band1 = (byte)Band1.toInt();
+      int channel1 = (byte)Channel1.toInt();
+      updateRx(band1,channel1,1);
   }
+  if(NumRecievers>=1){
+      String Band2 = webServer.arg("band2");
+      String Channel2 = webServer.arg("channel2");
+      int band2 = (byte)Band2.toInt();
+      int channel2 = (byte)Channel2.toInt();
+      updateRx(band2,channel2,2);
+  }
+  if(NumRecievers>=2){
+      String Band3 = webServer.arg("band3");
+      String Channel3 = webServer.arg("channel3");
+      int band3 = (byte)Band3.toInt();
+      int channel3 = (byte)Channel3.toInt();
+      updateRx(band3,channel3,3);
+  }
+  if(NumRecievers>=3){
+      String Band4 = webServer.arg("band4");
+      String Channel4 = webServer.arg("channel4");
+      int band4 = (byte)Band4.toInt();
+      int channel4 = (byte)Channel4.toInt();
+      updateRx(band4,channel4,4);
+    }
+  if(NumRecievers>=4{
+      String Band5 = webServer.arg("band5");
+      String Channel5 = webServer.arg("channel5");
+      int band5 = (byte)Band5.toInt();
+      int channel5 = (byte)Channel5.toInt();
+      updateRx(band5,channel5,5);
+    }
 
+  if(NumRecievers>=5){
+      String Band6 = webServer.arg("band6");
+      String Channel6 = webServer.arg("channel6");
+      int band6 = (byte)Band6.toInt();
+      int channel6 = (byte)Channel6.toInt();
+      updateRx(band6,channel6,6);
+  }
+  
   EepromSettings.NumRecievers = NumRecievers;
 
+  Serial.print("NumRecievers -> ");
   Serial.println(EepromSettings.NumRecievers);
 
   webServer.sendHeader("Connection", "close");
@@ -309,6 +342,7 @@ void ProcessGeneralSettingsUpdate() {
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
   file.close();
   eepromSaveRquired = true;
+  oledUpdate();
 }
 
 void ProcessVBATModeUpdate() {
