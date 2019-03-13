@@ -1,20 +1,5 @@
     requestData(); // get intial data straight away
 	var StatusData;
-
-	var testData = {
-		"numRXs":3,
-		"Band":{
-			"1":0,
-			"2":1,
-			"3":2
-		},
-		"Channel":{
-			"1":0,
-			"2":1,
-			"3":2
-		}
-	}
-	//updateBandChannel(testData)
     function requestData() {
 
       var xhr = new XMLHttpRequest();
@@ -22,17 +7,9 @@
 
       xhr.onload = function() {
         if (xhr.status === 200) {
-
           if (xhr.responseText) { // if the returned data is not null, update the values
-            console.log("xhr.responseText")
-            console.log(xhr.responseText)
             StatusData = JSON.parse(JSON.stringify(xhr.responseText));
-            console.log("StatusData: ");
-            console.log(StatusData);
 			var data = JSON.parse(StatusData); //yeah not sure why I need to do this twice, but otherwise it doesn't work....
-            console.log("data");
-            console.log(data);
-
             document.getElementById("NumRXs").selectedIndex = parseInt(data.NumRXs);
 			document.getElementById("ADCVBATmode").selectedIndex = parseInt(data.ADCVBATmode);
             document.getElementById("RXFilter").selectedIndex = parseInt(data.RXFilter);
@@ -83,10 +60,10 @@
         }
     }
     function updateBandChannel(data){
-        console.log("****updateBandChannel****")
-        console.log(data)
-        for(var i=1;i<=numRXs;i++){ // FILL BAND AND CHANNEL FOR EACH ONE
-            document.getElementById('band'+i).selectedIndex=data.Band[i];
-            document.getElementById('channel'+i).selectedIndex=data.Channel[i];
+        max = data.NumRXs + 1
+        for(var i=0;i<max;i++){
+            var j = i +1
+            $('#band'+j).val(data.Band[i]);
+            $('#channel'+j).val(data.Channel[i]);
         }
     }

@@ -316,7 +316,7 @@ void ProcessGeneralSettingsUpdate() {
       int channel4 = (byte)Channel4.toInt();
       updateRx(band4,channel4,4);
     }
-  if(NumRecievers>=4{
+  if(NumRecievers>=4){
       String Band5 = webServer.arg("band5");
       String Channel5 = webServer.arg("channel5");
       int band5 = (byte)Band5.toInt();
@@ -331,8 +331,10 @@ void ProcessGeneralSettingsUpdate() {
       int channel6 = (byte)Channel6.toInt();
       updateRx(band6,channel6,6);
   }
-  
+
   EepromSettings.NumRecievers = NumRecievers;
+  
+  for(int i=0;i<MaxNumRecievers;i++){EepromSettings.RSSIthresholds[i]=webServer.arg("RSSIthreshold");}
 
   Serial.print("NumRecievers -> ");
   Serial.println(EepromSettings.NumRecievers);
