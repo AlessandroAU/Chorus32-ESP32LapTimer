@@ -267,9 +267,6 @@ void SendStaticVars() {
   sendSTR = sendSTR + "}";
   sendSTR = sendSTR +  "}";
 
-  Serial.print("sendSTR : ");
-  Serial.println(sendSTR);
-  // webServer.send(200, "application/json", "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + "}");
   webServer.send(200, "application/json", sendSTR);
 }
 
@@ -336,16 +333,11 @@ void ProcessGeneralSettingsUpdate() {
 
   String Rssi = webServer.arg("RSSIthreshold");
   int rssi = (byte)Rssi.toInt();
-  int value = map(rssi,10,100,100,4096);
-  Serial.print("RSSIthreshold: ");Serial.print(rssi);Serial.print("%\t");Serial.println(value);
+  int value = rssi*12;
   for(int i=0 ; i<MaxNumRecievers;i++){
       EepromSettings.RSSIthresholds[i]=value;
       RSSIthresholds[i]=value;
   }
-
-
-  // Serial.print("NumRecievers -> ");
-  // Serial.println(EepromSettings.NumRecievers);
 
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it

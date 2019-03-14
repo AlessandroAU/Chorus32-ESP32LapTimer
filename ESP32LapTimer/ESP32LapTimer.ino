@@ -44,7 +44,7 @@ void setup() {
   Serial.println("Booting....");
 
   buttonSetup();
-  
+
   EepromSettings.setup();
 
   delay(500);
@@ -79,9 +79,9 @@ void setup() {
     RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
   }
   UDPserver.begin(9000);
-  
+
   InitADCtimer();
-  
+
   beep();
 }
 

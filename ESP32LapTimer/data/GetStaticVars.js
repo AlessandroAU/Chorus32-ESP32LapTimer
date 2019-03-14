@@ -25,8 +25,7 @@
       xhr.send();
     }
     function updateRSSIThreshold(rssi){
-        var Rmin = 100,Rmax=4092, Tmin = 10,Tmax=100
-        var result = ((rssi - Rmin)/(Rmax-Rmin))*(Tmax-Tmin)+Tmin
+        var result = rssi / 12;
         return Math.floor(result)
     }
     function createBandChannel(numRXs) {
