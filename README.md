@@ -34,7 +34,7 @@ The images below show a construction using an ESP32 OLED board, it is recommende
 
 Performance:
 -----
-The Chorus32 Lap timer was compared to the $600USD ImmersionRC LapRF 8-Way at a local indoor event, arguably the worst conditions due to multipath and reflections. Results are presented below, you can see that the Chorus32 very closely matches the measured lap times of the LapRF. 
+The Chorus32 Lap timer was compared to the $600USD ImmersionRC LapRF 8-Way at a local indoor event, arguably the worst conditions due to multipath and reflections. Results are presented below, you can see that the Chorus32 very closely matches the measured lap times of the LapRF.
 
 ![alt text](img/Comparison1.png)
 ![alt text](img/Comparison2.png)
@@ -44,3 +44,8 @@ Compiling the Project:
 ~~Due to the fact that both the Bluetooth and Wifi stack are used quite alot of program memory is required. To compile the project you must choose 'Partition Scheme' -> Minimal SPIFFS in the Arduino IDE. Board should be selected as 'ESP32 Dev Module' in most cases.~~
 
 As we are not supoorting bluetooth for now and are using the SPIFFS partition leave the Partition Scheme as 'default'
+
+Library requirements:
+-----
+Adafruit_INA219
+ESP8266 AND ESP32 OLED DRIVER FOR SSD1306 DISPLAY

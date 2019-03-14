@@ -107,14 +107,17 @@ void oledUpdate(void)
   }
 
   // Voltage
-  display.setTextAlignment(TEXT_ALIGN_RIGHT);
-  display.drawString(127, 0, String(VbatReadingFloat, 2) + "V");
+  if(ADCVBATmode != 0){
+      display.setTextAlignment(TEXT_ALIGN_RIGHT);
+      display.drawString(127, 0, String(VbatReadingFloat, 2) + "V");
+  }
 
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   for (int i = 0; i < NumRecievers; i++) {
     display.drawString(0, 9 + i * 9, getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
     display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(ADCvalues[i], 100, 4096, 0, 85));
+    display.drawVerticalLine(40 + map(RSSIthresholds[i], 100, 4096, 0, 85),  10 + i * 9, 8); // line to show the RSSIthresholds
   }
 
   display.display();

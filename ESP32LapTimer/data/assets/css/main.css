@@ -245,8 +245,8 @@
 th {
     text-align: left;
 }
-	
-	
+
+
 /* Basic */
 
 	body {
@@ -677,7 +677,7 @@ th {
   filter: invert(1);
 }
 
-			
+
 /* Button */
 
 	input[type="submit"],
@@ -1319,4 +1319,12 @@ th {
 				padding: 2em 1em 2em 1em ;
 			}
 
+	}
+
+
+	.bandChannel  {
+	    margin-bottom: 5px;
+	    margin-top: 5px;
+	    margin-right: 5px;
+	    margin-left: 15px;
 	}
