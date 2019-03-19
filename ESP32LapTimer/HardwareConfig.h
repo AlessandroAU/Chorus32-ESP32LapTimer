@@ -45,7 +45,7 @@ byte NumRecievers;
 #endif
 
 #ifdef Old_Default_Pins
-  #define BEEPER 26
+  #define BEEPER 14
   #define USE_HSPI
   
   #define SCK 14
