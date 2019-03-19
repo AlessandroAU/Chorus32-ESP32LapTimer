@@ -18,6 +18,7 @@ void InitSPI() {
 #ifdef USE_VSPI
   SPI.begin();
 #endif
+  delay(200);
 }
 
 void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
@@ -28,6 +29,30 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
   digitalWrite(CSpin, LOW);
   SPI.transferBits(data, NULL, 25);
   digitalWrite(CSpin, HIGH);
+  SPI.endTransaction();
+  delayMicroseconds(MIN_TUNE_TIME);
+
+}
+
+
+void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
+
+  uint32_t data = addressBits | (1 << 4) | (dataBits << 5);
+
+  SPI.beginTransaction(SPISettings(1000000, LSBFIRST, SPI_MODE0));
+  digitalWrite(CS1, LOW);
+  digitalWrite(CS2, LOW);
+  digitalWrite(CS3, LOW);
+  digitalWrite(CS4, LOW);
+  digitalWrite(CS5, LOW);
+  digitalWrite(CS6, LOW);
+  SPI.transferBits(data, NULL, 25);
+  digitalWrite(CS1, HIGH);
+  digitalWrite(CS2, HIGH);
+  digitalWrite(CS3, HIGH);
+  digitalWrite(CS4, HIGH);
+  digitalWrite(CS5, HIGH);
+  digitalWrite(CS6, HIGH);
   SPI.endTransaction();
   delayMicroseconds(MIN_TUNE_TIME);
 

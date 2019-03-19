@@ -46,6 +46,7 @@ const uint16_t channelFreqTable[] = {
 uint16_t setModuleChannel(uint8_t channel, uint8_t band);
 
 void InitSPI();
+void SetDefaultRegs();
 uint16_t setModuleChannelBand(uint8_t NodeAddr);
 
 #endif

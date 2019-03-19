@@ -196,12 +196,14 @@ void SendMinLap(uint8_t NodeAddr) {
   isConfigured = 1;
 }
 
-void SendIsModuleConfigured(uint8_t NodeAddr) {
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('y');
-  addToSendQueue(TO_HEX(isConfigured));
-  addToSendQueue('\n');
+void SendIsModuleConfigured() {
+  for (int i = 0; i < NumRecievers; i ++) {
+    addToSendQueue('S');
+    addToSendQueue(TO_HEX(i));
+    addToSendQueue('y');
+    addToSendQueue(TO_HEX(isConfigured));
+    addToSendQueue('\n');
+  }
 }
 
 void SendXdone(uint8_t NodeAddr) {
@@ -215,6 +217,10 @@ void SendXdone(uint8_t NodeAddr) {
 void SetThresholdValue(uint16_t threshold, uint8_t NodeAddr) {
   Serial.print("Setting Threshold Value: ");
   Serial.println(threshold);
+  if (threshold > 340) {
+    threshold = 340;
+    Serial.println("Threshold was attempted to be set out of range");
+  }
   // stop the "setting threshold algorithm" to avoid overwriting the explicitly set value
   if (thresholdSetupMode) {
     thresholdSetupMode = 0;
@@ -427,20 +433,35 @@ void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
 
 void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
-//  Serial.print("SendLap: ");
-//  Serial.println(String(Lap) + " " + String(NodeAddr));
+  //  Serial.print("SendLap: ");
+  //  Serial.println(String(Lap) + " " + String(NodeAddr));
 
   uint32_t RequestedLap;
 
-  if (Lap == 1) {  ///ugh need to fix this logic at some point but it works for now
-    RequestedLap = LapTimes[NodeAddr][Lap] - RaceStartTime;
-  } else {
-    if (LapModeREL) {
-      RequestedLap = LapTimes[NodeAddr][Lap] - LapTimes[NodeAddr][Lap - 1];
-    } else {
-      RequestedLap = LapTimes[NodeAddr][Lap];
-    }
+  if (raceMode == 0) {
+    Serial.println("RaceMode == 0 and sendlaps was called");
+    return;
   }
+
+
+  //  if (Lap == 1) {  ///ugh need to fix this logic at some point but it works for now
+  //    RequestedLap = LapTimes[NodeAddr][Lap] - RaceStartTime;
+  //  } else {
+  if (raceMode == 1) {
+
+    if (Lap == 1) {
+      RequestedLap = LapTimes[NodeAddr][Lap] - RaceStartTime; // realtive mode
+    } else {
+      RequestedLap = LapTimes[NodeAddr][Lap] - LapTimes[NodeAddr][Lap - 1]; // realtive mode
+    }
+
+  } else if (raceMode == 2) {
+    RequestedLap = LapTimes[NodeAddr][Lap];  //absolute mode
+
+  } else {
+    Serial.println("Error: Invalid RaceMode Set");
+  }
+  //}
 
   uint8_t buf1[2];
   uint8_t buf2[8];
@@ -502,7 +523,7 @@ void SendAllSettings(uint8_t NodeAddr) {
   SendSoundMode(NodeAddr);
   SendVRxBand(NodeAddr);
   WaitFirstLap(NodeAddr);
-  SendIsModuleConfigured(NodeAddr);
+  SendIsModuleConfigured();
   SendVRxFreq(NodeAddr);
   SendRSSImonitorInterval(NodeAddr);
   SendTimerCalibration(NodeAddr);
@@ -623,19 +644,17 @@ void SendVRxFreq(uint8_t NodeAddr) {
 }
 
 void sendAPIversion() {
-  if (CurrNodeAddrAPI < NumRecievers) {
+
+  for (int i = 0; i < NumRecievers; i++) {
     addToSendQueue('S');
-    addToSendQueue(TO_HEX(CurrNodeAddrAPI));
+    addToSendQueue(TO_HEX(i));
     addToSendQueue('#');
     addToSendQueue('0');
     addToSendQueue('0');
     addToSendQueue('0');
     addToSendQueue('4');
     addToSendQueue('\n');
-  } else {
-    CurrNodeAddrAPI = 0;
   }
-  CurrNodeAddrAPI++;
 }
 
 
@@ -662,15 +681,15 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   if (controlData[2] == 'a') {
     for (int i = 0; i < NumRecievers; i++) {
       SendAllSettings(i);
-      delay(50);
+      //delay(100);
     }
   }
 
-  if (controlData[2] == RESPONSE_API_VERSION) {
-    for (int i = 0; i < NumRecievers; i++) {
-      sendAPIversion();
-    }
-  }
+  //  if (controlData[2] == RESPONSE_API_VERSION) {
+  //   // for (int i = 0; i < NumRecievers; i++) {
+  //      sendAPIversion();
+  //    //}
+  //  }
 
 
   ControlByte = controlData[2]; //This is dirty but we rewrite this byte....
@@ -834,9 +853,9 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         //addToSendQueue(SEND_ALL_DEVICE_STATE);
         break;
       case CONTROL_GET_API_VERSION: //get API version
-        for (int i = 0; i < NumRecievers; i++) {
-          sendAPIversion();
-        }
+        //for (int i = 0; i < NumRecievers; i++) {
+        sendAPIversion();
+        //}
         break;
       case CONTROL_TIME_ADJUSTMENT:
         SendTimerCalibration(NodeAddrByte);
@@ -845,7 +864,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendSetThresholdMode(NodeAddrByte);
         break;
       case CONTROL_GET_IS_CONFIGURED:
-        SendIsModuleConfigured(NodeAddrByte);
+        SendIsModuleConfigured();
         break;
     }
   }

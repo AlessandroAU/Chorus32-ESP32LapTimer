@@ -30,7 +30,6 @@ extern int ADC4value;
 
 volatile uint32_t LapTimes[MaxNumRecievers][100];
 volatile int LapTimePtr[MaxNumRecievers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
-bool LapModeREL = true;  // lap move is realtive, ie lap is millis() difference from previous lap
 
 uint32_t MinLapTime = 5000;  //this is in millis
 
@@ -44,7 +43,7 @@ void setup() {
   Serial.println("Booting....");
 
   buttonSetup();
-  
+
   EepromSettings.setup();
 
   delay(500);
@@ -64,6 +63,10 @@ void setup() {
 
   InitWebServer();
 
+  if (!EepromSettings.SanityCheck()) {
+    EepromSettings.defaults();
+    Serial.println("Resetting EEPROM to Defaults....");
+  }
 
   RXADCfilter = EepromSettings.RXADCfilter;
   ADCVBATmode = EepromSettings.ADCVBATmode;
@@ -79,9 +82,9 @@ void setup() {
     RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
   }
   UDPserver.begin(9000);
-  
+
   InitADCtimer();
-  
+
   beep();
 }
 
@@ -102,7 +105,7 @@ void loop() {
 
   //if (raceMode == 0) {
   //if (client.connected()) {
-    webServer.handleClient();
+  webServer.handleClient();
   //}
   // }
 
