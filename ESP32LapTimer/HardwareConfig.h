@@ -6,7 +6,7 @@ void InitHardwarePins();
 #define MaxNumRecievers 6
 byte NumRecievers;
 
-#define OLED //uncomment this to enable OLED support
+//#define OLED //uncomment this to enable OLED support
 
 ///Define Pin configuration here, these are the defaults as given on github
 

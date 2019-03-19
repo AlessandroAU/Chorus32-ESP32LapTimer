@@ -1,3 +1,5 @@
+#include "TCP.h"
+
 void IRAM_ATTR SendUDPpacket() {
 
   if (UDPoutQuePtr > 0) {
@@ -6,14 +8,16 @@ void IRAM_ATTR SendUDPpacket() {
     uint16_t port = UDPserver.remotePort();
     UDPserver.beginPacket(remoteIp, port);
 
-    for (int i = 0; i < UDPoutQuePtr; i++) {
-      if (MirrorToSerial) {
-        Serial.print((char)UDPoutQue[i]);
-      }
-    }
-
     UDPserver.write((const uint8_t *)UDPoutQue, UDPoutQuePtr);
-    
+
+    //    for (int i = 0; i < UDPoutQuePtr; i++) {
+    //      if (MirrorToSerial) {
+    //        Serial.print((char)UDPoutQue[i]);
+    //      }
+    //    }
+
+
+
     UDPserver.endPacket();
     //Serial.println("");
     UDPoutQuePtr = 0;
@@ -24,44 +28,11 @@ void IRAM_ATTR SendUDPpacket() {
 }
 
 
-void IRAM_ATTR addToSendQueue(uint8_t item) {
-  UDPoutQue[UDPoutQuePtr] = item;
-  UDPoutQuePtr++;
-
-#ifdef BluetoothEnabled
-  BluetoothBuffOut[BluetoothBuffOutPointer] = item;
-  BluetoothBuffOutPointer++;
-#endif
-
- // if (item == '\n') {
- //   SendUDPpacket();
- // }
-}
-
-
-void IRAM_ATTR addToSendQueue(uint8_t * buff, uint8_t length) {
-
-  for (int i = 0; i < length; i++) {
-    UDPoutQue[UDPoutQuePtr] = buff[i];
-    UDPoutQuePtr++;
-
-#ifdef BluetoothEnabled
-    BluetoothBuffOut[BluetoothBuffOutPointer] = buff[i];
-    BluetoothBuffOutPointer++;
-#endif
-
-    //    if (MirrorToSerial) {
-    //      Serial.print(char(buff[i]));
-    //    }
-  }
-}
-
-char SerialBuffIn[50];
+char SerialBuffIn[100];
 
 byte ndx = 0;
 char rc;
 byte StartOfLastCMD = 0;
-char inData[10];
 
 void IRAM_ATTR ProcessSerialCommand(char * BuffIn, byte StartIndex, byte Length) {
   //
@@ -79,8 +50,6 @@ void IRAM_ATTR ProcessSerialCommand(char * BuffIn, byte StartIndex, byte Length)
   //  }
 
 }
-
-char endMarker = '\n';
 
 void IRAM_ATTR HandleSerialRead() {
 
@@ -167,6 +136,10 @@ void IRAM_ATTR HandleSerialRead() {
 
 
 void IRAM_ATTR HandleServerUDP() {
+
+  if (RemoteClient.connected()) {  // if we have a TCP connecting going don't do any UDP stuff
+    return;
+  }
 
   SendUDPpacket(); //Send Back any reply or actions that needed to be taken
 

@@ -3,6 +3,8 @@
 #include <WiFiUdp.h>
 #include "Comms.h"
 #include "ADC.h"
+#include "UDP.h"
+#include "TCP.h"
 #include "HardwareConfig.h"
 #include "RX5808.h"
 #include "Bluetooth.h"
@@ -82,6 +84,7 @@ void setup() {
     RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
   }
   UDPserver.begin(9000);
+  TCPinit();
 
   InitADCtimer();
 
@@ -100,6 +103,7 @@ void loop() {
 #endif
   HandleSerialRead();
   HandleServerUDP();
+  HandleServerTCP();
   SendCurrRSSIloop();
   dnsServer.processNextRequest();
 

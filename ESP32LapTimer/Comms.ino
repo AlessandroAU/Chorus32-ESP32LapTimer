@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "HardwareConfig.h"
 #include "UDP.h"
+#include "SendQue.h"
 #include "settings_eeprom.h"
 
 ///////This is mostly from the original Chorus Laptimer, need to cleanup unused functions and variables
@@ -427,7 +428,7 @@ void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
   uint8_t Pointer = LapTimePtr[NodeAddr];
   for (uint8_t i = 0; i < Pointer; i++) {
     sendLap(i, NodeAddr);
-    SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer with all the data we might send
+    //SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer with all the data we might send
   }
 }
 
@@ -522,7 +523,7 @@ void SendAllSettings(uint8_t NodeAddr) {
   SendThresholdValue(NodeAddr);
   SendSoundMode(NodeAddr);
   SendVRxBand(NodeAddr);
-  WaitFirstLap(NodeAddr);
+  SendWaitFirstLap(NodeAddr);
   SendIsModuleConfigured();
   SendVRxFreq(NodeAddr);
   SendRSSImonitorInterval(NodeAddr);
@@ -576,7 +577,7 @@ void SendLipoVoltage() {
   addToSendQueue('\n');
 }
 
-void WaitFirstLap(uint8_t NodeAddr) {
+void SendWaitFirstLap(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue('1');
@@ -681,7 +682,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   if (controlData[2] == 'a') {
     for (int i = 0; i < NumRecievers; i++) {
       SendAllSettings(i);
-      //delay(100);
+      delay(50);
     }
   }
 
@@ -709,6 +710,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
       case CONTROL_WAIT_FIRST_LAP:
         valueToSet = TO_BYTE(controlData[3]);
+        SendWaitFirstLap(NodeAddrByte);
         shouldWaitForFirstLap = valueToSet;
         //playClickTones();
         isConfigured = 1;
@@ -772,9 +774,10 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         //        }
         //addToSendQueue(SEND_SOUND_STATE);
         //playClickTones();
-        for (int i = 0; i < NumRecievers; i++) {
-          SendSoundMode(i);
-        }
+        SendSoundMode(NodeAddrByte);
+        //for (int i = 0; i < NumRecievers; i++) {
+          //SendSoundMode(i);
+        //}
         isConfigured = 1;
 
         break;
@@ -811,7 +814,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         //addToSendQueue(SEND_TIME);
         break;
       case CONTROL_WAIT_FIRST_LAP:
-        WaitFirstLap(NodeAddrByte);
+        SendWaitFirstLap(NodeAddrByte);
         break;
       case CONTROL_BAND:
         SendVRxBand(NodeAddrByte);
@@ -832,9 +835,9 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendMinLap(NodeAddrByte);
         break;
       case CONTROL_SOUND:
-        for (int i = 0; i < NumRecievers; i++) {
-          SendSoundMode(i);
-        }
+       // for (int i = 0; i < NumRecievers; i++) {
+          SendSoundMode(NodeAddrByte);
+        //}
         break;
       case CONTROL_THRESHOLD:
         SendThresholdValue(NodeAddrByte);

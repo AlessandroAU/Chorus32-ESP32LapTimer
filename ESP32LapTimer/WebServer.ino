@@ -91,7 +91,7 @@ void InitWifiAP() {
 
 
 
-  WiFi.begin();
+  //WiFi.begin();
   delay( 500 ); // If not used, somethimes following command fails
   WiFi.mode( WIFI_AP );
   //ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_AP, WIFI_PROTOCOL_11N));
@@ -106,6 +106,7 @@ void InitWifiAP() {
   dnsServer.start(DNS_PORT, "*", apIP);
   HTTPupdating = false;
   Serial.println("on");
+  WiFi.setSleep(false);
 
 }
 
@@ -218,7 +219,7 @@ void InitWebServer() {
 
   webServer.begin();                           // Actually start the server
   Serial.println("HTTP server started");
-  client.setNoDelay(1);
+  //client.setNoDelay(1);
   delay(1000);
 
 
@@ -344,7 +345,6 @@ void ProcessGeneralSettingsUpdate() {
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
   file.close();
   eepromSaveRquired = true;
-  oledUpdate();
 }
 
 void ProcessVBATModeUpdate() {
