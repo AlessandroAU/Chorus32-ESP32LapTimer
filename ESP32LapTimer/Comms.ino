@@ -456,7 +456,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
     }
 
   } else if (raceMode == 2) {
-    RequestedLap = LapTimes[NodeAddr][Lap];  //absolute mode
+    RequestedLap = LapTimes[NodeAddr][Lap] - RaceStartTime;  //absolute mode
 
   } else {
     Serial.println("Error: Invalid RaceMode Set");
