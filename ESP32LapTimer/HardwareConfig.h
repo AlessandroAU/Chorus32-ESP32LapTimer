@@ -20,6 +20,12 @@ byte NumRecievers;
 
 #ifdef Default_Pins
   #define BEEPER 14
+  
+  #define LEDs 12
+
+  #define BUTTON1 T7 // 27
+  #define BUTTON2 T4 // 13
+  
   #define USE_VSPI
   
   #define CS1 16
@@ -45,12 +51,17 @@ byte NumRecievers;
 #endif
 
 #ifdef Old_Default_Pins
-  #define BEEPER 26
+  #define BEEPER 23
+  
+  #define LEDs 17
+
+  #define BUTTON1 T7 // 27
+  #define BUTTON2 T4 // 13
+  
   #define USE_HSPI
   
   #define SCK 14
   #define MOSI 12
-  #define MISO 13
   
   #define CS1 16
   #define CS2 5
@@ -75,12 +86,17 @@ byte NumRecievers;
 #endif
 
 #ifdef AlessandroDevBoard
-  #define BEEPER 14
+  #define BEEPER 23
+  
+  #define LEDs 17
+
+  #define BUTTON1 T7 // 27
+  #define BUTTON2 T4 // 13
+  
   #define USE_HSPI
 
   #define SCK 14
   #define MOSI 12
-  #define MISO 13
 
   #define CS1 16
   #define CS2 2
