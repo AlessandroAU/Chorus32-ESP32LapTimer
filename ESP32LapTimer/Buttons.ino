@@ -14,8 +14,8 @@ void IRAM_ATTR buttonOneInterrupt();
 void IRAM_ATTR buttonTwoInterrupt();
 
 void buttonSetup() {
-  touchAttachInterrupt(T4, buttonOneInterrupt, buttonTouchThreshold);
-  touchAttachInterrupt(T7, buttonTwoInterrupt, buttonTouchThreshold);
+  touchAttachInterrupt(BUTTON1, buttonOneInterrupt, buttonTouchThreshold);
+  touchAttachInterrupt(BUTTON2, buttonTwoInterrupt, buttonTouchThreshold);
 }
 
 void buttonUpdate() {
