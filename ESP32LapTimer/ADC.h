@@ -50,6 +50,7 @@ int ADCvalues[MaxNumRecievers];
 void ConfigureADC();
 void InitADCtimer();
 void IRAM_ATTR CheckRSSIthresholdExceeded();
+uint16_t adcLoopCounter = 0;
 
 FilterBeLp2_10HZ Filter_10HZ[6] = {FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ()};
 FilterBeLp2_20HZ Filter_20HZ[6] = {FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ()};

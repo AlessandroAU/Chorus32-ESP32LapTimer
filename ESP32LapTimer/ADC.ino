@@ -194,7 +194,8 @@ void ReadVBAT_INA219() {
 }
 
 void IRAM_ATTR readADCs() {
-
+  adcLoopCounter++;
+  
   static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   /* un-block the interrupt processing task now */
   xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken );
