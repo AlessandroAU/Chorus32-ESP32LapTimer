@@ -9,11 +9,7 @@
 
 Timer oledTimer = Timer(50);
 
-#ifdef AlessandroDevBoard
-SSD1306  display(0x3c, 5, 4);
-#else
 SSD1306  display(0x3c, 21, 22);  // 21 and 22 are default pins
-#endif
 
 const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 
