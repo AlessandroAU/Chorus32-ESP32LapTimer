@@ -2,4 +2,4 @@ This PCB has been tested but found to have the INA219 Vin+ and Vin- pads reverse
 
 Also note the Vcc GND pin order on the OLED.  There are 2 popular OLEDs available with these pins swapped!
 
-![patch wires](/PCB_V1.png)
+![patch wires](PCB_V1.png)
