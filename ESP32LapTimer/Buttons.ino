@@ -22,7 +22,10 @@ void buttonUpdate() {
   if(buttonOneTouched && button1Timer.hasTicked()) {
     Serial.println("buttonOneTouched");
     beep();
+    
     // Do button1 stuff in here
+    displayScreenNumber++;
+    
     buttonOneTouched = false;
     button1Timer.reset();
   } else {
