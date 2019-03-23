@@ -31,12 +31,11 @@ Hardware:
 -----
 Construction is easy and only requires some basic point to point wiring of each module to the ESP32 board.
 
-See HardwareConfig.h for pin assignments, it is possible to change any pin assignments apart from ADC channels and I2C pins 21 & 22. Note that pin assignments are GPIO hardware pin numbers and not pin numbers specific to the particular ESP32 development board you may be using. IMPORTANT NOTICE: PCB DESIGNS ARE BEING TESTING AND HARDWARE PINOUT WILL CHANGE IN THE NEAR FUTURE!
+See HardwareConfig.h for pin assignments, it is possible to change any pin assignments apart from ADC channels. Note that pin assignments are GPIO hardware pin numbers and not pin numbers specific to the particular ESP32 development board you may be using. 
 
-![alt text](img/schematic2.png)
-The images below show a construction using an ESP32 OLED board, it is recommended  to use the more standard NodeMCU at the moment.
-![alt text](img/hardwareImage1.png)
-![alt text](img/HardwareImage2.png)
+PCB designs are currently being tested
+
+![alt text](img/PCBv1.jpg)
 
 
 Performance:
