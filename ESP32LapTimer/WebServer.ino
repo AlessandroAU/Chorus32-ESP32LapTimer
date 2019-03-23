@@ -345,6 +345,9 @@ void ProcessGeneralSettingsUpdate() {
   file.close();
   eepromSaveRquired = true;
   oledUpdate();
+
+  PowerDownAll();
+  SelectivePowerUp();
 }
 
 void ProcessVBATModeUpdate() {

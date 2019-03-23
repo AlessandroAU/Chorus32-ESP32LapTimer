@@ -51,10 +51,8 @@ void setup() {
   ConfigureADC();
 
   InitSPI();
-
-
-
-  delay(500);
+  PowerDownAll(); // Powers down all RX5808's
+  delay(250);
 
 #ifdef BluetoothEnabled
   SerialBT.begin("Chorus Laptimer SPP");
@@ -65,7 +63,7 @@ void setup() {
 
   if (!EepromSettings.SanityCheck()) {
     EepromSettings.defaults();
-    Serial.println("Resetting EEPROM to Defaults....");
+    Serial.println("Detected That EEPROM corruption has occured.... \n Resetting EEPROM to Defaults....");
   }
 
   RXADCfilter = EepromSettings.RXADCfilter;
@@ -73,11 +71,7 @@ void setup() {
   VBATcalibration = EepromSettings.VBATcalibration;
   NumRecievers = EepromSettings.NumRecievers;
   commsSetup();
-  // inits modules with defaults
-  for (int i = 0; i < NumRecievers; i++) {
-    setModuleChannelBand(i);
-    delay(10);
-  }
+
   for (int i = 0; i < NumRecievers; i++) {
     RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
   }
@@ -85,7 +79,16 @@ void setup() {
 
   InitADCtimer();
 
+  SelectivePowerUp();
+
+  // inits modules with defaults
+  for (int i = 0; i < NumRecievers; i++) {
+    setModuleChannelBand(i);
+    delay(10);
+  }
+
   beep();
+
 }
 
 void loop() {

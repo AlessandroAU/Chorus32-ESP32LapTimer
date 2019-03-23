@@ -2,6 +2,9 @@
 #define SPI_ADDRESS_POWER   0x0A
 #define SPI_ADDRESS_STATE   0x0F
 
+#define PowerDownState    0b11111111111111111111
+#define DefaultPowerState 0b00010000110000010011
+
 #include "HardwareConfig.h"
 
 #include <Arduino.h>
@@ -55,6 +58,78 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
   digitalWrite(CS6, HIGH);
   SPI.endTransaction();
   delayMicroseconds(MIN_TUNE_TIME);
+
+}
+
+void PowerDownAll() {
+  rxWriteAll(SPI_ADDRESS_POWER, PowerDownState);
+}
+
+void PowerDown(byte NodeAddr) {
+
+  switch (NodeAddr) {
+    case 0:
+      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS1);
+      break;
+
+    case 1:
+      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS2);
+      break;
+
+    case 2:
+      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS3);
+      break;
+
+    case 3:
+      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS4);
+      break;
+
+    case 4:
+      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS5);
+      break;
+
+    case 5:
+      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS6);
+      break;
+  }
+}
+
+void PowerUpAll() {
+  rxWriteAll(SPI_ADDRESS_POWER, DefaultPowerState);
+}
+
+void PowerUp(byte NodeAddr) {
+  switch (NodeAddr) {
+    case 0:
+      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS1);
+      break;
+
+    case 1:
+      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS2);
+      break;
+
+    case 2:
+      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS3);
+      break;
+
+    case 3:
+      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS4);
+      break;
+
+    case 4:
+      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS5);
+      break;
+
+    case 5:
+      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS6);
+      break;
+  }
+}
+
+void SelectivePowerUp() { //powerup only the RXs that have been requested
+  for (int i = 0; i <= NumRecievers; i++) {
+    PowerUp(i);
+  }
 
 }
 

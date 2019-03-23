@@ -12,8 +12,8 @@ byte NumRecievers;
 
 #define BEEPER 26
 
-//#define USE_VSPI
-#define USE_HSPI
+#define USE_VSPI
+//#define USE_HSPI
 
 #define SCK 14
 #define MOSI 12
