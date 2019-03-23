@@ -79,8 +79,8 @@ void oledUpdate(void)
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     for (int i = 0; i < NumRecievers; i++) {
       display.drawString(0, 9 + i * 9, getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
-      display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(ADCvalues[i], 100, 4096, 0, 85));
-      display.drawVerticalLine(40 + map(RSSIthresholds[i], 100, 4096, 0, 85),  10 + i * 9, 8); // line to show the RSSIthresholds
+      display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(ADCvalues[i], 600, 3500, 0, 85));
+      display.drawVerticalLine(40 + map(RSSIthresholds[i], 600, 3500, 0, 85),  10 + i * 9, 8); // line to show the RSSIthresholds
     }
   } else if (displayScreenNumber % numberOfOledScreens == 1) {
     if (ADCVBATmode != 0) {

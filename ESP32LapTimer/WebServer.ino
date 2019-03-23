@@ -350,9 +350,14 @@ void ProcessGeneralSettingsUpdate() {
   eepromSaveRquired = true;
   oledUpdate();
 
-  //PowerDownAll();
-  // delay(50);
-  //SelectivePowerUp();
+//  PowerDownAll();
+//  SelectivePowerUp();
+//  
+//  for (int i = 0; i < NumRecievers; i++) {
+//    setModuleChannelBand(i);
+//    delay(10);
+//  }
+//  //TODO, clean up above code so we don't need to set freqs twice.
 
 }
 

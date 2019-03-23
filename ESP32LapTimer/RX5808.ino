@@ -237,7 +237,6 @@ void SelectivePowerUp() { //powerup only the RXs that have been requested
     RXpowerOn(i);
     //PowerUp(i);
     rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, i);
-    rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, i);
 //
 //    Serial.print("Power up: ");
 //    Serial.println(i);

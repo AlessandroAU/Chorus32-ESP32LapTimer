@@ -79,7 +79,7 @@ void setup() {
 
   InitADCtimer();
 
-  SelectivePowerUp();
+  //SelectivePowerUp();
 
   // inits modules with defaults
   for (int i = 0; i < NumRecievers; i++) {
