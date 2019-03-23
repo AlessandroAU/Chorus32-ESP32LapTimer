@@ -1,5 +1,4 @@
 #ifdef OLED
-// https://techtutorialsx.com/2017/12/02/esp32-arduino-interacting-with-a-ssd1306-oled-display/
 
 #include <Wire.h>
 #include "SSD1306.h"
@@ -14,23 +13,12 @@ SSD1306  display(0x3c, 21, 22);  // 21 and 22 are default pins
 const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 
 void oledSetup(void) {
-
   display.init();
   display.flipScreenVertically();
   display.clear();
   display.drawFastImage(0, 0, 128, 64, ChorusLaptimerLogo_Screensaver);
   display.display();
   display.setFont(Dialog_plain_9);
-
-  //  xTaskCreate(
-  //    oledUpdateTask,          /* Task function. */
-  //    "oledUpdateTask",        /* String with name of task. */
-  //    10000,            /* Stack size in bytes. */
-  //    NULL,             /* Parameter passed as input of the task */
-  //    10,                /* Priority of the task. */
-  //    NULL);            /* Task handle. */
-
-  //delay(100);
 }
 
 void OLED_CheckIfUpdateReq() {
@@ -43,42 +31,11 @@ void OLED_CheckIfUpdateReq() {
   if (ADCVBATmode != INA219) {
     VbatReadingFloat = fmap(VbatReadingSmooth * VBATcalibration, 0, 4096, 0, 4.4);
   }
-
   //Serial.println(VbatReading);
-
 }
-
-//
-//void oledUpdate()
-//{
-//
-//  delay(1000);
-//  display.clear();
-//
-//  display.setColor(WHITE);
-//  display.setTextAlignment(TEXT_ALIGN_CENTER);
-//  display.drawString(64, 15, String(10));
-//  display.setFont(ArialMT_Plain_24);
-//
-//  display.display();
-//
-//  delay(10);
-//}
-
-void oledUpdateTask( void * parameter ) {
-  while (1) {
-    oledUpdate();
-    vTaskDelay(500);
-  }
-}
-
 
 void oledUpdate(void)
 {
-
-  //vTaskDelay( xDelay ); //delays 500ms until next update, this is using FreeRTOS functions
-  //delay(1000);
-
   display.clear();
 
   // Display on time
