@@ -63,13 +63,18 @@ void oledUpdate(void)
     } else {
       display.drawString(36, 0, String(millis() % 60000 / 1000));
     }
-  
+
     // Voltage
-    if(ADCVBATmode != 0){
-        display.setTextAlignment(TEXT_ALIGN_RIGHT);
-        display.drawString(127, 0, String(VbatReadingFloat, 2) + "V");
+    if (ADCVBATmode != 0) {
+      display.setTextAlignment(TEXT_ALIGN_RIGHT);
+      display.drawString(127, 0, String(VbatReadingFloat, 2) + "V");
     }
-  
+
+    if (ADCVBATmode == INA219) {
+      display.drawString(90, 0, String(mAReadingFloat/1000, 2) + "A");
+    }
+
+
     // Rx modules
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     for (int i = 0; i < NumRecievers; i++) {
@@ -78,15 +83,15 @@ void oledUpdate(void)
       display.drawVerticalLine(40 + map(RSSIthresholds[i], 100, 4096, 0, 85),  10 + i * 9, 8); // line to show the RSSIthresholds
     }
   } else if (displayScreenNumber % numberOfOledScreens == 1) {
-    if(ADCVBATmode != 0){
-        display.setTextAlignment(TEXT_ALIGN_LEFT);
-        
-        display.drawString(0, 0, "ADC loop " + String(adcLoopCounter*(1000.0 / oledRefreshTime)) + " Hz");
-        adcLoopCounter = 0;
-        
-        display.drawString(0, 9, String(mAReadingFloat) + " mA");        
+    if (ADCVBATmode != 0) {
+      display.setTextAlignment(TEXT_ALIGN_LEFT);
+
+      display.drawString(0, 0, "ADC loop " + String(adcLoopCounter * (1000.0 / oledRefreshTime)) + " Hz");
+      adcLoopCounter = 0;
+
+      display.drawString(0, 9, String(mAReadingFloat) + " mA");
     }
-  } 
+  }
 
   display.display();
 }
