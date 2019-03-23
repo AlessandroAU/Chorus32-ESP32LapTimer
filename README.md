@@ -7,13 +7,14 @@ Compared to the original ChorusRF Lamptimer this ESP32 version only requires one
 Hardware construction is also simplified as both parts are 3.3v logic and there is no need for level shifting or resistors.  
 
 Updates:
+-----
 
-Important Notice for Chorus32 users:
+Important Notice for Chorus32 users!!!:
 
 As of last commit the default pinout has been changed to match that of the PCBs currently being tested.
 
 For anyone that has built a Chorus32 with original schematics do not worry, your unit will continue working with future updates. However you must comment out '#define Default_Pins " and un-comnent '//#define Old_Default_Pins' in 'HardwareConfig.h' when compiling.
------
+
 Added OLED and VBAT measurement support
 Auto RSSI threshold setup is also not implemented, just set thresholds manually for now.
 
