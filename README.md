@@ -37,6 +37,7 @@ PCB designs are currently being tested
 
 ![alt text](img/PCBv1.jpg)
 
+![alt text](img/schematic2.png)
 
 Performance:
 -----
