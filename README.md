@@ -23,10 +23,14 @@ https://www.youtube.com/watch?v=BVd2t0yO_5A/0.jpg
 Application Support:
 -----
 Chorus32 communicates using the Chorus RF Laptimer API, which is supported by LiveTime 
-LiveTime is an incredibly powerful and feature-rich timing system which runs on Windows. It is, however, quite complex, and likely overkill for most users. More information can be found here: https://www.livetimescoring.com/ 
+LiveTime is an incredibly powerful and feature-rich timing system which runs on Windows. It is, however, quite complex, and likely overkill for most users. 
 
-If you are looking for a simpler setup, you can also use the Chorus RF Lap Timer app available for 
+More information can be found here: https://www.livetimescoring.com/ 
+
+If you are looking for a simpler setup, you can also use the Chorus RF Lap Timer app available for:
+
 Android: https://play.google.com/store/apps/details?id=app.andrey_voroshkov.chorus_laptimer
+
 iOS: https://itunes.apple.com/us/app/chorus-rf-laptimer/id1296647206?mt=8
 
 Hardware:
