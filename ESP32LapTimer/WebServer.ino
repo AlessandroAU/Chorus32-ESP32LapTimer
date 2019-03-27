@@ -254,15 +254,19 @@ void SendStaticVars() {
 
   String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(RSSIthresholds[0]);
   sendSTR = sendSTR + ",\"Band\":{";
-  for(int i=0;i<NumRecievers;i++){
-      sendSTR = sendSTR +"\""+i+"\":"+EepromSettings.RXBand[i];
-      if(NumRecievers>1 && NumRecievers-i > 1) {sendSTR = sendSTR + ",";}
+  for (int i = 0; i < NumRecievers; i++) {
+    sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
+    if (NumRecievers > 1 && NumRecievers - i > 1) {
+      sendSTR = sendSTR + ",";
+    }
   }
   sendSTR = sendSTR + "},";
   sendSTR = sendSTR + "\"Channel\":{";
-  for(int i=0;i<NumRecievers;i++){
-    sendSTR = sendSTR +"\""+i+"\":"+EepromSettings.RXChannel[i];
-    if(NumRecievers>1 && NumRecievers-i > 1) {sendSTR = sendSTR + ",";}
+  for (int i = 0; i < NumRecievers; i++) {
+    sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXChannel[i];
+    if (NumRecievers > 1 && NumRecievers - i > 1) {
+      sendSTR = sendSTR + ",";
+    }
   }
   sendSTR = sendSTR + "}";
   sendSTR = sendSTR +  "}";
@@ -271,72 +275,72 @@ void SendStaticVars() {
 }
 
 void updateRx (int band, int channel, int rx) {
-    rx = rx - 1;
-    setModuleChannelBand(band,channel,rx);
-    EepromSettings.RXBand[rx]=band;
-    RXBand[rx]=band;
-    EepromSettings.RXChannel[rx]=channel;
-    RXChannel[rx]=channel;
-    uint16_t index = RXChannel[rx] + (8 * RXBand[rx]);
-    EepromSettings.RXfrequencies[rx]=channelFreqTable[index];
+  rx = rx - 1;
+  setModuleChannelBand(band, channel, rx);
+  EepromSettings.RXBand[rx] = band;
+  RXBand[rx] = band;
+  EepromSettings.RXChannel[rx] = channel;
+  RXChannel[rx] = channel;
+  uint16_t index = RXChannel[rx] + (8 * RXBand[rx]);
+  EepromSettings.RXfrequencies[rx] = channelFreqTable[index];
 }
 
 void ProcessGeneralSettingsUpdate() {
   String NumRXs = webServer.arg("NumRXs");
   NumRecievers = (byte)NumRXs.toInt();
 
-  if(NumRecievers>=0){
-      String Band1 = webServer.arg("band1");
-      String Channel1 = webServer.arg("channel1");
-      int band1 = (byte)Band1.toInt();
-      int channel1 = (byte)Channel1.toInt();
-      updateRx(band1,channel1,1);
+  if (NumRecievers >= 0) {
+    String Band1 = webServer.arg("band1");
+    String Channel1 = webServer.arg("channel1");
+    int band1 = (byte)Band1.toInt();
+    int channel1 = (byte)Channel1.toInt();
+    updateRx(band1, channel1, 1);
   }
-  if(NumRecievers>=1){
-      String Band2 = webServer.arg("band2");
-      String Channel2 = webServer.arg("channel2");
-      int band2 = (byte)Band2.toInt();
-      int channel2 = (byte)Channel2.toInt();
-      updateRx(band2,channel2,2);
+  if (NumRecievers >= 1) {
+    String Band2 = webServer.arg("band2");
+    String Channel2 = webServer.arg("channel2");
+    int band2 = (byte)Band2.toInt();
+    int channel2 = (byte)Channel2.toInt();
+    updateRx(band2, channel2, 2);
   }
-  if(NumRecievers>=2){
-      String Band3 = webServer.arg("band3");
-      String Channel3 = webServer.arg("channel3");
-      int band3 = (byte)Band3.toInt();
-      int channel3 = (byte)Channel3.toInt();
-      updateRx(band3,channel3,3);
+  if (NumRecievers >= 2) {
+    String Band3 = webServer.arg("band3");
+    String Channel3 = webServer.arg("channel3");
+    int band3 = (byte)Band3.toInt();
+    int channel3 = (byte)Channel3.toInt();
+    updateRx(band3, channel3, 3);
   }
-  if(NumRecievers>=3){
-      String Band4 = webServer.arg("band4");
-      String Channel4 = webServer.arg("channel4");
-      int band4 = (byte)Band4.toInt();
-      int channel4 = (byte)Channel4.toInt();
-      updateRx(band4,channel4,4);
-    }
-  if(NumRecievers>=4){
-      String Band5 = webServer.arg("band5");
-      String Channel5 = webServer.arg("channel5");
-      int band5 = (byte)Band5.toInt();
-      int channel5 = (byte)Channel5.toInt();
-      updateRx(band5,channel5,5);
-    }
+  if (NumRecievers >= 3) {
+    String Band4 = webServer.arg("band4");
+    String Channel4 = webServer.arg("channel4");
+    int band4 = (byte)Band4.toInt();
+    int channel4 = (byte)Channel4.toInt();
+    updateRx(band4, channel4, 4);
+  }
+  if (NumRecievers >= 4) {
+    String Band5 = webServer.arg("band5");
+    String Channel5 = webServer.arg("channel5");
+    int band5 = (byte)Band5.toInt();
+    int channel5 = (byte)Channel5.toInt();
+    updateRx(band5, channel5, 5);
+  }
 
-  if(NumRecievers>=5){
-      String Band6 = webServer.arg("band6");
-      String Channel6 = webServer.arg("channel6");
-      int band6 = (byte)Band6.toInt();
-      int channel6 = (byte)Channel6.toInt();
-      updateRx(band6,channel6,6);
+  if (NumRecievers >= 5) {
+    String Band6 = webServer.arg("band6");
+    String Channel6 = webServer.arg("channel6");
+    int band6 = (byte)Band6.toInt();
+    int channel6 = (byte)Channel6.toInt();
+    updateRx(band6, channel6, 6);
   }
 
   EepromSettings.NumRecievers = NumRecievers;
 
   String Rssi = webServer.arg("RSSIthreshold");
   int rssi = (byte)Rssi.toInt();
-  int value = rssi*12;
-  for(int i=0 ; i<MaxNumRecievers;i++){
-      EepromSettings.RSSIthresholds[i]=value;
-      RSSIthresholds[i]=value;
+  int value = rssi * 12;
+  for (int i = 0 ; i < MaxNumRecievers; i++) {
+    EepromSettings.RSSIthresholds[i] = value;
+    RSSIthresholds[i] = value;
   }
 
   webServer.sendHeader("Connection", "close");
@@ -345,6 +349,16 @@ void ProcessGeneralSettingsUpdate() {
   file.close();
   eepromSaveRquired = true;
   oledUpdate();
+
+//  PowerDownAll();
+//  SelectivePowerUp();
+//  
+//  for (int i = 0; i < NumRecievers; i++) {
+//    setModuleChannelBand(i);
+//    delay(10);
+//  }
+//  //TODO, clean up above code so we don't need to set freqs twice.
+
 }
 
 void ProcessVBATModeUpdate() {
