@@ -1,6 +1,6 @@
 # Chorus32-ESP32Laptimer
 
-Based on the popular Chorus RF Laptimer, this ESP32 port provides many significant advantages, not only does the ESP32 provide much more processing power than AVR based Arduino boards but it's built in Wifi and Bluetooth networking greatly improve connectivity options.
+Based on the popular Chorus RF Laptimer, this ESP32 port provides many significant advantages. Not only does the ESP32 provide much more processing power than AVR based Arduino boards, but it also has built in Wifi and Bluetooth networking, which greatly improve connectivity options.
 
 Compared to the original ChorusRF Lamptimer this ESP32 version only requires one RX module per pilot and a single ESP32 (nodemcu or similar) board. This allows you to connect your Lap timer wirelessly with no extra hardware required.
 
@@ -8,8 +8,7 @@ Hardware construction is also simplified as both parts are 3.3v logic and there 
 
 Updates:
 -----
-
-Important Notice for Chorus32 users!!!:
+*Important Notice for Chorus32 users!!!:*
 
 As of last commit the default pinout has been changed to match that of the PCBs currently being tested.
 
@@ -23,9 +22,12 @@ https://www.youtube.com/watch?v=BVd2t0yO_5A/0.jpg
 
 Application Support:
 -----
-This devices communicates using the Chorus RF Laptimer API and _should_ work with LiveTime (untested) as well as the Chorus RF Lap timer  app
-https://play.google.com/store/apps/details?id=app.andrey_voroshkov.chorus_laptimer
+Chorus32 communicates using the Chorus RF Laptimer API, which is supported by LiveTime 
+LiveTime is an incredibly powerful and feature-rich timing system which runs on Windows. It is, however, quite complex, and likely overkill for most users. More information can be found here: https://www.livetimescoring.com/ 
 
+If you are looking for a simpler setup, you can also use the Chorus RF Lap Timer app available for 
+Android: https://play.google.com/store/apps/details?id=app.andrey_voroshkov.chorus_laptimer
+iOS: https://itunes.apple.com/us/app/chorus-rf-laptimer/id1296647206?mt=8
 
 Hardware:
 -----
