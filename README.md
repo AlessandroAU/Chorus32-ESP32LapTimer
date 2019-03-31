@@ -6,6 +6,8 @@ Compared to the original ChorusRF Lamptimer this ESP32 version only requires one
 
 Hardware construction is also simplified as both parts are 3.3v logic and there is no need for level shifting or resistors.  
 
+[Click HERE for a video showing the full setup process to get Chorus32 running on your ESP32 using Arduino IDE.](https://www.youtube.com/watch?v=ip2HUVk_lMs). 
+
 Updates:
 -----
 *Important Notice for Chorus32 users!!!:*
