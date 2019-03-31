@@ -61,5 +61,6 @@ As we are not supoorting bluetooth for now and are using the SPIFFS partition le
 
 Library requirements:
 -----
-Adafruit_INA219
-ESP8266 AND ESP32 OLED DRIVER FOR SSD1306 DISPLAY
+Adafruit_INA219 https://github.com/adafruit/Adafruit_INA219
+
+ESP8266 AND ESP32 OLED DRIVER FOR SSD1306 DISPLAY https://github.com/ThingPulse/esp8266-oled-ssd1306
