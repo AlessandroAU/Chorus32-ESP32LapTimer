@@ -4,7 +4,6 @@
 #define buttonTouchThreshold 40
 #define buttonDeBounce 200
 
-#ifndef Micro32-PCB
 bool buttonOneTouched = false;
 bool buttonTwoTouched = false;
 
@@ -13,17 +12,15 @@ Timer button2Timer = Timer(buttonDeBounce);
 
 void IRAM_ATTR buttonOneInterrupt();
 void IRAM_ATTR buttonTwoInterrupt();
-#endif
 
 void buttonSetup() {
   #ifndef Micro32-PCB
-  touchAttachInterrupt(BUTTON1, buttonOneInterrupt, buttonTouchThreshold);
-  touchAttachInterrupt(BUTTON2, buttonTwoInterrupt, buttonTouchThreshold);
+    touchAttachInterrupt(BUTTON1, buttonOneInterrupt, buttonTouchThreshold);
+    touchAttachInterrupt(BUTTON2, buttonTwoInterrupt, buttonTouchThreshold);
   #endif
 }
 
 void buttonUpdate() {
-  #ifndef Micro32-PCB
   if(buttonOneTouched && button1Timer.hasTicked()) {
     Serial.println("buttonOneTouched");
     beep();
@@ -46,10 +43,8 @@ void buttonUpdate() {
   } else {
     buttonTwoTouched = false;    
   }
-  #endif
 }
 
-#ifndef Micro32-PCB
 void IRAM_ATTR buttonOneInterrupt() {
   buttonOneTouched = true;
 }
@@ -57,4 +52,3 @@ void IRAM_ATTR buttonOneInterrupt() {
 void IRAM_ATTR buttonTwoInterrupt() {
   buttonTwoTouched = true;
 }
-#endif
