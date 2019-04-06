@@ -348,7 +348,9 @@ void ProcessGeneralSettingsUpdate() {
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
   file.close();
   eepromSaveRquired = true;
+#ifdef OLED
   oledUpdate();
+#endif
 
 //  PowerDownAll();
 //  SelectivePowerUp();
