@@ -5,6 +5,7 @@
 
 int calibrationFreqIndex = 0;
 bool isCurrentlyCalibrating = false;
+Timer calibrationTimer = Timer(50);
 
 void rssiCalibration() {
 
@@ -16,20 +17,20 @@ void rssiCalibration() {
   isCurrentlyCalibrating = true;
   calibrationFreqIndex = 0;
   setModuleFrequencyAll(channelFreqTable[calibrationFreqIndex]);
-  hasRSSIReadingRefreshed = false;
-  
+  RXADCfilter = LPF_10Hz;
+  calibrationTimer.reset();
 }
 
 void rssiCalibrationUpdate() {
 
-  if (isCurrentlyCalibrating && hasRSSIReadingRefreshed) {
-    
-    for (uint8_t i = 0; i < NumRecievers; i++) {
-      if (ADCReadingsRAW[i] < EepromSettings.RxCalibrationMin[i])
-        EepromSettings.RxCalibrationMin[i] = ADCReadingsRAW[i];
+  if (isCurrentlyCalibrating && calibrationTimer.hasTicked()) {
         
-      if (ADCReadingsRAW[i] > EepromSettings.RxCalibrationMax[i])
-        EepromSettings.RxCalibrationMax[i] = ADCReadingsRAW[i];
+    for (uint8_t i = 0; i < NumRecievers; i++) {
+      if (ADCvalues[i] < EepromSettings.RxCalibrationMin[i])
+        EepromSettings.RxCalibrationMin[i] = ADCvalues[i];
+        
+      if (ADCvalues[i] > EepromSettings.RxCalibrationMax[i])
+        EepromSettings.RxCalibrationMax[i] = ADCvalues[i];
     }
   
     calibrationFreqIndex++;
@@ -37,7 +38,7 @@ void rssiCalibrationUpdate() {
     if (calibrationFreqIndex < 8*8) { // 8*8 = 8 bands * 8 channels = total number of freq in channelFreqTable.
       
       setModuleFrequencyAll(channelFreqTable[calibrationFreqIndex]);
-      hasRSSIReadingRefreshed = false;
+      calibrationTimer.reset();
       
     } else {
       
@@ -48,6 +49,7 @@ void rssiCalibrationUpdate() {
       isCurrentlyCalibrating = false;
       eepromSaveRquired = true;
       displayScreenNumber = 0;
+      RXADCfilter = EepromSettings.RXADCfilter;
       
     }  
                  
