@@ -65,6 +65,8 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
   while (1) {
 
+    uint8_t numReadings = 16;
+    uint32_t rawRSSIReading;
     xSemaphoreTake( xBinarySemaphore, portMAX_DELAY );
     uint32_t now = micros();
     //Serial.print(now - LastADCcall);
@@ -73,50 +75,64 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
     LastADCcall = now;
 
     adcAttachPin(ADC1_GPIO);
-    adcStart(ADC1_GPIO);
-    while (adcBusy(ADC1_GPIO)) {
-      NOP();
+    rawRSSIReading = 0;
+    for (int i = 0; i < numReadings; i++) {
+      adcStart(ADC1_GPIO);
+      rawRSSIReading += adcEnd(ADC1_GPIO);
     }
-    ADCReadingsRAW[0] = 2 * adcEnd(ADC1_GPIO); //don't know why 2x is needed here!
+    ADCReadingsRAW[0] = 2 * (rawRSSIReading / numReadings); //don't know why 2x is needed here!
 
     adcAttachPin(ADC2_GPIO);
-    adcStart(ADC2_GPIO);
-    while (adcBusy(ADC2_GPIO)) {
-      NOP();
+    rawRSSIReading = 0;
+    for (int i = 0; i < numReadings; i++) {
+      adcStart(ADC2_GPIO);
+      rawRSSIReading += adcEnd(ADC2_GPIO);
     }
-    ADCReadingsRAW[1] = 2 * adcEnd(ADC2_GPIO); //don't know why 2x is needed here!
+    ADCReadingsRAW[1] = 2 * (rawRSSIReading / numReadings); //don't know why 2x is needed here!
 
     adcAttachPin(ADC3_GPIO);
-    adcStart(ADC3_GPIO);
-    while (adcBusy(ADC3_GPIO)) {
-      NOP();
+    rawRSSIReading = 0;
+    for (int i = 0; i < numReadings; i++) {
+      adcStart(ADC3_GPIO);
+      rawRSSIReading += adcEnd(ADC3_GPIO);
     }
-    ADCReadingsRAW[2] = 2 * adcEnd(ADC3_GPIO); //don't know why 2x is needed here!
+    ADCReadingsRAW[2] = 2 * (rawRSSIReading / numReadings); //don't know why 2x is needed here!
 
 
     adcAttachPin(ADC4_GPIO);
-    adcStart(ADC4_GPIO);
-    while (adcBusy(ADC4_GPIO)) {
-      NOP();
+    rawRSSIReading = 0;
+    for (int i = 0; i < numReadings; i++) {
+      adcStart(ADC4_GPIO);
+      rawRSSIReading += adcEnd(ADC4_GPIO);
     }
-    ADCReadingsRAW[3] = 2 * adcEnd(ADC4_GPIO); //don't know why 2x is needed here!
+    ADCReadingsRAW[3] = 2 * (rawRSSIReading / numReadings); //don't know why 2x is needed here!
 
 
     adcAttachPin(ADC5_GPIO);
-    adcStart(ADC5_GPIO);
-    while (adcBusy(ADC5_GPIO)) {
-      NOP();
+    rawRSSIReading = 0;
+    for (int i = 0; i < numReadings; i++) {
+      adcStart(ADC5_GPIO);
+      rawRSSIReading += adcEnd(ADC5_GPIO);
     }
-    ADCReadingsRAW[4] = 2 * adcEnd(ADC5_GPIO); //don't know why 2x is needed here!
+    ADCReadingsRAW[4] = 2 * (rawRSSIReading / numReadings); //don't know why 2x is needed here!
 
 
     adcAttachPin(ADC6_GPIO);
-    adcStart(ADC6_GPIO);
-    while (adcBusy(ADC6_GPIO)) {
-      NOP();
+    rawRSSIReading = 0;
+    for (int i = 0; i < numReadings; i++) {
+      adcStart(ADC6_GPIO);
+      rawRSSIReading += adcEnd(ADC6_GPIO);
     }
-    ADCReadingsRAW[5] = 2 * adcEnd(ADC6_GPIO); //don't know why 2x is needed here!
+    ADCReadingsRAW[5] = 2 * (rawRSSIReading / numReadings); //don't know why 2x is needed here!
 
+    // Applying calibration
+    if (!isCurrentlyCalibrating) {
+      for (uint8_t i = 0; i < NumRecievers; i++) {
+        uint16_t rawRSSI = ADCReadingsRAW[i];
+        ADCReadingsRAW[i] = map(rawRSSI, EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i], 800, 2700); // 800 and 2700 are about average min max raw values
+      }
+    }
+    
     switch (RXADCfilter) {
 
       case LPF_10Hz:
@@ -161,6 +177,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
     //ADCcaptime = micros() - ADCstartMicros;
     // Serial.println(ADCcaptime);
 
+    hasRSSIReadingRefreshed = true;
   }
 }
 

@@ -384,6 +384,13 @@ uint16_t setModuleFrequency(uint16_t frequency, uint8_t NodeAddr) {
   return frequency;
 }
 
+uint16_t setModuleFrequencyAll(uint16_t frequency) {
+
+  rxWriteAll(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency));
+
+  return frequency;
+}
+
 String getBandLabel(int band) {
 
   switch (band) {
