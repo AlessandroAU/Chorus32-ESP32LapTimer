@@ -32,6 +32,8 @@ struct EepromSettingsStruct {
   ADCVBATmode_ ADCVBATmode;
   float VBATcalibration;
   byte NumRecievers;
+  uint16_t RxCalibrationMin[MaxNumRecievers];
+  uint16_t RxCalibrationMax[MaxNumRecievers];
 
 
   void setup();
@@ -47,11 +49,13 @@ const struct {
   uint8_t RXBand[MaxNumRecievers] = {0, 0, 0, 0, 0, 0};
   uint8_t RXChannel[MaxNumRecievers] = {0, 1, 2, 3, 4, 5};
   uint16_t RXfrequencies[MaxNumRecievers] = {5658, 5695, 5732, 5769, 5806, 5843};
-      int RSSIthresholds[MaxNumRecievers] = {2048, 2048, 2048, 2048, 2048, 2048};
+  int RSSIthresholds[MaxNumRecievers] = {2048, 2048, 2048, 2048, 2048, 2048};
   RXADCfilter_ RXADCfilter = LPF_20Hz;
-  ADCVBATmode_ ADCVBATmode = ADC_CH5;
+  ADCVBATmode_ ADCVBATmode = INA219;
   float VBATcalibration = 1.000;
-  byte NumRecievers = 4;
+  byte NumRecievers = 6;
+  uint16_t RxCalibrationMin[MaxNumRecievers] = {800, 800, 800, 800, 800, 800};
+  uint16_t RxCalibrationMax[MaxNumRecievers] = {2700, 2700, 2700, 2700, 2700, 2700};
 
 } EepromDefaults;
 

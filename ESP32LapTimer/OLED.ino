@@ -6,9 +6,6 @@
 #include "Timer.h"
 #include "Screensaver.h"
 
-//displayScreenNumber = 0;
-uint8_t  numberOfOledScreens = 2; // Increment if a new screen is added to cycle through.
-
 uint8_t oledRefreshTime = 50;
 Timer oledTimer = Timer(oledRefreshTime);
 
@@ -94,6 +91,18 @@ void oledUpdate(void)
       adcLoopCounter = 0;
 
       display.drawString(0, 9, String(mAReadingFloat) + " mA");
+    }
+  } else if (displayScreenNumber % numberOfOledScreens == 2) {
+    if (ADCVBATmode != 0) {
+      display.setTextAlignment(TEXT_ALIGN_LEFT);
+      display.drawString(0, 0, "Frequency - " + String(channelFreqTable[calibrationFreqIndex]) + "Hz");
+      display.drawString(0,  9, "Min = " + String(EepromSettings.RxCalibrationMin[0]) + ", Max = " + String(EepromSettings.RxCalibrationMax[0]));
+      display.drawString(0, 18, "Min = " + String(EepromSettings.RxCalibrationMin[1]) + ", Max = " + String(EepromSettings.RxCalibrationMax[1]));
+      display.drawString(0, 27, "Min = " + String(EepromSettings.RxCalibrationMin[2]) + ", Max = " + String(EepromSettings.RxCalibrationMax[2]));
+      display.drawString(0, 36, "Min = " + String(EepromSettings.RxCalibrationMin[3]) + ", Max = " + String(EepromSettings.RxCalibrationMax[3]));
+      display.drawString(0, 45, "Min = " + String(EepromSettings.RxCalibrationMin[4]) + ", Max = " + String(EepromSettings.RxCalibrationMax[4]));
+      display.drawString(0, 54, "Min = " + String(EepromSettings.RxCalibrationMin[5]) + ", Max = " + String(EepromSettings.RxCalibrationMax[5]));
+
     }
   }
 

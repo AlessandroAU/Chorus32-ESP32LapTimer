@@ -8,12 +8,12 @@ void InitHardwarePins();
 
 // DO NOT CHANGE BELOW UNLESS USING CUSTOM HARDWARE
 
-#define EEPROM_VERSION_NUMBER 5 // Increment when eeprom struct modified
+#define EEPROM_VERSION_NUMBER 6 // Increment when eeprom struct modified
 
 #define MaxNumRecievers 6
 byte NumRecievers;
 
-#define MIN_TUNE_TIME 30
+#define MIN_TUNE_TIME 30000 // value in micro seconds
 
 #define OLED //uncomment this to enable OLED support
 
