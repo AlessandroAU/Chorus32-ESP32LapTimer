@@ -7,6 +7,7 @@
 #include "Screensaver.h"
 
 uint8_t oledRefreshTime = 50;
+
 Timer oledTimer = Timer(oledRefreshTime);
 
 SSD1306  display(0x3c, 21, 22);  // 21 and 22 are default pins
@@ -103,6 +104,19 @@ void oledUpdate(void)
       display.drawString(0, 45, "Min = " + String(EepromSettings.RxCalibrationMin[4]) + ", Max = " + String(EepromSettings.RxCalibrationMax[4]));
       display.drawString(0, 54, "Min = " + String(EepromSettings.RxCalibrationMin[5]) + ", Max = " + String(EepromSettings.RxCalibrationMax[5]));
 
+    }
+  } else if (displayScreenNumber % numberOfOledScreens == 3) {
+    
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.drawString(0, 0, "Airplane Mode Settings:");
+    display.drawString(0, 15, "Press Btn2 to toggle, and");
+    display.drawString(0, 26, "use less energy if wired.");
+    if (!airplaneMode) {
+      display.drawString(0, 42, "Airplane Mode: OFF");
+      display.drawString(0, 51, "WiFi: ON  | Draw: " + String(mAReadingFloat/1000, 2) + "A");
+    } else {
+      display.drawString(0, 42, "Airplane Mode: ON");
+      display.drawString(0, 51, "WiFi: OFF  | Draw: " + String(mAReadingFloat/1000, 2) + "A");
     }
   }
 
