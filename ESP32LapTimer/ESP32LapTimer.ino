@@ -30,7 +30,6 @@ extern int ADC4value;
 
 volatile uint32_t LapTimes[MaxNumRecievers][100];
 volatile int LapTimePtr[MaxNumRecievers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
-bool LapModeREL = true;  // lap move is realtive, ie lap is millis() difference from previous lap
 
 uint32_t MinLapTime = 5000;  //this is in millis
 
@@ -52,10 +51,8 @@ void setup() {
   ConfigureADC();
 
   InitSPI();
-
-
-
-  delay(500);
+  //PowerDownAll(); // Powers down all RX5808's
+  delay(250);
 
 #ifdef BluetoothEnabled
   SerialBT.begin("Chorus Laptimer SPP");
@@ -64,17 +61,17 @@ void setup() {
 
   InitWebServer();
 
+  if (!EepromSettings.SanityCheck()) {
+    EepromSettings.defaults();
+    Serial.println("Detected That EEPROM corruption has occured.... \n Resetting EEPROM to Defaults....");
+  }
 
   RXADCfilter = EepromSettings.RXADCfilter;
   ADCVBATmode = EepromSettings.ADCVBATmode;
   VBATcalibration = EepromSettings.VBATcalibration;
   NumRecievers = EepromSettings.NumRecievers;
   commsSetup();
-  // inits modules with defaults
-  for (int i = 0; i < NumRecievers; i++) {
-    setModuleChannelBand(i);
-    delay(10);
-  }
+
   for (int i = 0; i < NumRecievers; i++) {
     RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
   }
@@ -82,7 +79,16 @@ void setup() {
 
   InitADCtimer();
 
+  //SelectivePowerUp();
+
+  // inits modules with defaults
+  for (int i = 0; i < NumRecievers; i++) {
+    setModuleChannelBand(i);
+    delay(10);
+  }
+
   beep();
+
 }
 
 void loop() {
@@ -102,7 +108,7 @@ void loop() {
 
   //if (raceMode == 0) {
   //if (client.connected()) {
-    webServer.handleClient();
+  webServer.handleClient();
   //}
   // }
 
