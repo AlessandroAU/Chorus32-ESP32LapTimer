@@ -169,6 +169,8 @@ void InitWebServer() {
   webServer.on("/updateGeneral", ProcessGeneralSettingsUpdate);
   webServer.on("/updateFilters", ProcessADCRXFilterUpdate);
   webServer.on("/ADCVBATsettings", ProcessVBATModeUpdate);
+  webServer.on("/calibrateRSSI",calibrateRSSI);
+  webServer.on("/eepromReset",eepromReset);
 
   webServer.on("/", HTTP_GET, []() {
     firstRedirect = false; //wait for it to hit the index page one time
@@ -354,7 +356,6 @@ void ProcessGeneralSettingsUpdate() {
 
 //  PowerDownAll();
 //  SelectivePowerUp();
-//  
 //  for (int i = 0; i < NumRecievers; i++) {
 //    setModuleChannelBand(i);
 //    delay(10);
@@ -395,6 +396,13 @@ void ProcessADCRXFilterUpdate() {
   file.close();
   eepromSaveRquired = true;
 
+}
+
+void calibrateRSSI() {
+    rssiCalibration();
+}
+void eepromReset(){
+    EepromSettings.defaults();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

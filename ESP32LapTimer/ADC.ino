@@ -117,6 +117,14 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
     }
     ADCReadingsRAW[5] = 2 * adcEnd(ADC6_GPIO); //don't know why 2x is needed here!
 
+    // Applying calibration
+    if (!isCurrentlyCalibrating) {
+      for (uint8_t i = 0; i < NumRecievers; i++) {
+        uint16_t rawRSSI = constrain(ADCReadingsRAW[i], EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i]);
+        ADCReadingsRAW[i] = map(rawRSSI, EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i], 800, 2700); // 800 and 2700 are about average min max raw values
+      }
+    }
+    
     switch (RXADCfilter) {
 
       case LPF_10Hz:
@@ -160,7 +168,6 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
     //ADCcaptime = micros() - ADCstartMicros;
     // Serial.println(ADCcaptime);
-
   }
 }
 
