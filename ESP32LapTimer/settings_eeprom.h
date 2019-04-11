@@ -1,5 +1,4 @@
-#ifndef SETTINGS_EEPROM_H
-#define SETTINGS_EEPROM_H
+#pragma once 
 
 #include "HardwareConfig.h"
 
@@ -8,6 +7,18 @@ enum ADCVBATmode_ {OFF, ADC_CH5, ADC_CH6, INA219};
 
 RXADCfilter_ RXADCfilter;
 ADCVBATmode_ ADCVBATmode;
+
+#define MaxChannel 7
+#define MaxBand 7
+
+#define MaxFreq 5945
+#define MinFreq 5180
+
+#define MaxADCFilter 3
+#define MaxVbatMode 3
+#define MaxVBATCalibration 100.00
+#define MaxThreshold 4095
+
 
 bool eepromSaveRquired = false;
 
@@ -27,6 +38,7 @@ struct EepromSettingsStruct {
   void load();
   void save();
   void defaults();
+  bool SanityCheck();
 };
 
 const struct {
@@ -39,10 +51,8 @@ const struct {
   RXADCfilter_ RXADCfilter = LPF_20Hz;
   ADCVBATmode_ ADCVBATmode = ADC_CH5;
   float VBATcalibration = 1.000;
-  byte NumRecievers = 6;
+  byte NumRecievers = 4;
 
 } EepromDefaults;
 
 extern EepromSettingsStruct EepromSettings;
-
-#endif

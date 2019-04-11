@@ -356,7 +356,6 @@ void ProcessGeneralSettingsUpdate() {
 
 //  PowerDownAll();
 //  SelectivePowerUp();
-//
 //  for (int i = 0; i < NumRecievers; i++) {
 //    setModuleChannelBand(i);
 //    delay(10);
