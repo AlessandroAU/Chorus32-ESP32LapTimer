@@ -126,7 +126,7 @@ void oledUpdate(void)
 
 void displayRxPage() {
   // Gather Data
-  int currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
+  uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
   uint8_t frequencyIndex = RXChannel[currentRXNumber] + (8 * RXBand[currentRXNumber]);
   uint16_t frequency = channelFreqTable[frequencyIndex];
 
@@ -148,7 +148,20 @@ void displayRxPage() {
 
 void incrementRxFrequency() {
   Serial.println("Increment");
-  setModuleChannelBand(7,2,0); 
+  uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
+  uint8_t currentRXChannel = RXChannel[currentRXNumber];
+  uint8_t currentRXBand = RXBand[currentRXNumber];
+  currentRXChannel++;
+  if (currentRXChannel >= 8) {
+    currentRXBand++;
+    currentRXChannel = 0;
+  }
+  if (currentRXBand >= 7 && currentRXChannel >= 2) {
+    currentRXBand = 0;
+    currentRXChannel = 0;
+  }
+  
+  setModuleChannelBand(currentRXChannel,currentRXBand,currentRXNumber); 
 }
 
 #endif
