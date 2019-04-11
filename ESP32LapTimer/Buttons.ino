@@ -35,7 +35,17 @@ void buttonUpdate() {
   if(buttonTwoTouched &&  button2Timer.hasTicked()) {
     Serial.println("buttonTwoTouched");
     beep();
+    
     // Do button2 stuff in here
+    if (displayScreenNumber % numberOfOledScreens == 2) {
+      rssiCalibration();
+    }
+    
+    if (displayScreenNumber % numberOfOledScreens == 3) {
+      // Toggle Airplane Mode
+      toggleAirplaneMode();
+    }
+  
     buttonTwoTouched = false;
     button2Timer.reset();
   } else {
