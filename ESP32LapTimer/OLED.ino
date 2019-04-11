@@ -116,23 +116,8 @@ void oledUpdate(void)
       display.drawString(0, 42, "Airplane Mode: ON");
       display.drawString(0, 51, "WiFi: OFF  | Draw: " + String(mAReadingFloat/1000, 2) + "A");
     }
-  } else if (displayScreenNumber % numberOfOledScreens == 4) {
-    // Receiver 1 screen
-    displayRxPage();
-  } else if (displayScreenNumber % numberOfOledScreens == 5) {
-    // Receiver 2 screen
-    displayRxPage();
-  } else if (displayScreenNumber % numberOfOledScreens == 6) {
-    // Receiver 3 screen
-    displayRxPage();
-  } else if (displayScreenNumber % numberOfOledScreens == 7) {
-    // Receiver 4 screen
-    displayRxPage();
-  } else if (displayScreenNumber % numberOfOledScreens == 8) {
-    // Receiver 5 screen
-    displayRxPage();
-  } else if (displayScreenNumber % numberOfOledScreens == 9) {
-    // Receiver 6 screen
+  } else if (displayScreenNumber % numberOfOledScreens >= 4 && displayScreenNumber % numberOfOledScreens <= 9) {
+    // RX Settings Pages here.
     displayRxPage();
   }
 
@@ -151,14 +136,19 @@ void displayRxPage() {
   display.drawString(0, 0, "Settings for RX" + String(currentRXNumber + 1));
   display.drawString(0, 20, getBandLabel(RXBand[currentRXNumber]) + String(RXChannel[currentRXNumber] + 1) + " - " + frequency);
   if (ADCvalues[currentRXNumber] < 600) {
-    display.drawProgressBar(45, 40, 122 - 42, 8, map(600, 600, 3500, 0, 85));
+    display.drawProgressBar(48, 40, 120 - 42, 8, map(600, 600, 3500, 0, 85));
   } else {
-    display.drawProgressBar(45, 40, 122 - 42, 8, map(ADCvalues[currentRXNumber], 600, 3500, 0, 85));
+    display.drawProgressBar(48, 40, 120 - 42, 8, map(ADCvalues[currentRXNumber], 600, 3500, 0, 85));
   }
   display.setFont(Dialog_plain_9);
   display.drawString(0,40, "RSSI: " + String(ADCvalues[currentRXNumber] / 12));
   display.drawVerticalLine(45 + map(RSSIthresholds[currentRXNumber], 600, 3500, 0, 85),  40, 8); // line to show the RSSIthresholds
   display.drawString(0,53, "Btn 2 to cycle frequencies.");
+}
+
+void incrementRxFrequency() {
+  Serial.println("Increment");
+  setModuleChannelBand(7,2,0); 
 }
 
 #endif

@@ -48,6 +48,11 @@ void buttonUpdate() {
       // Toggle Airplane Mode
       toggleAirplaneMode();
     }
+
+    if (displayScreenNumber % numberOfOledScreens >= 4 && displayScreenNumber % numberOfOledScreens <= 9) {
+      // Increment RX Frequency Here.
+      incrementRxFrequency();
+    }
   
     buttonTwoTouched = false;
     button2Timer.reset();
