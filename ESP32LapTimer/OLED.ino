@@ -103,10 +103,8 @@ void oledUpdate(void)
       display.drawString(0, 36, "Min = " + String(EepromSettings.RxCalibrationMin[3]) + ", Max = " + String(EepromSettings.RxCalibrationMax[3]));
       display.drawString(0, 45, "Min = " + String(EepromSettings.RxCalibrationMin[4]) + ", Max = " + String(EepromSettings.RxCalibrationMax[4]));
       display.drawString(0, 54, "Min = " + String(EepromSettings.RxCalibrationMin[5]) + ", Max = " + String(EepromSettings.RxCalibrationMax[5]));
-
     }
   } else if (displayScreenNumber % numberOfOledScreens == 3) {
-    
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.drawString(0, 0, "Airplane Mode Settings:");
     display.drawString(0, 15, "Press Btn2 to toggle, and");
@@ -118,9 +116,49 @@ void oledUpdate(void)
       display.drawString(0, 42, "Airplane Mode: ON");
       display.drawString(0, 51, "WiFi: OFF  | Draw: " + String(mAReadingFloat/1000, 2) + "A");
     }
+  } else if (displayScreenNumber % numberOfOledScreens == 4) {
+    // Receiver 1 screen
+    displayRxPage();
+  } else if (displayScreenNumber % numberOfOledScreens == 5) {
+    // Receiver 2 screen
+    displayRxPage();
+  } else if (displayScreenNumber % numberOfOledScreens == 6) {
+    // Receiver 3 screen
+    displayRxPage();
+  } else if (displayScreenNumber % numberOfOledScreens == 7) {
+    // Receiver 4 screen
+    displayRxPage();
+  } else if (displayScreenNumber % numberOfOledScreens == 8) {
+    // Receiver 5 screen
+    displayRxPage();
+  } else if (displayScreenNumber % numberOfOledScreens == 9) {
+    // Receiver 6 screen
+    displayRxPage();
   }
 
   display.display();
+}
+
+void displayRxPage() {
+  // Gather Data
+  int currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
+  uint8_t frequencyIndex = RXChannel[currentRXNumber] + (8 * RXBand[currentRXNumber]);
+  uint16_t frequency = channelFreqTable[frequencyIndex];
+
+  // Display things
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(ArialMT_Plain_16);
+  display.drawString(0, 0, "Settings for RX" + String(currentRXNumber + 1));
+  display.drawString(0, 20, getBandLabel(RXBand[currentRXNumber]) + String(RXChannel[currentRXNumber] + 1) + " - " + frequency);
+  if (ADCvalues[currentRXNumber] < 600) {
+    display.drawProgressBar(45, 40, 122 - 42, 8, map(600, 600, 3500, 0, 85));
+  } else {
+    display.drawProgressBar(45, 40, 122 - 42, 8, map(ADCvalues[currentRXNumber], 600, 3500, 0, 85));
+  }
+  display.setFont(Dialog_plain_9);
+  display.drawString(0,40, "RSSI: " + String(ADCvalues[currentRXNumber] / 12));
+  display.drawVerticalLine(45 + map(RSSIthresholds[currentRXNumber], 600, 3500, 0, 85),  40, 8); // line to show the RSSIthresholds
+  display.drawString(0,53, "Btn 2 to cycle frequencies.");
 }
 
 #endif

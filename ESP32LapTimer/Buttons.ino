@@ -4,6 +4,8 @@
 #define buttonTouchThreshold 40
 #define buttonDeBounce 200
 
+uint8_t numberOfOledScreens = numberOfBaseScreens;
+
 bool buttonOneTouched = false;
 bool buttonTwoTouched = false;
 
@@ -24,6 +26,7 @@ void buttonUpdate() {
     beep();
     
     // Do button1 stuff in here
+    numberOfOledScreens = numberOfBaseScreens + (NumRecievers); // Re-calculating the number of screens while cycling through them
     displayScreenNumber++;
     
     buttonOneTouched = false;
