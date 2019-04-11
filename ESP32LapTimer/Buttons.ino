@@ -40,6 +40,11 @@ void buttonUpdate() {
     if (displayScreenNumber % numberOfOledScreens == 2) {
       rssiCalibration();
     }
+    
+    if (displayScreenNumber % numberOfOledScreens == 3) {
+      // Toggle Airplane Mode
+      toggleAirplaneMode();
+    }
   
     buttonTwoTouched = false;
     button2Timer.reset();
