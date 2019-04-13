@@ -15,7 +15,7 @@ long buttonTimer2 = 0;
 long touchedTime1 = 0;
 long touchedTime2 = 0;
 
-// These are for the value of the capacative touch. 
+// These are for the value of the capacitive touch. 
 byte touch1;
 byte touch2;
 
