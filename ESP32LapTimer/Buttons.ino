@@ -1,31 +1,25 @@
-
 #include "Timer.h"
-
-#define buttonTouchThreshold 40
-#define buttonDeBounce 200
 
 #define newButtonDeBounce 40
 // This is needed otherwise the screens will not initialize properly on startup
 uint8_t numberOfOledScreens = numberOfBaseScreens;
 
-void IRAM_ATTR buttonOneInterrupt();
-void IRAM_ATTR buttonTwoInterrupt();
-
 bool buttonOneTouched = false;
 bool buttonTwoTouched = false;
 
-Timer button1Timer = Timer(buttonDeBounce);
-Timer button2Timer = Timer(buttonDeBounce);
+long buttonLongPressTime = 800; // How long to hold before a longtouch is registered
 
-long buttonLongPressTime = 800;
+// Timers to keep track of when the buttons were pressed
 long buttonTimer1 = 0;
 long buttonTimer2 = 0;
 long touchedTime1 = 0;
 long touchedTime2 = 0;
 
+// These are for the value of the capacative touch. 
 byte touch1;
 byte touch2;
 
+// Bools to help with debounce and long touch
 bool buttonActive1 = false;
 bool longPressActive1 = false;
 bool buttonPressed1 = false;
@@ -40,11 +34,7 @@ void newButtonSetup() {
   touch_pad_set_filter_period(BUTTON2);
 }
 
-void buttonSetup() {
-  touchAttachInterrupt(BUTTON1, buttonOneInterrupt, buttonTouchThreshold);
-  touchAttachInterrupt(BUTTON2, buttonTwoInterrupt, buttonTouchThreshold);
-}
-
+// Use this function for debugging touch values and press-states. Runs in ESP32LapTimer.ino
 void touchMonitor() {
   byte touch = touchRead(BUTTON1);
   Serial.println(touch);
@@ -58,7 +48,7 @@ void newButtonUpdate() {
   touch2 = touchRead(BUTTON2); // Read the state of button 2
 
   // BUTTON 1 Debounce logic here. Basically, we only read a button touch if
-  // it stays below threshol for newButtonDebounce, it gets flagged as "pressed". 
+  // it stays below threshold for newButtonDebounce, it gets flagged as "pressed". 
   if (buttonOneTouched == false && touch1 < 70) {
     touchedTime1 = millis();
     buttonOneTouched = true;
@@ -169,6 +159,7 @@ void newButtonUpdate() {
   }
 
   if (longPressActive1 && longPressActive2) {
+    // Long press on both buttons gets you here
     delay(200);
     chirps();
     delay(1000);
@@ -178,53 +169,4 @@ void newButtonUpdate() {
     delay(100);
     ESP.restart();
   }
-}
-
-void buttonUpdate() {
-  if(buttonOneTouched && button1Timer.hasTicked()) {
-    Serial.println("buttonOneTouched");
-    beep();
-    
-    // Do button1 stuff in here
-    numberOfOledScreens = numberOfBaseScreens + (NumRecievers); // Re-calculating the number of screens while cycling through them
-    displayScreenNumber++;
-    
-    buttonOneTouched = false;
-    button1Timer.reset();
-  } else {
-    buttonOneTouched = false;    
-  }
-  
-  if(buttonTwoTouched &&  button2Timer.hasTicked()) {
-    Serial.println("buttonTwoTouched");
-    beep();
-    
-    // Do button2 stuff in here
-    if (displayScreenNumber % numberOfOledScreens == 2) {
-      rssiCalibration();
-    }
-    
-    if (displayScreenNumber % numberOfOledScreens == 3) {
-      // Toggle Airplane Mode
-      toggleAirplaneMode();
-    }
-
-    if (displayScreenNumber % numberOfOledScreens >= 4 && displayScreenNumber % numberOfOledScreens <= 9) {
-      // Increment RX Frequency Here.
-      incrementRxFrequency();
-    }
-  
-    buttonTwoTouched = false;
-    button2Timer.reset();
-  } else {
-    buttonTwoTouched = false;    
-  }
-}
-
-void IRAM_ATTR buttonOneInterrupt() {
-  buttonOneTouched = true;
-}
-
-void IRAM_ATTR buttonTwoInterrupt() {
-  buttonTwoTouched = true;
 }
