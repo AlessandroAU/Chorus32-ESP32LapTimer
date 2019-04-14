@@ -43,7 +43,7 @@ To use wirelessly with livetime you must use a third party application to a brid
 
 Configure it like this:
 
-![alt text](img/vcommport.jpg)
+![alt text](img/vcommport.png)
 
 Hardware:
 -----
