@@ -39,7 +39,7 @@ iOS: https://itunes.apple.com/us/app/chorus-rf-laptimer/id1296647206?mt=8
 Serial to UDP bridge. 
 -----
 
-To use wirelessly with livetime you must use a third party application to a bridge vitural serial port with the UDP connection to the time. You can use this free application https://www.netburner.com/download/virtual-comm-port-driver-windows-xp-10/?fbclid=IwAR2W9V_YzjuP5_u9U-nJx1x38beFWNR0eRI59QOyYO_-NSePmTnW14kk7yA
+To use this wirelessly with livetime you must use a third party application to a bridge vitural serial port with the UDP connection to the timer. The native ethernet TCP mode does not work at the moment. You can use this free application https://www.netburner.com/download/virtual-comm-port-driver-windows-xp-10/?fbclid=IwAR2W9V_YzjuP5_u9U-nJx1x38beFWNR0eRI59QOyYO_-NSePmTnW14kk7yA
 
 Configure it like this:
 
