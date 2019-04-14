@@ -36,6 +36,15 @@ Android: https://play.google.com/store/apps/details?id=app.andrey_voroshkov.chor
 
 iOS: https://itunes.apple.com/us/app/chorus-rf-laptimer/id1296647206?mt=8
 
+Serial to UDP bridge. 
+-----
+
+To use wirelessly with livetime you must use a third party application to a bridge vitural serial port with the UDP connection to the time. You can use this free application https://www.netburner.com/download/virtual-comm-port-driver-windows-xp-10/?fbclid=IwAR2W9V_YzjuP5_u9U-nJx1x38beFWNR0eRI59QOyYO_-NSePmTnW14kk7yA
+
+Configure it like this:
+
+![alt text](img/vcommport.jpg)
+
 Hardware:
 -----
 Construction is easy and only requires some basic point to point wiring of each module to the ESP32 board.
