@@ -4,6 +4,8 @@
 #define buttonTouchThreshold 40
 #define buttonDeBounce 200
 
+uint8_t numberOfOledScreens = numberOfBaseScreens;
+
 bool buttonOneTouched = false;
 bool buttonTwoTouched = false;
 
@@ -24,6 +26,7 @@ void buttonUpdate() {
     beep();
     
     // Do button1 stuff in here
+    numberOfOledScreens = numberOfBaseScreens + (NumRecievers); // Re-calculating the number of screens while cycling through them
     displayScreenNumber++;
     
     buttonOneTouched = false;
@@ -39,6 +42,16 @@ void buttonUpdate() {
     // Do button2 stuff in here
     if (displayScreenNumber % numberOfOledScreens == 2) {
       rssiCalibration();
+    }
+    
+    if (displayScreenNumber % numberOfOledScreens == 3) {
+      // Toggle Airplane Mode
+      toggleAirplaneMode();
+    }
+
+    if (displayScreenNumber % numberOfOledScreens >= 4 && displayScreenNumber % numberOfOledScreens <= 9) {
+      // Increment RX Frequency Here.
+      incrementRxFrequency();
     }
   
     buttonTwoTouched = false;
