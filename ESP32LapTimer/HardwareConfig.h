@@ -6,6 +6,7 @@ void InitHardwarePins();
 #define Default_Pins        // Use for all new hardware and PCBs
 //#define Old_Default_Pins
 
+
 // DO NOT CHANGE BELOW UNLESS USING CUSTOM HARDWARE
 
 #define EEPROM_VERSION_NUMBER 6 // Increment when eeprom struct modified
