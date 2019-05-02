@@ -107,8 +107,8 @@ void oledUpdate(void)
   } else if (displayScreenNumber % numberOfOledScreens == 3) {
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.drawString(0, 0, "Airplane Mode Settings:");
-    display.drawString(0, 15, "Press Btn2 to toggle, and");
-    display.drawString(0, 26, "use less energy if wired.");
+    display.drawString(0, 15, "Long Press Button 2 to");
+    display.drawString(0, 26, "toggle Airplane mode.");
     if (!airplaneMode) {
       display.drawString(0, 42, "Airplane Mode: OFF");
       display.drawString(0, 51, "WiFi: ON  | Draw: " + String(mAReadingFloat/1000, 2) + "A");
@@ -134,26 +134,26 @@ void displayRxPage() {
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_16);
   display.drawString(0, 0, "Settings for RX" + String(currentRXNumber + 1));
-  display.drawString(0, 20, getBandLabel(RXBand[currentRXNumber]) + String(RXChannel[currentRXNumber] + 1) + " - " + frequency);
+  display.drawString(0, 18, getBandLabel(RXBand[currentRXNumber]) + String(RXChannel[currentRXNumber] + 1) + " - " + frequency);
   if (ADCvalues[currentRXNumber] < 600) {
-    display.drawProgressBar(48, 40, 120 - 42, 8, map(600, 600, 3500, 0, 85));
+    display.drawProgressBar(48, 35, 120 - 42, 8, map(600, 600, 3500, 0, 85));
   } else {
-    display.drawProgressBar(48, 40, 120 - 42, 8, map(ADCvalues[currentRXNumber], 600, 3500, 0, 85));
+    display.drawProgressBar(48, 35, 120 - 42, 8, map(ADCvalues[currentRXNumber], 600, 3500, 0, 85));
   }
   display.setFont(Dialog_plain_9);
-  display.drawString(0,40, "RSSI: " + String(ADCvalues[currentRXNumber] / 12));
-  display.drawVerticalLine(45 + map(RSSIthresholds[currentRXNumber], 600, 3500, 0, 85),  40, 8); // line to show the RSSIthresholds
-  display.drawString(0,53, "Btn 2 to cycle frequencies.");
+  display.drawString(0,35, "RSSI: " + String(ADCvalues[currentRXNumber] / 12));
+  display.drawVerticalLine(45 + map(RSSIthresholds[currentRXNumber], 600, 3500, 0, 85),  35, 8); // line to show the RSSIthresholds
+  display.drawString(0,46, "Btn2 SHORT - Channel.");
+  display.drawString(0,55, "Btn2 LONG  - Band.");
 }
 
 void incrementRxFrequency() {
-  Serial.println("Increment");
   uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
   uint8_t currentRXChannel = RXChannel[currentRXNumber];
   uint8_t currentRXBand = RXBand[currentRXNumber];
   currentRXChannel++;
   if (currentRXChannel >= 8) {
-    currentRXBand++;
+    //currentRXBand++;
     currentRXChannel = 0;
   }
   if (currentRXBand >= 7 && currentRXChannel >= 2) {
@@ -161,6 +161,16 @@ void incrementRxFrequency() {
     currentRXChannel = 0;
   }
   
+  setModuleChannelBand(currentRXChannel,currentRXBand,currentRXNumber); 
+}
+void incrementRxBand() {
+  uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
+  uint8_t currentRXChannel = RXChannel[currentRXNumber];
+  uint8_t currentRXBand = RXBand[currentRXNumber];
+  currentRXBand++;
+  if (currentRXBand >= 8) {
+    currentRXBand = 0;
+  }
   setModuleChannelBand(currentRXChannel,currentRXBand,currentRXNumber); 
 }
 

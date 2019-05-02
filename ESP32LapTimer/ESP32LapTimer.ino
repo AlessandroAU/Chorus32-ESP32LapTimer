@@ -44,8 +44,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println("Booting....");
-
-  buttonSetup();
+  newButtonSetup();
 
   EepromSettings.setup();
 
@@ -89,18 +88,19 @@ void setup() {
     setModuleChannelBand(i % NumRecievers);
   }
 
-  beep();
+  //beep();
 }
 
 void loop() {
   rssiCalibrationUpdate();
+  // touchMonitor(); // A function to monitor capacitive touch values, defined in buttons.ino
 
   //  if (shouldReboot) {  //checks if reboot is needed
   //    Serial.println("Rebooting...");
   //    delay(100);
   //    ESP.restart();
   //  }
-  buttonUpdate();
+  newButtonUpdate();
 #ifdef OLED
   OLED_CheckIfUpdateReq();
 #endif
