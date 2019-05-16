@@ -10,10 +10,13 @@
 #include "OLED.h"
 #include "WebServer.h"
 #include "Beeper.h"
+#include "Calibration.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
 WiFiUDP UDPserver;
+
+WiFiUDP UDPserverDatalogger; //datalogging server 
 //
 #define MAX_SRV_CLIENTS 5
 WiFiClient serverClients[MAX_SRV_CLIENTS];
@@ -41,8 +44,7 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println("Booting....");
-
-  buttonSetup();
+  newButtonSetup();
 
   EepromSettings.setup();
 
@@ -81,23 +83,24 @@ void setup() {
 
   //SelectivePowerUp();
 
-  // inits modules with defaults
-  for (int i = 0; i < NumRecievers; i++) {
-    setModuleChannelBand(i);
-    delay(10);
+  // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
+  for (int i = 0; i < NumRecievers*10; i++) {
+    setModuleChannelBand(i % NumRecievers);
   }
 
-  beep();
-
+  //beep();
 }
 
 void loop() {
+  rssiCalibrationUpdate();
+  // touchMonitor(); // A function to monitor capacitive touch values, defined in buttons.ino
+
   //  if (shouldReboot) {  //checks if reboot is needed
   //    Serial.println("Rebooting...");
   //    delay(100);
   //    ESP.restart();
   //  }
-  buttonUpdate();
+  newButtonUpdate();
 #ifdef OLED
   OLED_CheckIfUpdateReq();
 #endif

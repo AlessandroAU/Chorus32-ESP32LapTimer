@@ -317,12 +317,13 @@ uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
   Serial.print(channel);
   Serial.print(",");
   Serial.println(band);
-
+  
   uint8_t index = channel + (8 * band);
   Serial.println(index);
   uint16_t frequency = channelFreqTable[index];
   //return setModuleFrequency(frequency);
-
+  RXBand[NodeAddr] = band;
+  RXChannel[NodeAddr] = channel;
   switch (NodeAddr) {
     case 0:
       rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS1);
@@ -381,6 +382,13 @@ uint16_t setModuleFrequency(uint16_t frequency, uint8_t NodeAddr) {
       rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS6);
       break;
   }
+  return frequency;
+}
+
+uint16_t setModuleFrequencyAll(uint16_t frequency) {
+
+  rxWriteAll(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency));
+
   return frequency;
 }
 

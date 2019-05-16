@@ -1,89 +1,107 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<title>Chorus32 RF lap Timing System</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<link rel="stylesheet" href="assets/css/slider.css" />
-		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
-		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
-	</head>
-	<body>
+
+<head>
+	<title>Chorus32 RF lap Timing System</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<link rel="stylesheet" href="assets/css/slider.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+	<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+</head>
+
+<body>
 	<!-- OI you! get out of my source code!!! -->
 
-		<!-- Header -->
-			<section id="header">
-				<div class="inner">
-					<img src="flag.svg" height="250" width="250" style="padding:20px;"></a>
-					<h1>Welcome to your <strong>Chorus32</strong><br/> configuration Page<br/>
-					</h1>
-					<p>From here you can change any settings on your timer<br/>
-					
-					
-					<b>Firmware Rev.  </b><var id="FirmVersion">1.0</var><p>
+	<!-- Header -->
+	<section id="header">
+		<div class="inner">
+			<img src="flag.svg" height="250" width="250" style="padding:20px;"></a>
+			<h1>Welcome to your <strong>Chorus32</strong><br /> configuration Page<br />
+			</h1>
+			<p>From here you can change any settings on your timer<br />
+
+
+				<b>Firmware Rev. </b><var id="FirmVersion">1.0</var>
+				<p>
 					<!--
 					<b>Platform:</b> var_currPlatform<br><p>
 					<b>RF Module:</b> var_currRadioModule<br><p>
 					-->
-					
-				</div>
-			</section>
-			
-			<section id="Status RFPWR" class="main style1">
-			<div class="container">
-								
-					<div align="left">	
-			<legend><h2><b>Status:</b></h2></legend>
+
+		</div>
+	</section>
+
+	<section id="Status RFPWR" class="main style1">
+		<div class="container">
+
+			<div align="left">
+				<legend>
+					<h2><b>Status:</b></h2>
+				</legend>
 				<table style="width:100%">
-				  <tr>
-					<th><b>Vbat: </b><var id="Var_VBAT", class="StatusText">3.73V</var></th>
-					<th><b>Wifi Clients: </b><var id="Var_OUTPWR", class="StatusText">1</var></th> 
-					<th><b>Current Mode: </b>Idle</th>
-				  </tr>
+					<tr>
+						<th><b>Vbat: </b><var id="Var_VBAT" , class="StatusText">3.73V</var></th>
+						<th><b>Wifi Clients: </b><var id="Var_OUTPWR" , class="StatusText">1</var></th>
+						<th><b>Current Mode: </b>Idle</th>
+					</tr>
 				</table>
-			</section>
-			
-			<section id="one" class="main style1">
-				<div class="container">				
-					<div align="left">									
-					<form method="get" action="/updateFilters.html">
-					  <fieldset>
-						<legend><h2><b>Filtering</b></h2></legend>
+	</section>
+
+	<section id="one" class="main style1">
+		<div class="container">
+			<div align="left">
+				<form method="get" action="/updateFilters.html">
+					<fieldset>
+						<legend>
+							<h2><b>Filtering</b></h2>
+						</legend>
 						RX ADC Filter<br>
-							<select name="RXFilter">
-								<option value="10">10Hz Bessel LPF</option>
-								<option selected value="20">20Hz Bessel LPF</option>
-								<option value="50">50Hz Bessel LPF</option>
-								<option value="100">100Hz Bessel LPF</option>
-								
-							</select>
+						<select name="RXFilter">
+							<option value="10">10Hz Bessel LPF</option>
+							<option selected value="20">20Hz Bessel LPF</option>
+							<option value="50">50Hz Bessel LPF</option>
+							<option value="100">100Hz Bessel LPF</option>
+
+						</select>
 						<br>
 						<input type="submit" value="&nbsp;Update&nbsp;">
-					  </fieldset>
-					</form>
+					</fieldset>
+				</form>
 
-					
-					 <fieldset>
-					
-					Here you can update module firmware, 
+
+				<form method='POST' action='/calibrateRSSI'>
+					<input type='submit' name='calibrateRSSI' value="Calibrate RSSI">
+				</form>
+				<form method='POST' action='/eepromReset'>
+					<input type='submit' name='eepromReset' value="Reset EEPROM">
+				</form>
+
+				<fieldset>
+
+					Here you can update module firmware,
 					be careful to upload the correct file as it is possible to brick the timer. A bricked timer will require reflashing with a serial cable
 					<br><br>
-					<legend><h2>Firmware Update:</h2></legend>
-					
+					<legend>
+						<h2>Firmware Update:</h2>
+					</legend>
 
-					<form method='POST' action='/update' enctype='multipart/form-data'>	<input type='file' name='update'>	<input type='submit' value='Update'></form>
+
+					<form method='POST' action='/update' enctype='multipart/form-data'> <input type='file' name='update'> <input type='submit' value='Update'></form>
+					<form method='POST' action='/update' enctype='multipart/form-data'> <input type='file' name='update'> <input type='submit' value='Update'></form>
 					</form>
-					</fieldset>					
-											
-						
-						
-</div>
-						</div>
-					</div>
-				</div>
-			</section>
+				</fieldset>
 
-	</body>
+
+
+			</div>
+		</div>
+		</div>
+		</div>
+	</section>
+
+</body>
+
 </html>
