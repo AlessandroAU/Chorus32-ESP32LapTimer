@@ -83,6 +83,9 @@ byte NumRecievers;
 
   #define STATUS_LED 15
 
+  #define BUTTON1 99 
+  #define BUTTON2 99 
+  
 #endif
 
 #ifdef Old_Default_Pins
