@@ -14,10 +14,8 @@ void IRAM_ATTR buttonOneInterrupt();
 void IRAM_ATTR buttonTwoInterrupt();
 
 void buttonSetup() {
-  #ifndef Micro32-PCB
-    touchAttachInterrupt(BUTTON1, buttonOneInterrupt, buttonTouchThreshold);
-    touchAttachInterrupt(BUTTON2, buttonTwoInterrupt, buttonTouchThreshold);
-  #endif
+  touchAttachInterrupt(BUTTON1, buttonOneInterrupt, buttonTouchThreshold);
+  touchAttachInterrupt(BUTTON2, buttonTwoInterrupt, buttonTouchThreshold);
 }
 
 void buttonUpdate() {
