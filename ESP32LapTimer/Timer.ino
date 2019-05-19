@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "timer.h"
+#include "Timer.h"
 
 
 Timer::Timer(uint16_t delay) {
