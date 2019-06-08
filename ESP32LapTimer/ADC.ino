@@ -1,6 +1,8 @@
 ////Functions to Read RSSI from ADCs//////
 #include <driver/adc.h>
 #include <driver/timer.h>
+#include <esp_adc_cal.h>
+
 #include "HardwareConfig.h"
 #include "Comms.h"
 #include <Wire.h>
@@ -43,6 +45,8 @@ bool BeginADCReading = false;
 bool ADCreadingBusy = false;
 byte currentADCpin = 0;
 
+esp_adc_cal_characteristics_t adc_chars;
+
 void ConfigureADC() {
 
   adc1_config_width(ADC_WIDTH_BIT_12);
@@ -53,6 +57,9 @@ void ConfigureADC() {
   adc1_config_channel_atten(ADC4, ADC_ATTEN_6db);
   adc1_config_channel_atten(ADC5, ADC_ATTEN_6db);
   adc1_config_channel_atten(ADC6, ADC_ATTEN_6db);
+
+  //since the reference voltage can range from 1000mV to 1200mV we are using 1100mV as a default
+  esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_6db, ADC_WIDTH_BIT_12, 1100, &adc_chars);
 
   ina219.begin();
   ReadVBAT_INA219();
@@ -154,10 +161,12 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
     switch (ADCVBATmode) {
       case ADC_CH5:
-        VbatReadingSmooth = ADCvalues[4];
+        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[4], &adc_chars);
+        VbatReadingFloat = VbatReadingSmooth / 1000.0 * VBATcalibration;
         break;
       case ADC_CH6:
-        VbatReadingSmooth = ADCvalues[5];
+        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[5], &adc_chars);
+        VbatReadingFloat = VbatReadingSmooth / 1000.0 * VBATcalibration;
         break;
     }
 

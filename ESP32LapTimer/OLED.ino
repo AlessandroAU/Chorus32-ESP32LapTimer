@@ -28,12 +28,6 @@ void OLED_CheckIfUpdateReq() {
     oledUpdate();
     oledTimer.reset();
   }
-  //Serial.println(VbatReadingRaw);
-
-  if (ADCVBATmode != INA219) {
-    VbatReadingFloat = fmap(VbatReadingSmooth * VBATcalibration, 0, 4096, 0, 4.4);
-  }
-  //Serial.println(VbatReading);
 }
 
 void oledUpdate(void)
