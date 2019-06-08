@@ -88,50 +88,13 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
     ADCstartMicros = now;
     LastADCcall = now;
 
-    adcAttachPin(ADC1_GPIO);
-    adcStart(ADC1_GPIO);
-    while (adcBusy(ADC1_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[0] = 2 * adcEnd(ADC1_GPIO); //don't know why 2x is needed here!
-
-    adcAttachPin(ADC2_GPIO);
-    adcStart(ADC2_GPIO);
-    while (adcBusy(ADC2_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[1] = 2 * adcEnd(ADC2_GPIO); //don't know why 2x is needed here!
-
-    adcAttachPin(ADC3_GPIO);
-    adcStart(ADC3_GPIO);
-    while (adcBusy(ADC3_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[2] = 2 * adcEnd(ADC3_GPIO); //don't know why 2x is needed here!
-
-
-    adcAttachPin(ADC4_GPIO);
-    adcStart(ADC4_GPIO);
-    while (adcBusy(ADC4_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[3] = 2 * adcEnd(ADC4_GPIO); //don't know why 2x is needed here!
-
-
-    adcAttachPin(ADC5_GPIO);
-    adcStart(ADC5_GPIO);
-    while (adcBusy(ADC5_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[4] = 2 * adcEnd(ADC5_GPIO); //don't know why 2x is needed here!
-
-
-    adcAttachPin(ADC6_GPIO);
-    adcStart(ADC6_GPIO);
-    while (adcBusy(ADC6_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[5] = 2 * adcEnd(ADC6_GPIO); //don't know why 2x is needed here!
+    ADCReadingsRAW[0] = adc1_get_raw(ADC1);
+    ADCReadingsRAW[1] = adc1_get_raw(ADC2);
+    ADCReadingsRAW[2] = adc1_get_raw(ADC3);
+    ADCReadingsRAW[3] = adc1_get_raw(ADC4);
+    ADCReadingsRAW[4] = adc1_get_raw(ADC5);
+    ADCReadingsRAW[5] = adc1_get_raw(ADC6);
+    
 
     // Applying calibration
     if (!isCalibrating()) {
