@@ -120,6 +120,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
     // Applying calibration
     if (!isCurrentlyCalibrating) {
       for (uint8_t i = 0; i < NumRecievers; i++) {
+        if((ADCVBATmode == ADC_CH5 && i == 4) || (ADCVBATmode == ADC_CH6 && i == 5)) continue; // skip if voltage is on this channel
         uint16_t rawRSSI = constrain(ADCReadingsRAW[i], EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i]);
         ADCReadingsRAW[i] = map(rawRSSI, EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i], 800, 2700); // 800 and 2700 are about average min max raw values
       }
