@@ -8,6 +8,7 @@ void HandleServerUDP();
 void SendCurrRSSIloop();
 void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr);
 void commsSetup();
+void thresholdModeStep();
 
 //----- other globals------------------------------
 uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted relative to last lap end; 2: lap times are relative to the race start (sum of all previous lap times);
@@ -20,11 +21,11 @@ uint8_t sendLapTimesIndex = 0;
 uint8_t sendLastLapIndex = 0;
 uint8_t shouldSendSingleItem = 0;
 uint8_t lastLapsNotSent = 0;
-uint8_t thresholdSetupMode = 0;
 uint32_t millisUponRequest = 0;
 
 uint32_t RaceStartTime = 0;
 
+uint8_t thresholdSetupMode[MaxNumRecievers];
 uint16_t RXfrequencies[MaxNumRecievers];
 volatile uint8_t RXBand[MaxNumRecievers];
 volatile uint8_t RXChannel[MaxNumRecievers];

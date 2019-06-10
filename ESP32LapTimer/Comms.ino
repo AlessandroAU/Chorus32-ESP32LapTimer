@@ -103,8 +103,6 @@
 #define FILTER_ITERATIONS 5 // software filtering iterations; set 0 - if filtered in hardware; set 5 - if not
 uint16_t rssiArr[FILTER_ITERATIONS + 1];
 uint16_t rssiThreshold = 190;
-uint16_t rssi;
-uint16_t slowRssi;
 
 
 uint32_t lastRSSIsent;
@@ -146,11 +144,20 @@ uint8_t CurrNodeAddrAPI = 0;  //used for functions like R*# and R*a to enumerate
 uint8_t CurrNodeAddrLaps = 0;  //used for functions like R*# and R*a to enumerate over all node ids
 bool holeShot[MaxNumRecievers] = {true, true, true, true, true, true}; //wait for first trigger, IE holeshot.
 
+static void sendThresholdMode(uint8_t node) {
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(node));
+  addToSendQueue(RESPONSE_THRESHOLD_SETUP);
+  addToSendQueue(TO_HEX(thresholdSetupMode[node]));
+  addToSendQueue('\n');
+}
+
 void commsSetup() {
   for (int i = 0; i < NumRecievers; i++) {
     RXBand[i] = EepromSettings.RXBand[i];
     RXChannel[i] = EepromSettings.RXChannel[i];
     RXfrequencies[i] = EepromSettings.RXfrequencies[i];
+    thresholdSetupMode[i] = 0;
   }
 }
 
@@ -171,9 +178,11 @@ void setRaceMode(uint8_t mode) {
     raceStartTime = millis();
     lastMilliseconds = raceStartTime;
     newLapIndex = 0;
-    if (thresholdSetupMode) {
-      thresholdSetupMode = 0; // safety measure: stop setting threshold upon race start to avoid losing time there
-      //addToSendQueue(SEND_THRESHOLD_SETUP_MODE);
+    for(uint8_t i = 0; i < NumRecievers; ++i) {
+      if(thresholdSetupMode[i]) {
+        thresholdSetupMode[i] = 0;
+        sendThresholdMode(i);
+      }
     }
     //playStartRaceTones();
   }
@@ -222,9 +231,9 @@ void SetThresholdValue(uint16_t threshold, uint8_t NodeAddr) {
     Serial.println("Threshold was attempted to be set out of range");
   }
   // stop the "setting threshold algorithm" to avoid overwriting the explicitly set value
-  if (thresholdSetupMode) {
-    thresholdSetupMode = 0;
-    //addToSendQueue(SEND_THRESHOLD_SETUP_MODE);
+  if (thresholdSetupMode[NodeAddr]) {
+    thresholdSetupMode[NodeAddr] = 0;
+    sendThresholdMode(NodeAddr);
   }
   RSSIthresholds[NodeAddr] = threshold * 12;
   EepromSettings.RSSIthresholds[NodeAddr] = RSSIthresholds[NodeAddr];
@@ -234,18 +243,6 @@ void SetThresholdValue(uint16_t threshold, uint8_t NodeAddr) {
   } else {
     //playClearThresholdTones();
   }
-}
-
-void SetThresholdMode(uint8_t NodeAddr) {
-}
-
-void SendSetThresholdMode(uint8_t NodeAddr) {
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('H');
-  addToSendQueue('0');
-  addToSendQueue('\n');
-  SendThresholdValue(NodeAddr);
 }
 
 void SendMillis() {
@@ -323,7 +320,7 @@ void SendCurrRSSI(uint8_t NodeAddr) {
 
 }
 
-void setupThreshold(uint8_t phase) {
+void setupThreshold(uint8_t phase, uint8_t node) {
   // this process assumes the following:
   // 1. before the process all VTXs are turned ON, but are distant from the Chorus device, so that Chorus sees the "background" rssi values only
   // 2. once the setup process is initiated by Chorus operator, all pilots walk towards the Chorus device
@@ -341,75 +338,79 @@ void setupThreshold(uint8_t phase) {
 #define RISE_RSSI_THRESHOLD_PERCENT 25 // rssi value should pass this percentage above low value to continue finding the peak and further fall down of rssi
 #define FALL_RSSI_THRESHOLD_PERCENT 50 // rssi should fall below this percentage of diff between high and low to finalize setup of the threshold
 
-  static uint16_t rssiLow;
-  static uint16_t rssiHigh;
-  static uint16_t rssiHighEnoughForMonitoring;
-  static uint32_t accumulatedShiftedRssi; // accumulates rssi slowly; contains multiplied rssi value for better accuracy
-  static uint32_t lastRssiAccumulationTime;
+  static uint16_t rssiLow[MaxNumRecievers];
+  static uint16_t rssiHigh[MaxNumRecievers];
+  static uint16_t rssiHighEnoughForMonitoring[MaxNumRecievers];
+  static uint32_t accumulatedShiftedRssi[MaxNumRecievers]; // accumulates rssi slowly; contains multiplied rssi value for better accuracy
+  static uint32_t lastRssiAccumulationTime[MaxNumRecievers];
 
-  if (!thresholdSetupMode) return; // just for safety, normally it's controlled outside
+  if (!thresholdSetupMode[node]) return;
+
+  uint16_t rssi = getRSSI(node);
 
   if (phase == RSSI_SETUP_INITIALIZE) {
     // initialization step
     //playThresholdSetupStartTones();
-    thresholdSetupMode = 1;
-    rssiLow = slowRssi; // using slowRssi to avoid catching random current rssi
-    rssiHigh = rssiLow;
-    accumulatedShiftedRssi = rssiLow * ACCUMULATION_TIME_CONSTANT; // multiply to prevent loss in accuracy
-    rssiHighEnoughForMonitoring = rssiLow + rssiLow * RISE_RSSI_THRESHOLD_PERCENT / 100;
-    lastRssiAccumulationTime = millis();
+    thresholdSetupMode[node] = 1;
+    rssiLow[node] = rssi; // using slowRssi to avoid catching random current rssi
+    rssiHigh[node] = rssiLow[MaxNumRecievers];
+    accumulatedShiftedRssi[node] = rssiLow[node] * ACCUMULATION_TIME_CONSTANT; // multiply to prevent loss in accuracy
+    rssiHighEnoughForMonitoring[node] = rssiLow[node] + rssiLow[node] * RISE_RSSI_THRESHOLD_PERCENT / 100;
+    lastRssiAccumulationTime[node] = millis();
+    sendThresholdMode(node);
   } else {
     // active phase step (searching for high value and fall down)
-    if (thresholdSetupMode == 1) {
+    if (thresholdSetupMode[node] == 1) {
       // in this phase of the setup we are tracking rssi growth until it reaches the predefined percentage from low
 
       // searching for peak; using slowRssi to avoid catching sudden random peaks
-      if (slowRssi > rssiHigh) {
-        rssiHigh = slowRssi;
+      if (rssi > rssiHigh[node]) {
+        rssiHigh[node] = rssi;
       }
 
       // since filter runs too fast, we have to introduce a delay between subsequent readings of filter values
       uint32_t curTime = millis();
-      if ((curTime - lastRssiAccumulationTime) > MILLIS_BETWEEN_ACCU_READS) {
-        lastRssiAccumulationTime = curTime;
+      if ((curTime - lastRssiAccumulationTime[node]) > MILLIS_BETWEEN_ACCU_READS) {
+        lastRssiAccumulationTime[node] = curTime;
         // this is actually a filter with a delay determined by ACCUMULATION_TIME_CONSTANT
-        accumulatedShiftedRssi = rssi  + (accumulatedShiftedRssi * (ACCUMULATION_TIME_CONSTANT - 1) / ACCUMULATION_TIME_CONSTANT);
+        accumulatedShiftedRssi[node] = rssi  + (accumulatedShiftedRssi[node] * (ACCUMULATION_TIME_CONSTANT - 1) / ACCUMULATION_TIME_CONSTANT);
       }
 
-      uint16_t accumulatedRssi = accumulatedShiftedRssi / ACCUMULATION_TIME_CONSTANT; // find actual rssi from multiplied value
+      uint16_t accumulatedRssi = accumulatedShiftedRssi[node] / ACCUMULATION_TIME_CONSTANT; // find actual rssi from multiplied value
 
-      if (accumulatedRssi > rssiHighEnoughForMonitoring) {
-        thresholdSetupMode = 2;
-        accumulatedShiftedRssi = rssiHigh * ACCUMULATION_TIME_CONSTANT;
+      if (accumulatedRssi > rssiHighEnoughForMonitoring[node]) {
+        thresholdSetupMode[node] = 2;
+        accumulatedShiftedRssi[node] = rssiHigh[node] * ACCUMULATION_TIME_CONSTANT;
         //playThresholdSetupMiddleTones();
-        //addToSendQueue(SEND_THRESHOLD_SETUP_MODE);
+        sendThresholdMode(node);
       }
     } else {
       // in this phase of the setup we are tracking highest rssi and expect it to fall back down so that we know that the process is complete
 
       // continue searching for peak; using slowRssi to avoid catching sudden random peaks
-      if (slowRssi > rssiHigh) {
-        rssiHigh = slowRssi;
-        accumulatedShiftedRssi = rssiHigh * ACCUMULATION_TIME_CONSTANT; // set to highest found rssi
+      if (rssi > rssiHigh[node]) {
+        rssiHigh[node] = rssi;
+        accumulatedShiftedRssi[node] = rssiHigh[node] * ACCUMULATION_TIME_CONSTANT; // set to highest found rssi
       }
 
       // since filter runs too fast, we have to introduce a delay between subsequent readings of filter values
       uint32_t curTime = millis();
-      if ((curTime - lastRssiAccumulationTime) > MILLIS_BETWEEN_ACCU_READS) {
-        lastRssiAccumulationTime = curTime;
+      if ((curTime - lastRssiAccumulationTime[node]) > MILLIS_BETWEEN_ACCU_READS) {
+        lastRssiAccumulationTime[node] = curTime;
         // this is actually a filter with a delay determined by ACCUMULATION_TIME_CONSTANT
-        accumulatedShiftedRssi = rssi  + (accumulatedShiftedRssi * (ACCUMULATION_TIME_CONSTANT - 1) / ACCUMULATION_TIME_CONSTANT );
+        accumulatedShiftedRssi[node] = rssi  + (accumulatedShiftedRssi[node] * (ACCUMULATION_TIME_CONSTANT - 1) / ACCUMULATION_TIME_CONSTANT );
       }
-      uint16_t accumulatedRssi = accumulatedShiftedRssi / ACCUMULATION_TIME_CONSTANT;
+      uint16_t accumulatedRssi = accumulatedShiftedRssi[node] / ACCUMULATION_TIME_CONSTANT;
 
-      uint16_t rssiLowEnoughForSetup = rssiHigh - (rssiHigh - rssiLow) * FALL_RSSI_THRESHOLD_PERCENT / 100;
+      uint16_t rssiLowEnoughForSetup = rssiHigh[node] - (rssiHigh[node] - rssiLow[node]) * FALL_RSSI_THRESHOLD_PERCENT / 100;
       if (accumulatedRssi < rssiLowEnoughForSetup) {
-        rssiThreshold = rssiHigh - ((rssiHigh - rssiLow) * TOP_RSSI_DECREASE_PERCENT) / 100;
-        thresholdSetupMode = 0;
+        rssiThreshold = rssiHigh[node] - ((rssiHigh[node] - rssiLow[node]) * TOP_RSSI_DECREASE_PERCENT) / 100;
+        SetThresholdValue(rssiThreshold / 12, node); // Function expects the threshold in / 12
+        thresholdSetupMode[node] = 0;
         isConfigured = 1;
         //playThresholdSetupDoneTones();
-        //addToSendQueue(SEND_THRESHOLD_SETUP_MODE);
-        //addToSendQueue(SEND_THRESHOLD);
+        sendThresholdMode(node);
+        SendThresholdValue(node);
       }
     }
   }
@@ -528,7 +529,7 @@ void SendAllSettings(uint8_t NodeAddr) {
   SendRSSImonitorInterval(NodeAddr);
   SendTimerCalibration(NodeAddr);
   sendAPIversion();
-  SendSetThresholdMode(NodeAddr);
+  sendThresholdMode(NodeAddr);
   SendXdone(NodeAddr);
 
 }
@@ -791,17 +792,20 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         isConfigured = 1;
         break;
       case CONTROL_THRESHOLD_SETUP: // setup threshold using sophisticated algorithm
-        valueToSet = TO_BYTE(controlData[1]);
-        thresholdSetupMode = valueToSet;
-        if (raceMode) { // don't run threshold setup in race mode because we don't calculate slowRssi in race mode, but it's needed for setup threshold algorithm
-          thresholdSetupMode = 0;
+        valueToSet = TO_BYTE(controlData[3]);
+        uint8_t node = TO_BYTE(controlData[1]);
+        // Skip this if we get an invalid node id
+        if(node >= MaxNumRecievers) {
+          break;
         }
-        if (thresholdSetupMode) {
-          setupThreshold(RSSI_SETUP_INITIALIZE);
+        if (!raceMode) { // don't run threshold setup in race mode because we don't calculate slowRssi in race mode, but it's needed for setup threshold algorithm
+           thresholdSetupMode[node] = valueToSet;
+        }
+        if (thresholdSetupMode[node]) {
+          setupThreshold(RSSI_SETUP_INITIALIZE, node);
         } else {
           //playThresholdSetupStopTones();
         }
-        //addToSendQueue(SEND_THRESHOLD_SETUP_MODE);
         break;
     }
   } else { // get value and other instructions
@@ -861,11 +865,17 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendTimerCalibration(NodeAddrByte);
         break;
       case CONTROL_THRESHOLD_SETUP: // get state of threshold setup process
-        SendSetThresholdMode(NodeAddrByte);
+        sendThresholdMode(NodeAddrByte);
         break;
       case CONTROL_GET_IS_CONFIGURED:
         SendIsModuleConfigured();
         break;
     }
+  }
+}
+
+void thresholdModeStep() {
+  for(uint8_t i = 0; i < MaxNumRecievers; ++i) {
+    setupThreshold(RSSI_SETUP_NEXT_STEP, i);
   }
 }

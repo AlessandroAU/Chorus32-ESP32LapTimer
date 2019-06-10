@@ -246,3 +246,10 @@ void InitADCtimer() {
 void StopADCtimer() {
   //timerAttachInterrupt(timer, NULL, true); //This doesn't work, not sure why.
 }
+
+uint16_t getRSSI(uint8_t index) {
+  if(index < MaxNumRecievers) {
+    return ADCvalues[index];  
+  }
+  return 0;
+}
