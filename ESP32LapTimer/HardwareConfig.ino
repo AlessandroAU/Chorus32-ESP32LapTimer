@@ -14,4 +14,16 @@ void InitHardwarePins() {
   //pinMode(MISO, INPUT);
   pinMode(BEEPER, OUTPUT);
   digitalWrite(BEEPER, LOW);
+
+  #ifdef Micro32-PCB
+    pinMode(ADC_SELECT, OUTPUT);
+    pinMode(LED_BLUE, OUTPUT);
+    pinMode(LED_RED, OUTPUT);
+    pinMode(LED_GREEN, OUTPUT);
+    pinMode(STATUS_LED, OUTPUT);
+
+    digitalWrite(ADC_SELECT, LOW);
+    digitalWrite(STATUS_LED, HIGH);
+  #endif
+  
 }
