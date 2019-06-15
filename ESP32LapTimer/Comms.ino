@@ -164,8 +164,6 @@ uint32_t RaceStartTime = 0;
 
 uint8_t thresholdSetupMode[MaxNumRecievers];
 uint16_t RXfrequencies[MaxNumRecievers];
-volatile uint8_t RXBand[MaxNumRecievers];
-volatile uint8_t RXChannel[MaxNumRecievers];
 
 static void sendThresholdMode(uint8_t node) {
   addToSendQueue('S');
@@ -177,8 +175,8 @@ static void sendThresholdMode(uint8_t node) {
 
 void commsSetup() {
   for (int i = 0; i < NumRecievers; i++) {
-    RXBand[i] = EepromSettings.RXBand[i];
-    RXChannel[i] = EepromSettings.RXChannel[i];
+    setRXBand(i, EepromSettings.RXBand[i]);
+    setRXChannel(i, EepromSettings.RXChannel[i]);
     RXfrequencies[i] = EepromSettings.RXfrequencies[i];
     thresholdSetupMode[i] = 0;
   }
@@ -604,7 +602,7 @@ void SendVRxBand(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue('B');
-  addToSendQueue(TO_HEX(RXBand[NodeAddr]));
+  addToSendQueue(TO_HEX(getRXBand(NodeAddr)));
   addToSendQueue('\n');
   //SendVRxFreq(NodeAddr);
 
@@ -615,7 +613,7 @@ void SendVRxChannel(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue('C');
-  addToSendQueue(TO_HEX(RXChannel[NodeAddr]));
+  addToSendQueue(TO_HEX(getRXChannel(NodeAddr)));
   addToSendQueue('\n');
   //SendVRxFreq(NodeAddr);
 
@@ -623,7 +621,7 @@ void SendVRxChannel(uint8_t NodeAddr) {
 
 void SendVRxFreq(uint8_t NodeAddr) {
   //Cmd Byte F
-  uint8_t index = RXChannel[NodeAddr] + (8 * RXBand[NodeAddr]);
+  uint8_t index = getRXChannel(NodeAddr) + (8 * getRXBand(NodeAddr));
   uint16_t frequency = channelFreqTable[index];
 
   addToSendQueue('S');
@@ -709,23 +707,23 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
       case CONTROL_BAND:
 
-        RXBand[NodeAddrByte] = TO_BYTE(controlData[3]);
+        setRXBand(NodeAddrByte, TO_BYTE(controlData[3]));
         setModuleChannelBand(NodeAddrByte);
         SendVRxBand(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
-        EepromSettings.RXBand[NodeAddrByte] = RXBand[NodeAddrByte];
+        EepromSettings.RXBand[NodeAddrByte] = getRXBand(NodeAddrByte);
         setSaveRequired();
         break;
 
       case CONTROL_CHANNEL:
 
-        RXChannel[NodeAddrByte] = TO_BYTE(controlData[3]);
+        setRXChannel(NodeAddrByte, TO_BYTE(controlData[3]));
         setModuleChannelBand(NodeAddrByte);
         SendVRxChannel(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
-        EepromSettings.RXChannel[NodeAddrByte] = RXChannel[NodeAddrByte];
+        EepromSettings.RXChannel[NodeAddrByte] = getRXChannel(NodeAddrByte);
         setSaveRequired();
         break;
 

@@ -1,12 +1,15 @@
+#include "Buttons.h"
+
 #include "Timer.h"
+#include "HardwareConfig.h"
+#include "Beeper.h"
+#include "OLED.h"
+#include "Calibration.h"
+#include "settings_eeprom.h"
+
+#include <stdint.h>
 
 #define newButtonDeBounce 40
-
-extern uint16_t displayScreenNumber;
-extern uint8_t numberOfBaseScreens;
-
-// This is needed otherwise the screens will not initialize properly on startup
-uint8_t numberOfOledScreens = numberOfBaseScreens;
 
 bool buttonOneTouched = false;
 bool buttonTwoTouched = false;
@@ -20,8 +23,8 @@ long touchedTime1 = 0;
 long touchedTime2 = 0;
 
 // These are for the value of the capacitive touch. 
-byte touch1;
-byte touch2;
+uint8_t touch1;
+uint8_t touch2;
 
 // Bools to help with debounce and long touch
 bool buttonActive1 = false;
@@ -40,17 +43,6 @@ void newButtonSetup() {
   touch_pad_set_filter_period(BUTTON1);
   touch_pad_filter_start(BUTTON2);
   touch_pad_set_filter_period(BUTTON2);
-#endif
-}
-
-// Use this function for debugging touch values and press-states. Runs in ESP32LapTimer.ino
-void touchMonitor() {
-#ifndef USE_NORMAL_BUTTONS
-  byte touch = touchRead(BUTTON1);
-  Serial.println(touch);
-  Serial.println(longPressActive1);
-  Serial.println(longPressActive2);
-  delay(100);
 #endif
 }
 
@@ -104,7 +96,7 @@ void newButtonUpdate() {
       // vvv BUTTON 1 LONG press between these comments vvv
       
       doubleBeep();
-      displayScreenNumber = 0;
+      setDisplayScreenNumber(0);
 
       // ^^^ BUTTON 1 LONG press between these comments ^^^
       longPressActive1 = true;
@@ -118,8 +110,8 @@ void newButtonUpdate() {
         // vvv BUTTON 1 SHORT press between these comments vvv
         
         beep();
-        numberOfOledScreens = numberOfBaseScreens + (NumRecievers); // Re-calculating the number of screens while cycling through them
-        displayScreenNumber++;
+        setNumberOfOledScreens(getNumberOfBaseScreens() + (NumRecievers)); // Re-calculating the number of screens while cycling through them
+        setDisplayScreenNumber(getDisplayScreenNumber() + 1);
 
         // ^^^ BUTTON 1 SHORT press between these comments ^^^
       }
@@ -138,14 +130,15 @@ void newButtonUpdate() {
       // vvv BUTTON 2 LONG press between these comments vvv
 
       doubleBeep();
-       if (displayScreenNumber % numberOfOledScreens >= 4 && displayScreenNumber % numberOfOledScreens <= 9) {
+       if (getDisplayScreenNumber() % getNumberOfOledScreens() >= 4 && getDisplayScreenNumber() % getNumberOfOledScreens() <= 9) {
           // Increment RX Frequency Here.
           incrementRxBand();
         }
 
-        if (displayScreenNumber % numberOfOledScreens == 3) {
+        if (getDisplayScreenNumber() % getNumberOfOledScreens() == 3) {
           // Toggle Airplane Mode
-          toggleAirplaneMode();
+          // TODO: implement
+          //toggleAirplaneMode();
         }
 
       // ^^^ BUTTON 2 LONG press between these comments ^^^
@@ -160,10 +153,10 @@ void newButtonUpdate() {
         // vvv BUTTON 2 SHORT press between these comments vvv
 
         beep();
-        if (displayScreenNumber % numberOfOledScreens == 2) {
+        if (getDisplayScreenNumber() % getNumberOfOledScreens() == 2) {
           rssiCalibration();
         }
-        if (displayScreenNumber % numberOfOledScreens >= 4 && displayScreenNumber % numberOfOledScreens <= 9) {
+        if (getDisplayScreenNumber() % getNumberOfOledScreens() >= 4 && getDisplayScreenNumber() % getNumberOfOledScreens() <= 9) {
           // Increment RX Frequency Here.
           incrementRxFrequency();
         }

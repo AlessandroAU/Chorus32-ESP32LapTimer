@@ -12,6 +12,7 @@
 #include "Beeper.h"
 #include "Calibration.h"
 #include "UDP.h"
+#include "Buttons.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 

@@ -18,6 +18,7 @@ const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 uint16_t displayScreenNumber = 0;
 uint8_t  numberOfBaseScreens = 4; // Increment if a new screen is added to cycle through.
 // The actual number of screens will be calculated on Button 1 press in buttons.ino.
+uint8_t numberOfOledScreens = numberOfBaseScreens;
 
 void oledSetup(void) {
   display.init();
@@ -75,7 +76,7 @@ void oledUpdate(void)
     // Rx modules
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     for (int i = 0; i < NumRecievers; i++) {
-      display.drawString(0, 9 + i * 9, getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(getRSSI(i) / 12));
+      display.drawString(0, 9 + i * 9, getBandLabel(getRXBand(i)) + String(getRXChannel(i) + 1) + ", " + String(getRSSI(i) / 12));
       if (getRSSI(i) < 600) {
         display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(600, 600, 3500, 0, 85));
       } else {
@@ -126,14 +127,14 @@ void oledUpdate(void)
 void displayRxPage() {
   // Gather Data
   uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
-  uint8_t frequencyIndex = RXChannel[currentRXNumber] + (8 * RXBand[currentRXNumber]);
+  uint8_t frequencyIndex = getRXChannel(currentRXNumber) + (8 * getRXBand(currentRXNumber));
   uint16_t frequency = channelFreqTable[frequencyIndex];
 
   // Display things
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_16);
   display.drawString(0, 0, "Settings for RX" + String(currentRXNumber + 1));
-  display.drawString(0, 18, getBandLabel(RXBand[currentRXNumber]) + String(RXChannel[currentRXNumber] + 1) + " - " + frequency);
+  display.drawString(0, 18, getBandLabel(getRXBand(currentRXNumber)) + String(getRXChannel(currentRXNumber) + 1) + " - " + frequency);
   if (getRSSI(currentRXNumber) < 600) {
     display.drawProgressBar(48, 35, 120 - 42, 8, map(600, 600, 3500, 0, 85));
   } else {
@@ -148,8 +149,8 @@ void displayRxPage() {
 
 void incrementRxFrequency() {
   uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
-  uint8_t currentRXChannel = RXChannel[currentRXNumber];
-  uint8_t currentRXBand = RXBand[currentRXNumber];
+  uint8_t currentRXChannel = getRXChannel(currentRXNumber);
+  uint8_t currentRXBand = getRXBand(currentRXNumber);
   currentRXChannel++;
   if (currentRXChannel >= 8) {
     //currentRXBand++;
@@ -164,8 +165,8 @@ void incrementRxFrequency() {
 }
 void incrementRxBand() {
   uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
-  uint8_t currentRXChannel = RXChannel[currentRXNumber];
-  uint8_t currentRXBand = RXBand[currentRXNumber];
+  uint8_t currentRXChannel = getRXChannel(currentRXNumber);
+  uint8_t currentRXBand = getRXBand(currentRXNumber);
   currentRXBand++;
   if (currentRXBand >= 8) {
     currentRXBand = 0;
@@ -175,6 +176,25 @@ void incrementRxBand() {
 
 void setDisplayScreenNumber(uint16_t num) {
   displayScreenNumber = num;
+}
+
+uint16_t getDisplayScreenNumber() {
+  return displayScreenNumber;
+}
+
+void setNumberOfOledScreens(uint8_t num) {
+  numberOfOledScreens = num;
+}
+uint8_t getNumberOfOledScreens() {
+  return numberOfOledScreens;
+}
+
+void setNumberOfBaseScreens(uint8_t num) {
+  numberOfBaseScreens = num;
+}
+
+uint8_t getNumberOfBaseScreens(){
+  return numberOfBaseScreens;
 }
 
 #endif

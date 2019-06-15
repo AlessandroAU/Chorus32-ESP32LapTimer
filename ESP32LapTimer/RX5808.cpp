@@ -9,6 +9,8 @@
 #define StandbyReg        0b00000000000000000010
 #define PowerOnReg        0b00000000000000000001
 
+#include "RX5808.h"
+
 #include "HardwareConfig.h"
 
 #include <Arduino.h>
@@ -17,6 +19,9 @@
 #include <driver/timer.h>
 
 uint16_t freq = 5820;
+
+volatile uint8_t RXBand[MaxNumRecievers];
+volatile uint8_t RXChannel[MaxNumRecievers];
 
 void InitSPI() {
 #ifdef USE_HSPI
@@ -421,4 +426,18 @@ String getBandLabel(int band) {
       break;
   }
 
+}
+
+void setRXBand(uint8_t node, uint8_t band) {
+  RXBand[node] = band;
+}
+uint8_t getRXBand(uint8_t node) {
+  return RXBand[node];
+}
+
+void setRXChannel(uint8_t node, uint8_t channel) {
+  RXChannel[node] = channel;
+}
+uint8_t getRXChannel(uint8_t node) {
+  return RXChannel[node];
 }

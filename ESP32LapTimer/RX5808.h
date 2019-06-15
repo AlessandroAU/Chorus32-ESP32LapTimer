@@ -1,6 +1,10 @@
 #ifndef HEADER_RX5808
 #define HEADER_RX5808
 
+#include <stdint.h>
+
+#include <Arduino.h>
+
 #define MAX_BAND 7
 
 //// Channels to send to the SPI registers
@@ -48,6 +52,15 @@ uint16_t setModuleChannel(uint8_t channel, uint8_t band);
 void InitSPI();
 void SetDefaultRegs();
 uint16_t setModuleChannelBand(uint8_t NodeAddr);
+uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr);
 uint16_t setModuleFrequencyAll(uint16_t frequency);
+uint16_t setModuleFrequency(uint16_t frequency, uint8_t NodeAddr);
+String getBandLabel(int band);
+
+void setRXBand(uint8_t node, uint8_t band);
+uint8_t getRXBand(uint8_t node);
+
+void setRXChannel(uint8_t node, uint8_t channel);
+uint8_t getRXChannel(uint8_t node);
 
 #endif
