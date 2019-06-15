@@ -7,10 +7,11 @@ struct EepromSettingsStruct EepromSettings;
 
 ///////////Extern Variable we need acces too///////////////////////
 
-extern RXADCfilter_ RXADCfilter;
-extern ADCVBATmode_ ADCVBATmode;
+RXADCfilter_ RXADCfilter;
+ADCVBATmode_ ADCVBATmode;
+bool eepromSaveRequired = false;
 
-extern byte NumRecievers;
+uint8_t NumRecievers = 6;
 extern float VBATcalibration;
 
 //////////////////////////////////////////////////////////////////
@@ -114,10 +115,10 @@ bool EepromSettingsStruct::SanityCheck() {
 }
 
 void EepromSettingsStruct::save() {
-  if (eepromSaveRquired) {
+  if (eepromSaveRequired) {
     EEPROM.put(0, *this);
     EEPROM.commit();
-    eepromSaveRquired = false;
+    eepromSaveRequired = false;
     Serial.println("EEPROM SAVED");
   }
 }
@@ -126,4 +127,25 @@ void EepromSettingsStruct::defaults() {
   memcpy_P(this, &EepromDefaults, sizeof(EepromDefaults));
   EEPROM.put(0, *this);
   EEPROM.commit();
+}
+
+
+RXADCfilter_ getRXADCfilter() {
+  return RXADCfilter;
+}
+
+ADCVBATmode_ getADCVBATmode() {
+  return ADCVBATmode;
+}
+
+void setRXADCfilter(RXADCfilter_ filter) {
+  RXADCfilter = filter;
+}
+
+void setADCVBATmode(ADCVBATmode_ mode) {
+  ADCVBATmode = mode;
+}
+
+void setSaveRequired() {
+  eepromSaveRequired = true;
 }

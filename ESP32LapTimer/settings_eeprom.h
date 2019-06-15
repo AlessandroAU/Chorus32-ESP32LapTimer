@@ -5,9 +5,6 @@
 enum RXADCfilter_ {LPF_10Hz, LPF_20Hz, LPF_50Hz, LPF_100Hz};
 enum ADCVBATmode_ {OFF, ADC_CH5, ADC_CH6, INA219};
 
-RXADCfilter_ RXADCfilter;
-ADCVBATmode_ ADCVBATmode;
-
 #define MaxChannel 7
 #define MaxBand 7
 
@@ -19,9 +16,6 @@ ADCVBATmode_ ADCVBATmode;
 #define MaxVBATCalibration 100.00
 #define MaxThreshold 4095
 
-
-bool eepromSaveRquired = false;
-
 struct EepromSettingsStruct {
   uint16_t eepromVersionNumber;
   uint8_t RXBand[MaxNumRecievers];
@@ -31,7 +25,7 @@ struct EepromSettingsStruct {
   RXADCfilter_ RXADCfilter;
   ADCVBATmode_ ADCVBATmode;
   float VBATcalibration;
-  byte NumRecievers;
+  uint8_t NumRecievers;
   uint16_t RxCalibrationMin[MaxNumRecievers];
   uint16_t RxCalibrationMax[MaxNumRecievers];
 
@@ -53,10 +47,18 @@ const struct {
   RXADCfilter_ RXADCfilter = LPF_20Hz;
   ADCVBATmode_ ADCVBATmode = INA219;
   float VBATcalibration = 1.000;
-  byte NumRecievers = 6;
+  uint8_t NumRecievers = 6;
   uint16_t RxCalibrationMin[MaxNumRecievers] = {800, 800, 800, 800, 800, 800};
   uint16_t RxCalibrationMax[MaxNumRecievers] = {2700, 2700, 2700, 2700, 2700, 2700};
 
 } EepromDefaults;
 
 extern EepromSettingsStruct EepromSettings;
+
+RXADCfilter_ getRXADCfilter();
+ADCVBATmode_ getADCVBATmode();
+
+void setRXADCfilter(RXADCfilter_ filter);
+void setADCVBATmode(ADCVBATmode_ mode);
+
+void setSaveRequired();

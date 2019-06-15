@@ -12,12 +12,13 @@
 #include "ADC.h"
 #include "Timer.h"
 #include "UDP.h"
+#include "Calibration.h"
+#include "Laptime.h"
 
 static Timer ina219Timer = Timer(1000);
 
 extern RXADCfilter_ RXADCfilter;
 extern ADCVBATmode_ ADCVBATmode;
-extern byte NumRecievers;
 
 extern RXADCfilter_ RXADCfilter; //variable to hold which filter we use.
 
@@ -29,6 +30,8 @@ static uint16_t ADCcaptime;
 
 static uint32_t LastADCcall;
 
+extern uint8_t raceMode;
+
 hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -38,8 +41,6 @@ static esp_adc_cal_characteristics_t adc_chars;
 
 static int RSSIthresholds[MaxNumRecievers];
 static uint16_t ADCReadingsRAW[MaxNumRecievers];
-static float VbatReadingFloat;
-static float mAReadingFloat;
 static unsigned int VbatReadingRaw;
 static unsigned int VbatReadingSmooth;
 static int FilteredADCvalues[MaxNumRecievers];
@@ -50,6 +51,10 @@ static FilterBeLp2_10HZ Filter_10HZ[6] = {FilterBeLp2_10HZ(), FilterBeLp2_10HZ()
 static FilterBeLp2_20HZ Filter_20HZ[6] = {FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ()};
 static FilterBeLp2_50HZ Filter_50HZ[6] = {FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ()};
 static FilterBeLp2_100HZ Filter_100HZ[6] = {FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ()};
+
+float VBATcalibration;
+float mAReadingFloat;
+static float VbatReadingFloat;
 
 void ConfigureADC() {
 
@@ -129,7 +134,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
     ADCReadingsRAW[5] = 2 * adcEnd(ADC6_GPIO); //don't know why 2x is needed here!
 
     // Applying calibration
-    if (!isCurrentlyCalibrating) {
+    if (!isCalibrating()) {
       for (uint8_t i = 0; i < NumRecievers; i++) {
         if((ADCVBATmode == ADC_CH5 && i == 4) || (ADCVBATmode == ADC_CH6 && i == 5)) continue; // skip if voltage is on this channel
         uint16_t rawRSSI = constrain(ADCReadingsRAW[i], EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i]);
@@ -167,11 +172,11 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
     switch (ADCVBATmode) {
       case ADC_CH5:
         VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[4], &adc_chars);
-        VbatReadingFloat = VbatReadingSmooth / 1000.0 * VBATcalibration;
+        setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
         break;
       case ADC_CH6:
         VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[5], &adc_chars);
-        VbatReadingFloat = VbatReadingSmooth / 1000.0 * VBATcalibration;
+       setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
         break;
     }
 
@@ -202,7 +207,7 @@ void StartNB_ADCread() {
 
 void ReadVBAT_INA219() {
   if (ina219Timer.hasTicked()) {
-    VbatReadingFloat = ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV() / 1000);
+    setVbatFloat(ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV() / 1000));
 //    Serial.print("VbatReading = ");
 //    Serial.println(VbatReadingFloat);
 
@@ -227,17 +232,11 @@ void IRAM_ATTR readADCs() {
 
 void IRAM_ATTR CheckRSSIthresholdExceeded() {
   uint32_t CurrTime = millis();
-
   for (uint8_t i = 0; i < NumRecievers; i++) {
-
     if ( ADCvalues[i] > RSSIthresholds[i]) {
-
-      if (CurrTime > (MinLapTime + LapTimes[i][LapTimePtr[i]])) {
-
-        LapTimePtr[i] = LapTimePtr[i] + 1;
-        LapTimes[i][LapTimePtr[i]] = CurrTime;
-
-        sendLap(LapTimePtr[i], i);
+    if (CurrTime > (getMinLapTime() + getLaptime(i))) {
+        uint8_t lap_num = addLap(i, CurrTime);
+        sendLap(lap_num, i);
       }
     }
   }
@@ -272,4 +271,32 @@ void setRSSIThreshold(uint8_t node, uint16_t threshold) {
   if(node < MaxNumRecievers) {
     RSSIthresholds[node] = threshold;
   }
+}
+
+uint16_t getRSSIThreshold(uint8_t node){
+  return RSSIthresholds[node];
+}
+
+uint16_t getADCLoopCount() {
+  return adcLoopCounter;
+}
+
+void setADCLoopCount(uint16_t count) {
+  adcLoopCounter = count;
+}
+
+void setVbatCal(float calibration) {
+  VBATcalibration = calibration;
+}
+
+float getMaFloat() {
+  return mAReadingFloat;
+}
+
+float getVbatFloat(){
+  return VbatReadingFloat;
+}
+
+void setVbatFloat(float val){
+  VbatReadingFloat = val;
 }

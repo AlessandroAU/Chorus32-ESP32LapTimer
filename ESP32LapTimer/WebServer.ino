@@ -249,14 +249,14 @@ void InitWebServer() {
 
 
 void SendStatusVars() {
-  webServer.send(200, "application/json", "{\"Var_VBAT\": " + String(VbatReadingFloat, 2) + ", \"Var_WifiClients\": 1, \"Var_CurrMode\": \"IDLE\"}");
+  webServer.send(200, "application/json", "{\"Var_VBAT\": " + String(getVbatFloat(), 2) + ", \"Var_WifiClients\": 1, \"Var_CurrMode\": \"IDLE\"}");
 
 }
 
 
 void SendStaticVars() {
 
-  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(RSSIthresholds[0]);
+  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0));
   sendSTR = sendSTR + ",\"Band\":{";
   for (int i = 0; i < NumRecievers; i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
@@ -344,14 +344,14 @@ void ProcessGeneralSettingsUpdate() {
   int value = rssi * 12;
   for (int i = 0 ; i < MaxNumRecievers; i++) {
     EepromSettings.RSSIthresholds[i] = value;
-    RSSIthresholds[i] = value;
+    setRSSIThreshold(i, value);
   }
 
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
   file.close();
-  eepromSaveRquired = true;
+  setSaveRequired();
 #ifdef OLED
   oledUpdate();
 #endif
@@ -375,13 +375,13 @@ void ProcessVBATModeUpdate() {
 
   EepromSettings.ADCVBATmode = ADCVBATmode;
   EepromSettings.VBATcalibration = VBATcalibration;
-  eepromSaveRquired = true;
+  setSaveRequired();
 
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
   file.close();
-  eepromSaveRquired = true;
+  setSaveRequired();
 }
 
 void ProcessADCRXFilterUpdate() {
@@ -396,7 +396,7 @@ void ProcessADCRXFilterUpdate() {
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
   file.close();
-  eepromSaveRquired = true;
+  setSaveRequired();
 
 }
 

@@ -1,6 +1,10 @@
 #include "Timer.h"
 
 #define newButtonDeBounce 40
+
+extern uint16_t displayScreenNumber;
+extern uint8_t numberOfBaseScreens;
+
 // This is needed otherwise the screens will not initialize properly on startup
 uint8_t numberOfOledScreens = numberOfBaseScreens;
 
