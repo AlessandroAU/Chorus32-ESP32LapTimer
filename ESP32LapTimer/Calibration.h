@@ -26,11 +26,11 @@ void rssiCalibrationUpdate() {
   if (isCurrentlyCalibrating && calibrationTimer.hasTicked()) {
         
     for (uint8_t i = 0; i < NumRecievers; i++) {
-      if (ADCvalues[i] < EepromSettings.RxCalibrationMin[i])
-        EepromSettings.RxCalibrationMin[i] = ADCvalues[i];
+      if (getRSSI(i) < EepromSettings.RxCalibrationMin[i])
+        EepromSettings.RxCalibrationMin[i] = getRSSI(i);
         
-      if (ADCvalues[i] > EepromSettings.RxCalibrationMax[i])
-        EepromSettings.RxCalibrationMax[i] = ADCvalues[i];
+      if (getRSSI(i) > EepromSettings.RxCalibrationMax[i])
+        EepromSettings.RxCalibrationMax[i] = getRSSI(i);
     }
   
     calibrationFreqIndex++;

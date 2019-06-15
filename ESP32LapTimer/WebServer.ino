@@ -2,6 +2,8 @@
 bool firstRedirect = true;
 bool HasSPIFFsBegun = false;
 
+bool HTTPupdating = false;
+
 ///////////Extern Variable we need acces too///////////////////////
 
 extern RXADCfilter_ RXADCfilter;

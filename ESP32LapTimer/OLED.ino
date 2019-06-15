@@ -5,6 +5,7 @@
 #include "Font.h"
 #include "Timer.h"
 #include "Screensaver.h"
+#include "ADC.h"
 
 uint8_t oledRefreshTime = 50;
 

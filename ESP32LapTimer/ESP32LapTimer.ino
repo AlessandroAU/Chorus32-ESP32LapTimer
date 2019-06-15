@@ -21,16 +21,6 @@ WiFiUDP UDPserverDatalogger; //datalogging server
 #define MAX_SRV_CLIENTS 5
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
-void readADCs();
-
-
-extern uint16_t ADCcaptime;
-
-extern int ADC1value;
-extern int ADC2value;
-extern int ADC3value;
-extern int ADC4value;
-
 volatile uint32_t LapTimes[MaxNumRecievers][100];
 volatile int LapTimePtr[MaxNumRecievers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
 
@@ -75,7 +65,7 @@ void setup() {
   commsSetup();
 
   for (int i = 0; i < NumRecievers; i++) {
-    RSSIthresholds[i] = EepromSettings.RSSIthresholds[i];
+    setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
   UDPserver.begin(9000);
 
