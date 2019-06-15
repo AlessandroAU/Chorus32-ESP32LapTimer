@@ -11,12 +11,10 @@
 #include "WebServer.h"
 #include "Beeper.h"
 #include "Calibration.h"
+#include "UDP.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
-WiFiUDP UDPserver;
-
-WiFiUDP UDPserverDatalogger; //datalogging server 
 //
 #define MAX_SRV_CLIENTS 5
 WiFiClient serverClients[MAX_SRV_CLIENTS];
@@ -64,7 +62,7 @@ void setup() {
   for (int i = 0; i < NumRecievers; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
-  UDPserver.begin(9000);
+  UDPinit();
 
   InitADCtimer();
 
