@@ -1,3 +1,5 @@
+#include "Comms.h"
+
 #include "RX5808.h"
 #include "Utils.h"
 #include "HardwareConfig.h"
@@ -288,17 +290,6 @@ void SendThresholdValue(uint8_t NodeAddr) {
   addToSendQueue('\n');
 }
 
-void SendCurrRSSIloop() {
-  if (rssiMonitorInterval == 0) {
-    return;
-  }
-  if (millis() > rssiMonitorInterval + lastRSSIsent) {
-    for (int i = 0; i < NumRecievers; i ++) {
-      SendCurrRSSI(i);
-    }
-  }
-}
-
 void SendCurrRSSI(uint8_t NodeAddr) {
 
   ///Calculate Averages///
@@ -316,6 +307,17 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   //MirrorToSerial = true;
   lastRSSIsent = millis();
 
+}
+
+void SendCurrRSSIloop() {
+  if (rssiMonitorInterval == 0) {
+    return;
+  }
+  if (millis() > rssiMonitorInterval + lastRSSIsent) {
+    for (int i = 0; i < NumRecievers; i ++) {
+      SendCurrRSSI(i);
+    }
+  }
 }
 
 void setupThreshold(uint8_t phase, uint8_t node) {
@@ -414,22 +416,6 @@ void setupThreshold(uint8_t phase, uint8_t node) {
   }
 }
 
-void SendNumberOfnodes(byte NodeAddr) {
-  for (int i = NodeAddr + 1; i <= NumRecievers + NodeAddr; i++) {
-    addToSendQueue('N');
-    addToSendQueue(TO_HEX(i));
-    addToSendQueue('\n');
-  }
-}
-
-void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
-  uint8_t Pointer = getCurrentLap(NodeAddr);
-  for (uint8_t i = 0; i < Pointer; i++) {
-    sendLap(i, NodeAddr);
-    SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer with all the data we might send
-  }
-}
-
 void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
   //  Serial.print("SendLap: ");
@@ -479,57 +465,20 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
 }
 
-void SendAllSettings(uint8_t NodeAddr) {
-  //1BCFHIJLMRSTvy# + x
+void SendNumberOfnodes(byte NodeAddr) {
+  for (int i = NodeAddr + 1; i <= NumRecievers + NodeAddr; i++) {
+    addToSendQueue('N');
+    addToSendQueue(TO_HEX(i));
+    addToSendQueue('\n');
+  }
+}
 
-  //v Lipo Voltage
-  //y Configured State, True/False
-  //T Threshold Valule
-  //S Enable/Disable Sound
-  //R Race Mode
-  //M Minimal Lap Time
-  //L Lap Report, // laps?
-  //J Set Timer Adjustment Value
-  //I RSSI monitoring interval
-  //H Setup threshold mode
-  //F VRx frequqnecy
-  //C VRx channel
-  //B VRx band
-  //1 Enum Devices
-  //SendCurrRSSI(NodeAddr);
-
-  //  WaitFirstLap(NodeAddr); //1 Wait First lap
-  //  SendVRxBand(NodeAddr); //B
-  //  SendVRxChannel(NodeAddr); //C
-  //  SendVRxFreq(NodeAddr); //F VRx Freq
-  //  SendSetThresholdMode(NodeAddr); //H send Threshold Mode
-  //  SendRSSImonitorInterval(NodeAddr); //I RSSI monitor interval
-  //  SendTimerCalibration(NodeAddr); //J timer calibration
-  //  SendAllLaps(NodeAddr); //L Lap Report
-  //  SendMinLap(NodeAddr); //M Minumum Lap Time
-  //  SendRaceMode(NodeAddr); //R
-  //  SendSoundMode(NodeAddr); //S
-  //  SendThresholdValue(NodeAddr); // T
-  //  SendLipoVoltage(); // v
-  //  SendIsModuleConfigured(NodeAddr); //y
-  //  sendAPIversion(); // #
-  //  SendXdone(NodeAddr); //x
-
-  SendVRxChannel(NodeAddr);
-  SendRaceMode(NodeAddr);
-  SendMinLap(NodeAddr);
-  SendThresholdValue(NodeAddr);
-  SendSoundMode(NodeAddr);
-  SendVRxBand(NodeAddr);
-  WaitFirstLap(NodeAddr);
-  SendIsModuleConfigured();
-  SendVRxFreq(NodeAddr);
-  SendRSSImonitorInterval(NodeAddr);
-  SendTimerCalibration(NodeAddr);
-  sendAPIversion();
-  sendThresholdMode(NodeAddr);
-  SendXdone(NodeAddr);
-
+void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
+  uint8_t Pointer = getCurrentLap(NodeAddr);
+  for (uint8_t i = 0; i < Pointer; i++) {
+    sendLap(i, NodeAddr);
+    SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer with all the data we might send
+  }
 }
 
 void SendRSSImonitorInterval(uint8_t NodeAddr) {
@@ -648,6 +597,58 @@ void sendAPIversion() {
   }
 }
 
+void SendAllSettings(uint8_t NodeAddr) {
+  //1BCFHIJLMRSTvy# + x
+
+  //v Lipo Voltage
+  //y Configured State, True/False
+  //T Threshold Valule
+  //S Enable/Disable Sound
+  //R Race Mode
+  //M Minimal Lap Time
+  //L Lap Report, // laps?
+  //J Set Timer Adjustment Value
+  //I RSSI monitoring interval
+  //H Setup threshold mode
+  //F VRx frequqnecy
+  //C VRx channel
+  //B VRx band
+  //1 Enum Devices
+  //SendCurrRSSI(NodeAddr);
+
+  //  WaitFirstLap(NodeAddr); //1 Wait First lap
+  //  SendVRxBand(NodeAddr); //B
+  //  SendVRxChannel(NodeAddr); //C
+  //  SendVRxFreq(NodeAddr); //F VRx Freq
+  //  SendSetThresholdMode(NodeAddr); //H send Threshold Mode
+  //  SendRSSImonitorInterval(NodeAddr); //I RSSI monitor interval
+  //  SendTimerCalibration(NodeAddr); //J timer calibration
+  //  SendAllLaps(NodeAddr); //L Lap Report
+  //  SendMinLap(NodeAddr); //M Minumum Lap Time
+  //  SendRaceMode(NodeAddr); //R
+  //  SendSoundMode(NodeAddr); //S
+  //  SendThresholdValue(NodeAddr); // T
+  //  SendLipoVoltage(); // v
+  //  SendIsModuleConfigured(NodeAddr); //y
+  //  sendAPIversion(); // #
+  //  SendXdone(NodeAddr); //x
+
+  SendVRxChannel(NodeAddr);
+  SendRaceMode(NodeAddr);
+  SendMinLap(NodeAddr);
+  SendThresholdValue(NodeAddr);
+  SendSoundMode(NodeAddr);
+  SendVRxBand(NodeAddr);
+  WaitFirstLap(NodeAddr);
+  SendIsModuleConfigured();
+  SendVRxFreq(NodeAddr);
+  SendRSSImonitorInterval(NodeAddr);
+  SendTimerCalibration(NodeAddr);
+  sendAPIversion();
+  sendThresholdMode(NodeAddr);
+  SendXdone(NodeAddr);
+
+}
 
 void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t NodeAddr, uint8_t length) {
 

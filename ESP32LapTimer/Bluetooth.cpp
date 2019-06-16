@@ -1,4 +1,16 @@
+#include "Bluetooth.h"
+
 #ifdef BluetoothEnabled
+
+char BluetootBuffIn[255];
+int BluetootBuffInPointer = 0;
+
+char BluetootBufftoProcess[255];
+
+char BluetoothBuffOut[255];
+int BluetoothBuffOutPointer=0;
+
+BluetoothSerial SerialBT;
 
 void ReadfromBLE() {
 
