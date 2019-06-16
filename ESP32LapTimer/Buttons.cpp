@@ -6,6 +6,7 @@
 #include "OLED.h"
 #include "Calibration.h"
 #include "settings_eeprom.h"
+#include "WebServer.h"
 
 #include <stdint.h>
 
@@ -137,8 +138,7 @@ void newButtonUpdate() {
 
         if (getDisplayScreenNumber() % getNumberOfOledScreens() == 3) {
           // Toggle Airplane Mode
-          // TODO: implement
-          //toggleAirplaneMode();
+          toggleAirplaneMode();
         }
 
       // ^^^ BUTTON 2 LONG press between these comments ^^^

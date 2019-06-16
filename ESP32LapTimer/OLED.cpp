@@ -9,6 +9,7 @@
 #include "settings_eeprom.h"
 #include "RX5808.h"
 #include "Calibration.h"
+#include "WebServer.h"
 
 uint8_t oledRefreshTime = 50;
 
@@ -135,9 +136,7 @@ void oledUpdate(void)
     display.drawString(0, 0, "Airplane Mode Settings:");
     display.drawString(0, 15, "Long Press Button 2 to");
     display.drawString(0, 26, "toggle Airplane mode.");
-    // TODO: implement airplane mode
-    //if (!airplaneMode) {
-    if (false) {
+    if (!isAirplaneModeOn()) {
       display.drawString(0, 42, "Airplane Mode: OFF");
       display.drawString(0, 51, "WiFi: ON  | Draw: " + String(getMaFloat()/1000, 2) + "A");
     } else {
