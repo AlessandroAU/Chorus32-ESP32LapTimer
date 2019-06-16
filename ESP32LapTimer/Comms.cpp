@@ -105,22 +105,22 @@
 
 //----- RSSI --------------------------------------
 #define FILTER_ITERATIONS 5 // software filtering iterations; set 0 - if filtered in hardware; set 5 - if not
-uint16_t rssiArr[FILTER_ITERATIONS + 1];
-uint16_t rssiThreshold = 190;
+static uint16_t rssiArr[FILTER_ITERATIONS + 1];
+static uint16_t rssiThreshold = 190;
 
 
-uint32_t lastRSSIsent;
+static uint32_t lastRSSIsent;
 
 #define MIN_RSSI_MONITOR_INTERVAL 1 // in milliseconds
-uint16_t rssiMonitorInterval = 0; // zero means the RSSI monitor is OFF
-uint32_t lastRssiMonitorReading = 0; // millis when rssi monitor value was last read
+static uint16_t rssiMonitorInterval = 0; // zero means the RSSI monitor is OFF
+static uint32_t lastRssiMonitorReading = 0; // millis when rssi monitor value was last read
 
 #define RSSI_SETUP_INITIALIZE 0
 #define RSSI_SETUP_NEXT_STEP 1
 
 //----- Lap timings--------------------------------
-uint32_t lastMilliseconds = 0;
-uint32_t raceStartTime = 0;
+static uint32_t lastMilliseconds = 0;
+static uint32_t raceStartTime = 0;
 #define MIN_MIN_LAP_TIME 1 //seconds
 #define MAX_MIN_LAP_TIME 120 //seconds
 #define MAX_LAPS 100
@@ -132,40 +132,40 @@ uint32_t raceStartTime = 0;
 // Usage of signed int time adjustment constant from outside:
 // * set to zero means time adjustment procedure was not performed for this node
 // * set to INFINITE_TIME_ADJUSTMENT, means time adjustment was performed, but no need to adjust
-int32_t timeAdjustment = 0;
+static int32_t timeAdjustment = 0;
 
 //----- read/write bufs ---------------------------
 #define READ_BUFFER_SIZE 20
-uint8_t readBuf[READ_BUFFER_SIZE];
-uint8_t proxyBuf[READ_BUFFER_SIZE];
-uint8_t readBufFilledBytes = 0;
-uint8_t proxyBufDataSize = 0;
+static uint8_t readBuf[READ_BUFFER_SIZE];
+static uint8_t proxyBuf[READ_BUFFER_SIZE];
+static uint8_t readBufFilledBytes = 0;
+static uint8_t proxyBufDataSize = 0;
 
 // ----------------------------------------------------------------------------
 
 //-----------
-uint8_t CurrNodeAddrAPI = 0;  //used for functions like R*# and R*a to enumerate over all node ids
-uint8_t CurrNodeAddrLaps = 0;  //used for functions like R*# and R*a to enumerate over all node ids
-bool holeShot[MaxNumRecievers] = {true, true, true, true, true, true}; //wait for first trigger, IE holeshot.
+static uint8_t CurrNodeAddrAPI = 0;  //used for functions like R*# and R*a to enumerate over all node ids
+static uint8_t CurrNodeAddrLaps = 0;  //used for functions like R*# and R*a to enumerate over all node ids
+static bool holeShot[MaxNumRecievers] = {true, true, true, true, true, true}; //wait for first trigger, IE holeshot.
 
 
 //----- other globals------------------------------
-uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted relative to last lap end; 2: lap times are relative to the race start (sum of all previous lap times);
-uint8_t isSoundEnabled = 1;
-uint8_t isConfigured = 0; //changes to 1 if any input changes the state of the device. it will mean that externally stored preferences should not be applied
-uint8_t newLapIndex = 0;
-uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
-uint8_t sendStage = 0;
-uint8_t sendLapTimesIndex = 0;
-uint8_t sendLastLapIndex = 0;
-uint8_t shouldSendSingleItem = 0;
-uint8_t lastLapsNotSent = 0;
-uint32_t millisUponRequest = 0;
+static uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted relative to last lap end; 2: lap times are relative to the race start (sum of all previous lap times);
+static uint8_t isSoundEnabled = 1;
+static uint8_t isConfigured = 0; //changes to 1 if any input changes the state of the device. it will mean that externally stored preferences should not be applied
+static uint8_t newLapIndex = 0;
+static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
+static uint8_t sendStage = 0;
+static uint8_t sendLapTimesIndex = 0;
+static uint8_t sendLastLapIndex = 0;
+static uint8_t shouldSendSingleItem = 0;
+static uint8_t lastLapsNotSent = 0;
+static uint32_t millisUponRequest = 0;
 
-uint32_t RaceStartTime = 0;
+static uint32_t RaceStartTime = 0;
 
-uint8_t thresholdSetupMode[MaxNumRecievers];
-uint16_t RXfrequencies[MaxNumRecievers];
+static uint8_t thresholdSetupMode[MaxNumRecievers];
+static uint16_t RXfrequencies[MaxNumRecievers];
 
 static void sendThresholdMode(uint8_t node) {
   addToSendQueue('S');
@@ -868,4 +868,8 @@ void thresholdModeStep() {
   for(uint8_t i = 0; i < MaxNumRecievers; ++i) {
     setupThreshold(RSSI_SETUP_NEXT_STEP, i);
   }
+}
+
+bool isInRaceMode() {
+  return raceMode;
 }

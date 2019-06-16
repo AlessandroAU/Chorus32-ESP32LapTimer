@@ -18,10 +18,10 @@
 #include <SPI.h>
 #include <driver/timer.h>
 
-uint16_t freq = 5820;
+static uint16_t freq = 5820;
 
-volatile uint8_t RXBand[MaxNumRecievers];
-volatile uint8_t RXChannel[MaxNumRecievers];
+static volatile uint8_t RXBand[MaxNumRecievers];
+static volatile uint8_t RXChannel[MaxNumRecievers];
 
 void InitSPI() {
   SPI.begin(SCK, MISO, MOSI);
