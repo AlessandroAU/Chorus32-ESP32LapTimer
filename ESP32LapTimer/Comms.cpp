@@ -105,7 +105,6 @@
 
 //----- RSSI --------------------------------------
 #define FILTER_ITERATIONS 5 // software filtering iterations; set 0 - if filtered in hardware; set 5 - if not
-static uint16_t rssiArr[FILTER_ITERATIONS + 1];
 static uint16_t rssiThreshold = 190;
 
 
@@ -134,33 +133,19 @@ static uint32_t raceStartTime = 0;
 // * set to INFINITE_TIME_ADJUSTMENT, means time adjustment was performed, but no need to adjust
 static int32_t timeAdjustment = 0;
 
-//----- read/write bufs ---------------------------
-#define READ_BUFFER_SIZE 20
-static uint8_t readBuf[READ_BUFFER_SIZE];
-static uint8_t proxyBuf[READ_BUFFER_SIZE];
-static uint8_t readBufFilledBytes = 0;
-static uint8_t proxyBufDataSize = 0;
-
 // ----------------------------------------------------------------------------
 
 //-----------
 static uint8_t CurrNodeAddrAPI = 0;  //used for functions like R*# and R*a to enumerate over all node ids
 static uint8_t CurrNodeAddrLaps = 0;  //used for functions like R*# and R*a to enumerate over all node ids
-static bool holeShot[MaxNumRecievers] = {true, true, true, true, true, true}; //wait for first trigger, IE holeshot.
 
 
 //----- other globals------------------------------
 static uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted relative to last lap end; 2: lap times are relative to the race start (sum of all previous lap times);
-static uint8_t isSoundEnabled = 1;
+//static uint8_t isSoundEnabled = 1; // TODO: implement this option
 static uint8_t isConfigured = 0; //changes to 1 if any input changes the state of the device. it will mean that externally stored preferences should not be applied
 static uint8_t newLapIndex = 0;
 static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
-static uint8_t sendStage = 0;
-static uint8_t sendLapTimesIndex = 0;
-static uint8_t sendLastLapIndex = 0;
-static uint8_t shouldSendSingleItem = 0;
-static uint8_t lastLapsNotSent = 0;
-static uint32_t millisUponRequest = 0;
 
 static uint32_t RaceStartTime = 0;
 
@@ -293,7 +278,6 @@ void SendThresholdValue(uint8_t NodeAddr) {
 void SendCurrRSSI(uint8_t NodeAddr) {
 
   ///Calculate Averages///
-  uint32_t AvgValue = 0;
   uint16_t Result = getRSSI(NodeAddr);
 
   //MirrorToSerial = false;  // this so it doesn't spam the serial console with RSSI updates
@@ -421,7 +405,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
   //  Serial.print("SendLap: ");
   //  Serial.println(String(Lap) + " " + String(NodeAddr));
 
-  uint32_t RequestedLap;
+  uint32_t RequestedLap = 0;
 
   if (raceMode == 0) {
     Serial.println("RaceMode == 0 and sendlaps was called");
@@ -504,7 +488,7 @@ void SendLipoVoltage() {
   addToSendQueue(TO_HEX(0));
   addToSendQueue('v');
   uint8_t buf[4];
-  float VbatFloat;
+  float VbatFloat = 0;
 
   if(getADCVBATmode() != OFF) {
     VbatFloat = (getVbatFloat() / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.

@@ -8,7 +8,7 @@ Timer::Timer(uint16_t delay) {
     this->ticked = false;
 }
 
-const bool Timer::hasTicked() {
+bool Timer::hasTicked() {
     if (this->ticked)
         return true;
 

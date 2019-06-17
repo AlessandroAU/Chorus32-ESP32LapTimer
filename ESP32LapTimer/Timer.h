@@ -13,7 +13,7 @@ class Timer {
 
     public:
         Timer(uint16_t delay);
-        const bool hasTicked();
+        bool hasTicked();
         void reset();
 };
 
