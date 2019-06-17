@@ -353,7 +353,7 @@ void setupThreshold(uint8_t phase, uint8_t node) {
     //playThresholdSetupStartTones();
     thresholdSetupMode[node] = 1;
     rssiLow[node] = rssi; // using slowRssi to avoid catching random current rssi
-    rssiHigh[node] = rssiLow[MaxNumRecievers];
+    rssiHigh[node] = rssiLow[node];
     accumulatedShiftedRssi[node] = rssiLow[node] * ACCUMULATION_TIME_CONSTANT; // multiply to prevent loss in accuracy
     rssiHighEnoughForMonitoring[node] = rssiLow[node] + rssiLow[node] * RISE_RSSI_THRESHOLD_PERCENT / 100;
     lastRssiAccumulationTime[node] = millis();
