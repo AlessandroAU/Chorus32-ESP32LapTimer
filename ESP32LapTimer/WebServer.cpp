@@ -3,7 +3,6 @@
 #include "settings_eeprom.h"
 #include "ADC.h"
 #include "RX5808.h"
-#include "OLED.h"
 #include "Calibration.h"
 
 #include <esp_wifi.h>
@@ -246,9 +245,6 @@ void ProcessGeneralSettingsUpdate() {
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
   file.close();
   setSaveRequired();
-#ifdef OLED
-  oledUpdate();
-#endif
 
 //  PowerDownAll();
 //  SelectivePowerUp();

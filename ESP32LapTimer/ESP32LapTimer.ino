@@ -7,7 +7,9 @@
 #include "RX5808.h"
 #include "Bluetooth.h"
 #include "settings_eeprom.h"
+#ifdef OLED
 #include "OLED.h"
+#endif
 #include "WebServer.h"
 #include "Beeper.h"
 #include "Calibration.h"
