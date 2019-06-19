@@ -28,24 +28,36 @@ bool longPressActive2 = false;
 bool buttonPressed2 = false;
 
 void newButtonSetup() {
+#ifdef USE_NORMAL_BUTTONS
+  pinMode(BUTTON1, INPUT_PULLUP);
+  pinMode(BUTTON2, INPUT_PULLUP);
+#else
   touch_pad_filter_start(BUTTON1);
   touch_pad_set_filter_period(BUTTON1);
   touch_pad_filter_start(BUTTON2);
   touch_pad_set_filter_period(BUTTON2);
+#endif
 }
 
 // Use this function for debugging touch values and press-states. Runs in ESP32LapTimer.ino
 void touchMonitor() {
+#ifndef USE_NORMAL_BUTTONS
   byte touch = touchRead(BUTTON1);
   Serial.println(touch);
   Serial.println(longPressActive1);
   Serial.println(longPressActive2);
   delay(100);
+#endif
 }
 
 void newButtonUpdate() {
+#ifdef USE_NORMAL_BUTTONS
+  touch1 = (digitalRead(BUTTON1)) ? 100 : 0;
+  touch2 = (digitalRead(BUTTON2)) ? 100 : 0;
+#else
   touch1 = touchRead(BUTTON1); // Read the state of button 1
   touch2 = touchRead(BUTTON2); // Read the state of button 2
+#endif
 
   // BUTTON 1 Debounce logic here. Basically, we only read a button touch if
   // it stays below threshold for newButtonDebounce, it gets flagged as "pressed". 
