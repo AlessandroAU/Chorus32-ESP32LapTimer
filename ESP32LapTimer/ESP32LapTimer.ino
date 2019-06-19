@@ -124,4 +124,7 @@ void loop() {
     ReadVBAT_INA219();
   }
   beeperUpdate();
+  if(!raceMode) {
+    thresholdModeStep();
+  }
 }
