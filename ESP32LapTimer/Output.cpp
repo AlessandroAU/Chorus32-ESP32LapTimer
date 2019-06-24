@@ -3,6 +3,9 @@
 #include "Comms.h"
 #include "UDP.h"
 #include "Serial.h"
+#ifdef USE_BLUETOOTH
+#include "Bluetooth.h"
+#endif
 
 #define MAX_OUTPUT_BUFFER_SIZE 1500
 
@@ -15,6 +18,9 @@ static output_t outputs[] = {
 #ifdef USE_SERIAL_OUTPUT
   {NULL, serial_init, serial_send_packet, serial_update, output_input_callback}
 #endif // USE_SERIAL_OUTPUT
+#ifdef USE_BLUETOOTH
+  {NULL, bluetooth_init, bluetooth_send_packet, bluetooth_update, output_input_callback},
+#endif // USE_BLUETOOTH
 };
 
 #define OUTPUT_SIZE (sizeof(outputs)/sizeof(outputs[0]))

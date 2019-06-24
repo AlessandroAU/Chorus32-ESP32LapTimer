@@ -26,6 +26,7 @@ extern byte NumRecievers;
 
 #define MAX_UDP_CLIENTS 5
 
+//#define USE_BLUETOOTH // Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
 
 #include "targets/target.h" // Needs to be at the bottom
 
