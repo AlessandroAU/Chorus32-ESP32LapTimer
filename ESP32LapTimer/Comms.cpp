@@ -477,7 +477,6 @@ void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
   uint8_t Pointer = getCurrentLap(NodeAddr);
   for (uint8_t i = 0; i < Pointer; i++) {
     sendLap(i, NodeAddr);
-    SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer with all the data we might send
   }
 }
 

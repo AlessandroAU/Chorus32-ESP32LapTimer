@@ -43,9 +43,6 @@ void setup() {
   //PowerDownAll(); // Powers down all RX5808's
   delay(250);
 
-#ifdef BluetoothEnabled
-  SerialBT.begin("Chorus Laptimer SPP");
-#endif
   InitWifiAP();
 
   InitWebServer();
@@ -60,11 +57,11 @@ void setup() {
   setVbatCal(EepromSettings.VBATcalibration);
   NumRecievers = EepromSettings.NumRecievers;
   commsSetup();
+  init_outputs();
 
   for (int i = 0; i < NumRecievers; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
-  UDPinit();
 
   InitADCtimer();
 
@@ -91,16 +88,11 @@ void loop() {
 #ifdef OLED
   OLED_CheckIfUpdateReq();
 #endif
-  HandleSerialRead();
-  HandleServerUDP();
+  update_outputs();
   SendCurrRSSIloop();
   updateWifi();
 
-#ifdef BluetoothEnabled
-  HandleBluetooth();
-#endif
   EepromSettings.save();
-
   if (getADCVBATmode() == INA219) {
     ReadVBAT_INA219();
   }

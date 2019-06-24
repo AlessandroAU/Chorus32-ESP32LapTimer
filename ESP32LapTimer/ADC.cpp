@@ -11,7 +11,7 @@
 #include "settings_eeprom.h"
 #include "ADC.h"
 #include "Timer.h"
-#include "UDP.h"
+#include "Output.h"
 #include "Calibration.h"
 #include "Laptime.h"
 
