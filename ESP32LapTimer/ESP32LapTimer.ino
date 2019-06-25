@@ -88,7 +88,7 @@ void setup() {
     setModuleChannelBand(i % NumRecievers);
   }
 
-  //beep();
+  chirps();
 }
 
 void loop() {
