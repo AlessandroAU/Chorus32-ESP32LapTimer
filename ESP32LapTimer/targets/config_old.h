@@ -5,8 +5,6 @@
 #define BUTTON1 T7 // 27
 #define BUTTON2 T4 // 13
 
-#define USE_HSPI
-
 #define SCK 14
 #define MOSI 12
 

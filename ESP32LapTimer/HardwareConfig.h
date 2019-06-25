@@ -26,3 +26,14 @@ extern byte NumRecievers;
 
 
 #include "targets/target.h" // Needs to be at the bottom
+
+// Define unconfigured pins
+#ifndef SCK
+#define SCK -1
+#endif
+#ifndef MOSI
+#define MOSI -1
+#endif
+#ifndef MISO
+#define MISO -1
+#endif

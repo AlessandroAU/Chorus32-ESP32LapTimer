@@ -24,12 +24,7 @@ volatile uint8_t RXBand[MaxNumRecievers];
 volatile uint8_t RXChannel[MaxNumRecievers];
 
 void InitSPI() {
-#ifdef USE_HSPI
-  SPI.begin(SCK, MISO, MOSI, -1);
-#endif
-#ifdef USE_VSPI
-  SPI.begin();
-#endif
+  SPI.begin(SCK, MISO, MOSI);
   delay(200);
 }
 

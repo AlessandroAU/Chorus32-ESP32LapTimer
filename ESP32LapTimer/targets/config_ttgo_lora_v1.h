@@ -6,8 +6,6 @@
   
 #define BUTTON1 13
 #define BUTTON2 12
-  
-#define USE_VSPI
 
 #define CS1 16
 #define CS2 5
