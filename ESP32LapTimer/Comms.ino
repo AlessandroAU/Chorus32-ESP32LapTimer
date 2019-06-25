@@ -560,16 +560,8 @@ void SendLipoVoltage() {
   uint8_t buf[4];
   float VbatFloat;
 
-  switch (ADCVBATmode) {
-    case ADC_CH5:
-      VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 11) * (1024.0 / 4.53)) / 1024;
-      break;
-    case ADC_CH6:
-      VbatFloat = ((float(VbatReadingSmooth * VBATcalibration) / 11) * (1024.0 / 4.53)) / 1024;
-      break;
-    case INA219:
-      VbatFloat = (VbatReadingFloat / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
-      break;
+  if(ADCVBATmode != OFF) {
+    VbatFloat = (VbatReadingFloat / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
   }
 
   intToHex(buf, int(VbatFloat));
