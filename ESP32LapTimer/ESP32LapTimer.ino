@@ -100,7 +100,9 @@ void loop() {
   //    delay(100);
   //    ESP.restart();
   //  }
-  newButtonUpdate();
+  #ifndef Micro32-PCB
+    newButtonUpdate();
+  #endif
 #ifdef OLED
   OLED_CheckIfUpdateReq();
 #endif
