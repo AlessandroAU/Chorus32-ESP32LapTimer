@@ -1,12 +1,15 @@
 # Chorus32-ESP32Laptimer
 
-Based on the popular Chorus RF Laptimer, this ESP32 port provides many significant advantages. Not only does the ESP32 provide much more processing power than AVR based Arduino boards, but it also has built in Wifi and Bluetooth networking, which greatly improve connectivity options.
+Based on the popular Chorus RF Laptimer, this ESP32 port provides some. Using an ESP32 provides much more processing power than AVR based Arduino boards and also has built in Wifi and Bluetooth networking simplifying connectivity options.
 
-Compared to the original ChorusRF Lamptimer this ESP32 version only requires one RX module per pilot and a single ESP32 (nodemcu or similar) board. This allows you to connect your Lap timer wirelessly with no extra hardware required.
+Compared to the original ChorusRF Lamptimer this ESP32 version only requires one RX module per pilot and a single ESP32 (nodemcu or similar) board. This allows you to connect your Lap timer wirelessly with no extra hardware required. Howwvere, due to ADC constraints, we are limited to 6 pilots per device. 
 
 Hardware construction is also simplified as both parts are 3.3v logic and there is no need for level shifting or resistors.  
 
 [Click HERE for a video showing the full setup process to get Chorus32 running on your ESP32 using Arduino IDE.](https://www.youtube.com/watch?v=ip2HUVk_lMs). 
+
+[Click Here for German version Part 1]
+(https://www.youtube.com/watch?v=z8xTfuLECME) [Part 2] (https://www.youtube.com/watch?v=7wl0CgA8YnM)
 
 Updates:
 -----
