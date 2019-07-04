@@ -23,11 +23,11 @@ Assembly notes:
 
 **PCB Top Side**
 
-![PCB Top Side](/img/Chorus32_PCB6.jpg)
+![PCB Top Side](img/Chorus32_PCB6.jpg)
 
 **PCB Bottom Side**
 
-![PCB Bottom Side](/img/Chorus32_PCB7.jpg)
+![PCB Bottom Side](img/Chorus32_PCB7.jpg)
 
 # Programming
 * Use the latest version of arduino IDE to program
@@ -36,7 +36,7 @@ Assembly notes:
 * Be sure to uncomment #define Micro32-PCB in the HardwareConfig.h file
 * Use the below settings in arduino and select the correct COM port
 
-![Arduino settings](/img/Arduino Settings.PNG)
+![Arduino settings](img/Arduino_Settings.PNG)
 
 * Remove the voltage select header from the FT232RL serial adaptor and connect it to the board and computer.
 * Power the board using the XT60
