@@ -149,3 +149,10 @@ void setADCVBATmode(ADCVBATmode_ mode) {
 void setSaveRequired() {
   eepromSaveRequired = true;
 }
+
+int getWiFiChannel(){
+	return EepromSettings.WiFiChannel;
+}
+int getWiFiProtocol(){
+	return EepromSettings.WiFiProtocol;
+}

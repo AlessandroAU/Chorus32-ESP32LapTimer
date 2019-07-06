@@ -28,6 +28,8 @@ struct EepromSettingsStruct {
   uint8_t NumRecievers;
   uint16_t RxCalibrationMin[MaxNumRecievers];
   uint16_t RxCalibrationMax[MaxNumRecievers];
+  uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
+  uint8_t WiFiChannel;
 
 
   void setup();
@@ -50,6 +52,9 @@ const struct {
   uint8_t NumRecievers = 6;
   uint16_t RxCalibrationMin[MaxNumRecievers] = {800, 800, 800, 800, 800, 800};
   uint16_t RxCalibrationMax[MaxNumRecievers] = {2700, 2700, 2700, 2700, 2700, 2700};
+  uint8_t WiFiProtocol = 1;
+  uint8_t WiFiChannel = 1;
+
 
 } EepromDefaults;
 
@@ -60,5 +65,8 @@ ADCVBATmode_ getADCVBATmode();
 
 void setRXADCfilter(RXADCfilter_ filter);
 void setADCVBATmode(ADCVBATmode_ mode);
+
+int getWiFiChannel();
+int getWiFiProtocol();
 
 void setSaveRequired();
