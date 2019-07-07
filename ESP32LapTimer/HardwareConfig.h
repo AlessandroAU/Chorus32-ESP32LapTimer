@@ -24,6 +24,8 @@ extern byte NumRecievers;
 
 #define OLED //uncomment this to enable OLED support
 
+#define MAX_UDP_CLIENTS 5
+
 
 #include "targets/target.h" // Needs to be at the bottom
 

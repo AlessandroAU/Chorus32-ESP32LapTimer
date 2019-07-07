@@ -1,204 +1,57 @@
 #include "UDP.h"
 
+#include "HardwareConfig.h"
+#include "Output.h"
+
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
-#include "Comms.h"
+static WiFiUDP UDPserver;
 
-char packetBuffer[1500];
-char UDPin[1500];
+static uint8_t packetBuffer[1500];
 
-uint8_t UDPoutQue[1500];
-int UDPoutQuePtr = 0; //Keep track of where we are in the Que
+static struct udp_source_s {
+  IPAddress addr;
+  uint16_t port;
+} udpClients[MAX_UDP_CLIENTS];
 
-bool MirrorToSerial = true;
-
-WiFiUDP UDPserver;
-
-void IRAM_ATTR SendUDPpacket() {
-
-  if (UDPoutQuePtr > 0) {
-
-    IPAddress remoteIp = UDPserver.remoteIP();
-    uint16_t port = UDPserver.remotePort();
-    UDPserver.beginPacket(remoteIp, port);
-
-    for (int i = 0; i < UDPoutQuePtr; i++) {
-      if (MirrorToSerial) {
-        Serial.print((char)UDPoutQue[i]);
-      }
+void add_ip_port() {
+  IPAddress remoteIp = UDPserver.remoteIP();
+  uint16_t port = UDPserver.remotePort();
+  // if current ip is already known move it to the front. or if on the last entry delete it to make room
+  for(int i = 0; i < MAX_UDP_CLIENTS; ++i) {
+    if((udpClients[i].addr == remoteIp && udpClients[i].port == port) || (i+1 == MAX_UDP_CLIENTS)) {
+      memmove(udpClients + 1, udpClients, i * sizeof(udpClients[0]));
+      break;
     }
-
-    UDPserver.write((const uint8_t *)UDPoutQue, UDPoutQuePtr);
-    
-    UDPserver.endPacket();
-    //Serial.println("");
-    UDPoutQuePtr = 0;
-
-
-    //delay(1);
   }
+  udpClients[0].addr = remoteIp;
+  udpClients[0].port = port;
 }
 
-
-void IRAM_ATTR addToSendQueue(uint8_t item) {
-  UDPoutQue[UDPoutQuePtr] = item;
-  UDPoutQuePtr++;
-
-#ifdef BluetoothEnabled
-  BluetoothBuffOut[BluetoothBuffOutPointer] = item;
-  BluetoothBuffOutPointer++;
-#endif
-
- // if (item == '\n') {
- //   SendUDPpacket();
- // }
+void udp_init(void* output) {
+  UDPserver.begin(9000);
 }
 
-
-void IRAM_ATTR addToSendQueue(uint8_t * buff, uint8_t length) {
-
-  for (int i = 0; i < length; i++) {
-    UDPoutQue[UDPoutQuePtr] = buff[i];
-    UDPoutQuePtr++;
-
-#ifdef BluetoothEnabled
-    BluetoothBuffOut[BluetoothBuffOutPointer] = buff[i];
-    BluetoothBuffOutPointer++;
-#endif
-
-    //    if (MirrorToSerial) {
-    //      Serial.print(char(buff[i]));
-    //    }
-  }
-}
-
-char SerialBuffIn[50];
-
-byte ndx = 0;
-char rc;
-byte StartOfLastCMD = 0;
-char inData[10];
-
-void IRAM_ATTR ProcessSerialCommand(char * BuffIn, byte StartIndex, byte Length) {
-  //
-  char DatatoProcess[20];
-
-  memcpy(DatatoProcess, &BuffIn[+StartIndex], Length);
-  //
-  uint8_t ControlPacket = DatatoProcess[0];   ///fix this when you have the chance and seperate the serial and UDP functions
-  uint8_t NodeAddr = DatatoProcess[1];
-
-  handleSerialControlInput(DatatoProcess, ControlPacket, NodeAddr, Length);
-
-  //  for (int i = 0; i < Length; i++) {
-  //    Serial.print(DatatoProcess[i]);
-  //  }
-
-}
-
-char endMarker = '\n';
-
-void IRAM_ATTR HandleSerialRead() {
-
-
-
-
-  //  if (!Serial.available()) {
-  //    ndx = 0;
-  //  }
-
-  while (Serial.available() > 0 ) {
-    rc = Serial.read();
-    SerialBuffIn[ndx] = rc;
-    ndx++;
-  }
-
-  for (int i = 0; i < ndx; i++) {
-    if (SerialBuffIn[i] == endMarker) {
-      for (int j = 0; j <= i; j++) {
-        //Serial.print(SerialBuffIn[j]);
-        ProcessSerialCommand(SerialBuffIn, 0, i + 1);
-        break;
+void IRAM_ATTR udp_send_packet(void* output, uint8_t* buf, uint32_t size) {
+  if (buf != NULL && size != 0) {
+    for(int i = 0; i < MAX_UDP_CLIENTS; ++i) {
+      if(udpClients[i].addr != 0) {
+        UDPserver.beginPacket(udpClients[i].addr, udpClients[i].port);
+        UDPserver.write(buf, size);
+        UDPserver.endPacket();
       }
-      memcpy(SerialBuffIn, &SerialBuffIn[i + 1], 50 - i);
-      for (int i = 0; i < 20; i++) {
-        if (SerialBuffIn[i] == 0)
-          ndx = i;
-        break;
-      }
-      return;
     }
   }
 }
 
-
-
-//for (int i = 0; i < ndx; i++) {
-//
-//  char inChar = SerialBuffIn[ndx];
-//  Serial.println(inChar);
-//
-//  if (inChar == endMarker) {
-//
-//    //do stuff
-//    uint8_t ControlPacket = SerialBuffIn[StartOfLastCMD];   ///fix this when you have the chance and seperate the serial and UDP functions
-//    uint8_t NodeAddr = SerialBuffIn[StartOfLastCMD + 1];
-//
-//    memcpy(inData, SerialBuffIn + StartOfLastCMD, i - StartOfLastCMD);
-//
-//    handleSerialControlInput(inData, ControlPacket, NodeAddr, i - StartOfLastCMD);
-//
-//    Serial.println(ControlPacket);
-//    Serial.println(NodeAddr);
-//    Serial.println(inData);
-//
-//    StartOfLastCMD = i;
-//  }
-//
-//}
-////ndx = 0;
-//}
-
-//if (rc != endMarker) {
-//  SerialBuffIn[ndx] = rc;
-//  ndx++;
-//  //      if (ndx >= numChars) {
-//  //        ndx = numChars - 1;
-//  //      }
-//}
-//else {
-//  //memcpy(SerialBuffIn, packetBuffer, len);
-//  uint8_t ControlPacket = SerialBuffIn[0];   ///fix this when you have the chance and seperate the serial and UDP functions
-//  uint8_t NodeAddr = SerialBuffIn[1];
-//  handleSerialControlInput(SerialBuffIn, ControlPacket, NodeAddr, ndx);
-//
-//  //receivedChars[ndx] = '\0'; // terminate the string
-//
-//  //newData = true;
-//}
-//}
-//}
-
-
-
-
-void IRAM_ATTR HandleServerUDP() {
-
-  SendUDPpacket(); //Send Back any reply or actions that needed to be taken
-
+void IRAM_ATTR udp_update(void* output) {
   int packetSize = UDPserver.parsePacket();
   if (packetSize > 0) {
+    add_ip_port();
     int len = UDPserver.read(packetBuffer, 255);
     if (len > 0) packetBuffer[len] = 0;
-    Serial.print(packetBuffer);
-    memcpy(UDPin, packetBuffer, len);
-    uint8_t ControlPacket = UDPin[0];
-    uint8_t NodeAddr = UDPin[1];
-    handleSerialControlInput(UDPin, ControlPacket, NodeAddr, len);
+    output_t* out = (output_t*)output;
+    out->handle_input_callback(packetBuffer, len);
   }
-}
-
-void UDPinit() {
-  UDPserver.begin(9000);
 }
