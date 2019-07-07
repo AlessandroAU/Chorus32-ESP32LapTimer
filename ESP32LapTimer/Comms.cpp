@@ -1,8 +1,12 @@
+#include "Comms.h"
+
 #include "RX5808.h"
 #include "Utils.h"
 #include "HardwareConfig.h"
 #include "UDP.h"
 #include "settings_eeprom.h"
+#include "Laptime.h"
+#include "ADC.h"
 
 ///////This is mostly from the original Chorus Laptimer, need to cleanup unused functions and variables
 
@@ -144,6 +148,25 @@ uint8_t CurrNodeAddrAPI = 0;  //used for functions like R*# and R*a to enumerate
 uint8_t CurrNodeAddrLaps = 0;  //used for functions like R*# and R*a to enumerate over all node ids
 bool holeShot[MaxNumRecievers] = {true, true, true, true, true, true}; //wait for first trigger, IE holeshot.
 
+
+//----- other globals------------------------------
+uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted relative to last lap end; 2: lap times are relative to the race start (sum of all previous lap times);
+uint8_t isSoundEnabled = 1;
+uint8_t isConfigured = 0; //changes to 1 if any input changes the state of the device. it will mean that externally stored preferences should not be applied
+uint8_t newLapIndex = 0;
+uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
+uint8_t sendStage = 0;
+uint8_t sendLapTimesIndex = 0;
+uint8_t sendLastLapIndex = 0;
+uint8_t shouldSendSingleItem = 0;
+uint8_t lastLapsNotSent = 0;
+uint32_t millisUponRequest = 0;
+
+uint32_t RaceStartTime = 0;
+
+uint8_t thresholdSetupMode[MaxNumRecievers];
+uint16_t RXfrequencies[MaxNumRecievers];
+
 static void sendThresholdMode(uint8_t node) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(node));
@@ -154,8 +177,8 @@ static void sendThresholdMode(uint8_t node) {
 
 void commsSetup() {
   for (int i = 0; i < NumRecievers; i++) {
-    RXBand[i] = EepromSettings.RXBand[i];
-    RXChannel[i] = EepromSettings.RXChannel[i];
+    setRXBand(i, EepromSettings.RXBand[i]);
+    setRXChannel(i, EepromSettings.RXChannel[i]);
     RXfrequencies[i] = EepromSettings.RXfrequencies[i];
     thresholdSetupMode[i] = 0;
   }
@@ -164,9 +187,7 @@ void commsSetup() {
 void setRaceMode(uint8_t mode) {
   if (mode == 0) { // stop race
 
-    for (int i = 0; i < NumRecievers; i ++) {
-      LapTimePtr[i] = 0;
-    } //reset all lap times
+    resetLaptimes();
 
     raceMode = 0;
     newLapIndex = 0;
@@ -191,7 +212,7 @@ void setRaceMode(uint8_t mode) {
 
 void setMinLap(uint8_t mlt) {
   if (mlt >= MIN_MIN_LAP_TIME && mlt <= MAX_MIN_LAP_TIME) {
-    MinLapTime = mlt * 1000;
+    setMinLapTime(mlt * 1000);
   }
 }
 
@@ -200,7 +221,7 @@ void SendMinLap(uint8_t NodeAddr) {
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue('M');
   addToSendQueue('0');
-  addToSendQueue(TO_HEX((MinLapTime / 1000)));
+  addToSendQueue(TO_HEX((getMinLapTime() / 1000)));
   addToSendQueue('\n');
   isConfigured = 1;
 }
@@ -235,9 +256,9 @@ void SetThresholdValue(uint16_t threshold, uint8_t NodeAddr) {
     thresholdSetupMode[NodeAddr] = 0;
     sendThresholdMode(NodeAddr);
   }
-  RSSIthresholds[NodeAddr] = threshold * 12;
-  EepromSettings.RSSIthresholds[NodeAddr] = RSSIthresholds[NodeAddr];
-  eepromSaveRquired = true;
+  setRSSIThreshold(NodeAddr, threshold * 12);
+  EepromSettings.RSSIthresholds[NodeAddr] = getRSSIThreshold(NodeAddr);
+  setSaveRequired();
   if (threshold != 0) {
     //playClickTones();
   } else {
@@ -264,48 +285,16 @@ void SendThresholdValue(uint8_t NodeAddr) {
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue('T');
   uint8_t buf[4];
-  intToHex(buf, RSSIthresholds[NodeAddr] / 12);
+  intToHex(buf, getRSSIThreshold(NodeAddr) / 12);
   addToSendQueue(buf, 4);
   addToSendQueue('\n');
-}
-
-void SendCurrRSSIloop() {
-  if (rssiMonitorInterval == 0) {
-    return;
-  }
-  if (millis() > rssiMonitorInterval + lastRSSIsent) {
-    for (int i = 0; i < NumRecievers; i ++) {
-      SendCurrRSSI(i);
-    }
-  }
 }
 
 void SendCurrRSSI(uint8_t NodeAddr) {
 
   ///Calculate Averages///
   uint32_t AvgValue = 0;
-  uint16_t Result = 0;
-
-  switch (NodeAddr) {
-    case 0:
-      Result =  ADCvalues[0];
-      break;
-    case 1:
-      Result =  ADCvalues[1];
-      break;
-    case 2:
-      Result =  ADCvalues[2];
-      break;
-    case 3:
-      Result =  ADCvalues[3];
-      break;
-    case 4:
-      Result =  ADCvalues[4];
-      break;
-    case 5:
-      Result =  ADCvalues[5];
-      break;
-  }
+  uint16_t Result = getRSSI(NodeAddr);
 
   //MirrorToSerial = false;  // this so it doesn't spam the serial console with RSSI updates
   addToSendQueue('S');
@@ -318,6 +307,17 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   //MirrorToSerial = true;
   lastRSSIsent = millis();
 
+}
+
+void SendCurrRSSIloop() {
+  if (rssiMonitorInterval == 0) {
+    return;
+  }
+  if (millis() > rssiMonitorInterval + lastRSSIsent) {
+    for (int i = 0; i < NumRecievers; i ++) {
+      SendCurrRSSI(i);
+    }
+  }
 }
 
 void setupThreshold(uint8_t phase, uint8_t node) {
@@ -416,22 +416,6 @@ void setupThreshold(uint8_t phase, uint8_t node) {
   }
 }
 
-void SendNumberOfnodes(byte NodeAddr) {
-  for (int i = NodeAddr + 1; i <= NumRecievers + NodeAddr; i++) {
-    addToSendQueue('N');
-    addToSendQueue(TO_HEX(i));
-    addToSendQueue('\n');
-  }
-}
-
-void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
-  uint8_t Pointer = LapTimePtr[NodeAddr];
-  for (uint8_t i = 0; i < Pointer; i++) {
-    sendLap(i, NodeAddr);
-    SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer with all the data we might send
-  }
-}
-
 void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
   //  Serial.print("SendLap: ");
@@ -451,13 +435,13 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
   if (raceMode == 1) {
 
     if (Lap == 1) {
-      RequestedLap = LapTimes[NodeAddr][Lap] - RaceStartTime; // realtive mode
+      RequestedLap = getLaptime(NodeAddr, Lap) - RaceStartTime; // realtive mode
     } else {
-      RequestedLap = LapTimes[NodeAddr][Lap] - LapTimes[NodeAddr][Lap - 1]; // realtive mode
+      RequestedLap = getLaptime(NodeAddr, Lap) - getLaptime(NodeAddr, Lap - 1); // realtive mode
     }
 
   } else if (raceMode == 2) {
-    RequestedLap = LapTimes[NodeAddr][Lap] - RaceStartTime;  //absolute mode
+    RequestedLap = getLaptime(NodeAddr, Lap) - RaceStartTime;  //absolute mode
 
   } else {
     Serial.println("Error: Invalid RaceMode Set");
@@ -479,6 +463,138 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
   addToSendQueue('\n');
 
+}
+
+void SendNumberOfnodes(byte NodeAddr) {
+  for (int i = NodeAddr + 1; i <= NumRecievers + NodeAddr; i++) {
+    addToSendQueue('N');
+    addToSendQueue(TO_HEX(i));
+    addToSendQueue('\n');
+  }
+}
+
+void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
+  uint8_t Pointer = getCurrentLap(NodeAddr);
+  for (uint8_t i = 0; i < Pointer; i++) {
+    sendLap(i, NodeAddr);
+    SendUDPpacket(); /// maybe send the UDP packet avoid overflowing the buffer with all the data we might send
+  }
+}
+
+void SendRSSImonitorInterval(uint8_t NodeAddr) {
+
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(NodeAddr));
+  uint8_t buf[4];
+  addToSendQueue('I');
+  intToHex(buf, rssiMonitorInterval);
+  addToSendQueue(buf, 4);
+  addToSendQueue('\n');
+}
+
+void SendSoundMode(uint8_t NodeAddr) {
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(NodeAddr));
+  addToSendQueue('S');
+  addToSendQueue('0');
+  addToSendQueue('\n');
+}
+
+void SendLipoVoltage() {
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(0));
+  addToSendQueue('v');
+  uint8_t buf[4];
+  float VbatFloat;
+
+  if(getADCVBATmode() != OFF) {
+    VbatFloat = (getVbatFloat() / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
+  }
+
+  intToHex(buf, int(VbatFloat));
+  addToSendQueue(buf, 4);
+  addToSendQueue('\n');
+}
+
+void WaitFirstLap(uint8_t NodeAddr) {
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(NodeAddr));
+  addToSendQueue('1');
+  addToSendQueue(TO_HEX(shouldWaitForFirstLap));
+  addToSendQueue('\n');
+}
+
+void SendTimerCalibration(uint8_t NodeAddr) {
+
+  uint8_t buf[8];
+  longToHex(buf, timeAdjustment);
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(NodeAddr));
+  addToSendQueue('J');
+  addToSendQueue(buf, 8);
+  addToSendQueue('\n');
+}
+
+void SendRaceMode(uint8_t NodeAddr) {
+
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(NodeAddr));
+  addToSendQueue('R');
+  addToSendQueue(TO_HEX(raceMode));
+  addToSendQueue('\n');
+
+}
+
+
+void SendVRxBand(uint8_t NodeAddr) {
+  //Cmd Byte B
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(NodeAddr));
+  addToSendQueue('B');
+  addToSendQueue(TO_HEX(getRXBand(NodeAddr)));
+  addToSendQueue('\n');
+  //SendVRxFreq(NodeAddr);
+
+}
+
+void SendVRxChannel(uint8_t NodeAddr) {
+
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(NodeAddr));
+  addToSendQueue('C');
+  addToSendQueue(TO_HEX(getRXChannel(NodeAddr)));
+  addToSendQueue('\n');
+  //SendVRxFreq(NodeAddr);
+
+}
+
+void SendVRxFreq(uint8_t NodeAddr) {
+  //Cmd Byte F
+  uint8_t index = getRXChannel(NodeAddr) + (8 * getRXBand(NodeAddr));
+  uint16_t frequency = channelFreqTable[index];
+
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(NodeAddr));
+  addToSendQueue('F');
+
+  uint8_t buf[4];
+  intToHex(buf, frequency);
+  addToSendQueue(buf, 4);
+  addToSendQueue('\n');
+}
+
+void sendAPIversion() {
+
+  for (int i = 0; i < NumRecievers; i++) {
+    addToSendQueue('S');
+    addToSendQueue(TO_HEX(i));
+    addToSendQueue('#');
+    addToSendQueue('0');
+    addToSendQueue('0');
+    addToSendQueue('0');
+    addToSendQueue('4');
+    addToSendQueue('\n');
+  }
 }
 
 void SendAllSettings(uint8_t NodeAddr) {
@@ -533,123 +649,6 @@ void SendAllSettings(uint8_t NodeAddr) {
   SendXdone(NodeAddr);
 
 }
-
-void SendRSSImonitorInterval(uint8_t NodeAddr) {
-
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  uint8_t buf[4];
-  addToSendQueue('I');
-  intToHex(buf, rssiMonitorInterval);
-  addToSendQueue(buf, 4);
-  addToSendQueue('\n');
-}
-
-void SendSoundMode(uint8_t NodeAddr) {
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('S');
-  addToSendQueue('0');
-  addToSendQueue('\n');
-}
-
-void SendLipoVoltage() {
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(0));
-  addToSendQueue('v');
-  uint8_t buf[4];
-  float VbatFloat;
-
-  if(ADCVBATmode != OFF) {
-    VbatFloat = (VbatReadingFloat / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
-  }
-
-  intToHex(buf, int(VbatFloat));
-  addToSendQueue(buf, 4);
-  addToSendQueue('\n');
-}
-
-void WaitFirstLap(uint8_t NodeAddr) {
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('1');
-  addToSendQueue(TO_HEX(shouldWaitForFirstLap));
-  addToSendQueue('\n');
-}
-
-void SendTimerCalibration(uint8_t NodeAddr) {
-
-  uint8_t buf[8];
-  longToHex(buf, timeAdjustment);
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('J');
-  addToSendQueue(buf, 8);
-  addToSendQueue('\n');
-}
-
-void SendRaceMode(uint8_t NodeAddr) {
-
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('R');
-  addToSendQueue(TO_HEX(raceMode));
-  addToSendQueue('\n');
-
-}
-
-
-void SendVRxBand(uint8_t NodeAddr) {
-  //Cmd Byte B
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('B');
-  addToSendQueue(TO_HEX(RXBand[NodeAddr]));
-  addToSendQueue('\n');
-  //SendVRxFreq(NodeAddr);
-
-}
-
-void SendVRxChannel(uint8_t NodeAddr) {
-
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('C');
-  addToSendQueue(TO_HEX(RXChannel[NodeAddr]));
-  addToSendQueue('\n');
-  //SendVRxFreq(NodeAddr);
-
-}
-
-void SendVRxFreq(uint8_t NodeAddr) {
-  //Cmd Byte F
-  uint8_t index = RXChannel[NodeAddr] + (8 * RXBand[NodeAddr]);
-  uint16_t frequency = channelFreqTable[index];
-
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('F');
-
-  uint8_t buf[4];
-  intToHex(buf, frequency);
-  addToSendQueue(buf, 4);
-  addToSendQueue('\n');
-}
-
-void sendAPIversion() {
-
-  for (int i = 0; i < NumRecievers; i++) {
-    addToSendQueue('S');
-    addToSendQueue(TO_HEX(i));
-    addToSendQueue('#');
-    addToSendQueue('0');
-    addToSendQueue('0');
-    addToSendQueue('0');
-    addToSendQueue('4');
-    addToSendQueue('\n');
-  }
-}
-
 
 void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t NodeAddr, uint8_t length) {
 
@@ -709,24 +708,24 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
       case CONTROL_BAND:
 
-        RXBand[NodeAddrByte] = TO_BYTE(controlData[3]);
+        setRXBand(NodeAddrByte, TO_BYTE(controlData[3]));
         setModuleChannelBand(NodeAddrByte);
         SendVRxBand(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
-        EepromSettings.RXBand[NodeAddrByte] = RXBand[NodeAddrByte];
-        eepromSaveRquired = true;
+        EepromSettings.RXBand[NodeAddrByte] = getRXBand(NodeAddrByte);
+        setSaveRequired();
         break;
 
       case CONTROL_CHANNEL:
 
-        RXChannel[NodeAddrByte] = TO_BYTE(controlData[3]);
+        setRXChannel(NodeAddrByte, TO_BYTE(controlData[3]));
         setModuleChannelBand(NodeAddrByte);
         SendVRxChannel(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
-        EepromSettings.RXChannel[NodeAddrByte] = RXChannel[NodeAddrByte];
-        eepromSaveRquired = true;
+        EepromSettings.RXChannel[NodeAddrByte] = getRXChannel(NodeAddrByte);
+        setSaveRequired();
         break;
 
       case CONTROL_FREQUENCY:
@@ -737,7 +736,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         InString += (char)controlData[6];
         RXfrequencies[NodeAddr] = InString.toInt();
         EepromSettings.RXfrequencies[NodeAddr] = RXfrequencies[NodeAddr];
-        eepromSaveRquired = true;
+        setSaveRequired();
         setModuleFrequency(RXfrequencies[NodeAddrByte], NodeAddrByte);
         isConfigured = 1;
         break;

@@ -1,6 +1,21 @@
+#ifndef __OLED_H__
+#define __OLED_H__
+
+#include <stdint.h>
+
 void oledSetup();
 void oledUpdate();
 void OLED_CheckIfUpdateReq();
-uint16_t displayScreenNumber = 0;
-uint8_t  numberOfBaseScreens = 4; // Increment if a new screen is added to cycle through.
-// The actual number of screens will be calculated on Button 1 press in buttons.ino.
+void setDisplayScreenNumber(uint16_t num);
+uint16_t getDisplayScreenNumber();
+void incrementRxFrequency();
+void incrementRxBand();
+
+void setNumberOfOledScreens(uint8_t num);
+uint8_t getNumberOfOledScreens();
+
+void setNumberOfBaseScreens(uint8_t num);
+uint8_t getNumberOfBaseScreens();
+
+
+#endif // __OLED_H__

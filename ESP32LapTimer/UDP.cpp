@@ -1,3 +1,20 @@
+#include "UDP.h"
+
+#include <WiFi.h>
+#include <WiFiUdp.h>
+
+#include "Comms.h"
+
+char packetBuffer[1500];
+char UDPin[1500];
+
+uint8_t UDPoutQue[1500];
+int UDPoutQuePtr = 0; //Keep track of where we are in the Que
+
+bool MirrorToSerial = true;
+
+WiFiUDP UDPserver;
+
 void IRAM_ATTR SendUDPpacket() {
 
   if (UDPoutQuePtr > 0) {
@@ -180,4 +197,8 @@ void IRAM_ATTR HandleServerUDP() {
     uint8_t NodeAddr = UDPin[1];
     handleSerialControlInput(UDPin, ControlPacket, NodeAddr, len);
   }
+}
+
+void UDPinit() {
+  UDPserver.begin(9000);
 }

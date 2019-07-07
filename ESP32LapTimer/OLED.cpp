@@ -1,4 +1,4 @@
-#ifdef OLED
+#include "OLED.h"
 
 #include <Wire.h>
 #include "SSD1306.h"
@@ -6,6 +6,10 @@
 #include "Timer.h"
 #include "Screensaver.h"
 #include "ADC.h"
+#include "settings_eeprom.h"
+#include "RX5808.h"
+#include "Calibration.h"
+#include "WebServer.h"
 
 uint8_t oledRefreshTime = 50;
 
@@ -14,6 +18,11 @@ Timer oledTimer = Timer(oledRefreshTime);
 SSD1306  display(0x3c, 21, 22);  // 21 and 22 are default pins
 
 const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
+
+uint16_t displayScreenNumber = 0;
+uint8_t  numberOfBaseScreens = 4; // Increment if a new screen is added to cycle through.
+// The actual number of screens will be calculated on Button 1 press in buttons.ino.
+uint8_t numberOfOledScreens = numberOfBaseScreens;
 
 void oledSetup(void) {
   display.init();
@@ -29,6 +38,29 @@ void OLED_CheckIfUpdateReq() {
     oledUpdate();
     oledTimer.reset();
   }
+}
+
+void displayRxPage() {
+  // Gather Data
+  uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
+  uint8_t frequencyIndex = getRXChannel(currentRXNumber) + (8 * getRXBand(currentRXNumber));
+  uint16_t frequency = channelFreqTable[frequencyIndex];
+
+  // Display things
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(ArialMT_Plain_16);
+  display.drawString(0, 0, "Settings for RX" + String(currentRXNumber + 1));
+  display.drawString(0, 18, getBandLabel(getRXBand(currentRXNumber)) + String(getRXChannel(currentRXNumber) + 1) + " - " + frequency);
+  if (getRSSI(currentRXNumber) < 600) {
+    display.drawProgressBar(48, 35, 120 - 42, 8, map(600, 600, 3500, 0, 85));
+  } else {
+    display.drawProgressBar(48, 35, 120 - 42, 8, map(getRSSI(currentRXNumber), 600, 3500, 0, 85));
+  }
+  display.setFont(Dialog_plain_9);
+  display.drawString(0,35, "RSSI: " + String(getRSSI(currentRXNumber) / 12));
+  display.drawVerticalLine(45 + map(getRSSIThreshold(currentRXNumber), 600, 3500, 0, 85),  35, 8); // line to show the RSSIthresholds
+  display.drawString(0,46, "Btn2 SHORT - Channel.");
+  display.drawString(0,55, "Btn2 LONG  - Band.");
 }
 
 void oledUpdate(void)
@@ -58,40 +90,40 @@ void oledUpdate(void)
     }
 
     // Voltage
-    if (ADCVBATmode != 0) {
+    if (getADCVBATmode() != 0) {
       display.setTextAlignment(TEXT_ALIGN_RIGHT);
-      display.drawString(127, 0, String(VbatReadingFloat, 2) + "V");
+      display.drawString(127, 0, String(getVbatFloat(), 2) + "V");
     }
 
-    if (ADCVBATmode == INA219) {
-      display.drawString(90, 0, String(mAReadingFloat/1000, 2) + "A");
+    if (getADCVBATmode() == INA219) {
+      display.drawString(90, 0, String(getMaFloat()/1000, 2) + "A");
     }
 
 
     // Rx modules
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     for (int i = 0; i < NumRecievers; i++) {
-      display.drawString(0, 9 + i * 9, getBandLabel(RXBand[i]) + String(RXChannel[i] + 1) + ", " + String(ADCvalues[i] / 12));
-      if (ADCvalues[i] < 600) {
+      display.drawString(0, 9 + i * 9, getBandLabel(getRXBand(i)) + String(getRXChannel(i) + 1) + ", " + String(getRSSI(i) / 12));
+      if (getRSSI(i) < 600) {
         display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(600, 600, 3500, 0, 85));
       } else {
-        display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(ADCvalues[i], 600, 3500, 0, 85));
+        display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(getRSSI(i), 600, 3500, 0, 85));
       }
-      display.drawVerticalLine(40 + map(RSSIthresholds[i], 600, 3500, 0, 85),  10 + i * 9, 8); // line to show the RSSIthresholds
+      display.drawVerticalLine(40 + map(getRSSIThreshold(i), 600, 3500, 0, 85),  10 + i * 9, 8); // line to show the RSSIthresholds
     }
   } else if (displayScreenNumber % numberOfOledScreens == 1) {
-    if (ADCVBATmode != 0) {
+    if (getADCVBATmode() != 0) {
       display.setTextAlignment(TEXT_ALIGN_LEFT);
 
-      display.drawString(0, 0, "ADC loop " + String(adcLoopCounter * (1000.0 / oledRefreshTime)) + " Hz");
-      adcLoopCounter = 0;
+      display.drawString(0, 0, "ADC loop " + String(getADCLoopCount() * (1000.0 / oledRefreshTime)) + " Hz");
+      setADCLoopCount(0);
 
-      display.drawString(0, 9, String(mAReadingFloat) + " mA");
+      display.drawString(0, 9, String(getMaFloat()) + " mA");
     }
   } else if (displayScreenNumber % numberOfOledScreens == 2) {
-    if (ADCVBATmode != 0) {
+    if (getADCVBATmode() != 0) {
       display.setTextAlignment(TEXT_ALIGN_LEFT);
-      display.drawString(0, 0, "Frequency - " + String(channelFreqTable[calibrationFreqIndex]) + "Hz");
+      display.drawString(0, 0, "Frequency - " + String(channelFreqTable[getcalibrationFreqIndex()]) + "Hz");
       display.drawString(0,  9, "Min = " + String(EepromSettings.RxCalibrationMin[0]) + ", Max = " + String(EepromSettings.RxCalibrationMax[0]));
       display.drawString(0, 18, "Min = " + String(EepromSettings.RxCalibrationMin[1]) + ", Max = " + String(EepromSettings.RxCalibrationMax[1]));
       display.drawString(0, 27, "Min = " + String(EepromSettings.RxCalibrationMin[2]) + ", Max = " + String(EepromSettings.RxCalibrationMax[2]));
@@ -104,12 +136,12 @@ void oledUpdate(void)
     display.drawString(0, 0, "Airplane Mode Settings:");
     display.drawString(0, 15, "Long Press Button 2 to");
     display.drawString(0, 26, "toggle Airplane mode.");
-    if (!airplaneMode) {
+    if (!isAirplaneModeOn()) {
       display.drawString(0, 42, "Airplane Mode: OFF");
-      display.drawString(0, 51, "WiFi: ON  | Draw: " + String(mAReadingFloat/1000, 2) + "A");
+      display.drawString(0, 51, "WiFi: ON  | Draw: " + String(getMaFloat()/1000, 2) + "A");
     } else {
       display.drawString(0, 42, "Airplane Mode: ON");
-      display.drawString(0, 51, "WiFi: OFF  | Draw: " + String(mAReadingFloat/1000, 2) + "A");
+      display.drawString(0, 51, "WiFi: OFF  | Draw: " + String(getMaFloat()/1000, 2) + "A");
     }
   } else if (displayScreenNumber % numberOfOledScreens >= 4 && displayScreenNumber % numberOfOledScreens <= 9) {
     // RX Settings Pages here.
@@ -119,33 +151,10 @@ void oledUpdate(void)
   display.display();
 }
 
-void displayRxPage() {
-  // Gather Data
-  uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
-  uint8_t frequencyIndex = RXChannel[currentRXNumber] + (8 * RXBand[currentRXNumber]);
-  uint16_t frequency = channelFreqTable[frequencyIndex];
-
-  // Display things
-  display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.setFont(ArialMT_Plain_16);
-  display.drawString(0, 0, "Settings for RX" + String(currentRXNumber + 1));
-  display.drawString(0, 18, getBandLabel(RXBand[currentRXNumber]) + String(RXChannel[currentRXNumber] + 1) + " - " + frequency);
-  if (ADCvalues[currentRXNumber] < 600) {
-    display.drawProgressBar(48, 35, 120 - 42, 8, map(600, 600, 3500, 0, 85));
-  } else {
-    display.drawProgressBar(48, 35, 120 - 42, 8, map(ADCvalues[currentRXNumber], 600, 3500, 0, 85));
-  }
-  display.setFont(Dialog_plain_9);
-  display.drawString(0,35, "RSSI: " + String(ADCvalues[currentRXNumber] / 12));
-  display.drawVerticalLine(45 + map(RSSIthresholds[currentRXNumber], 600, 3500, 0, 85),  35, 8); // line to show the RSSIthresholds
-  display.drawString(0,46, "Btn2 SHORT - Channel.");
-  display.drawString(0,55, "Btn2 LONG  - Band.");
-}
-
 void incrementRxFrequency() {
   uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
-  uint8_t currentRXChannel = RXChannel[currentRXNumber];
-  uint8_t currentRXBand = RXBand[currentRXNumber];
+  uint8_t currentRXChannel = getRXChannel(currentRXNumber);
+  uint8_t currentRXBand = getRXBand(currentRXNumber);
   currentRXChannel++;
   if (currentRXChannel >= 8) {
     //currentRXBand++;
@@ -160,8 +169,8 @@ void incrementRxFrequency() {
 }
 void incrementRxBand() {
   uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
-  uint8_t currentRXChannel = RXChannel[currentRXNumber];
-  uint8_t currentRXBand = RXBand[currentRXNumber];
+  uint8_t currentRXChannel = getRXChannel(currentRXNumber);
+  uint8_t currentRXBand = getRXBand(currentRXNumber);
   currentRXBand++;
   if (currentRXBand >= 8) {
     currentRXBand = 0;
@@ -169,4 +178,25 @@ void incrementRxBand() {
   setModuleChannelBand(currentRXChannel,currentRXBand,currentRXNumber); 
 }
 
-#endif
+void setDisplayScreenNumber(uint16_t num) {
+  displayScreenNumber = num;
+}
+
+uint16_t getDisplayScreenNumber() {
+  return displayScreenNumber;
+}
+
+void setNumberOfOledScreens(uint8_t num) {
+  numberOfOledScreens = num;
+}
+uint8_t getNumberOfOledScreens() {
+  return numberOfOledScreens;
+}
+
+void setNumberOfBaseScreens(uint8_t num) {
+  numberOfBaseScreens = num;
+}
+
+uint8_t getNumberOfBaseScreens(){
+  return numberOfBaseScreens;
+}

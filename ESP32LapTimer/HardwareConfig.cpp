@@ -1,6 +1,8 @@
 /////define Pins//////
 #include "HardwareConfig.h"
 
+#include "Arduino.h"
+
 void InitHardwarePins() {
 
   pinMode(SCK, OUTPUT);

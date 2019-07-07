@@ -1,8 +1,38 @@
+#include "WebServer.h"
 
-bool firstRedirect = true;
-bool HasSPIFFsBegun = false;
+#include "settings_eeprom.h"
+#include "ADC.h"
+#include "RX5808.h"
+#include "OLED.h"
+#include "Calibration.h"
 
-bool HTTPupdating = false;
+#include <esp_wifi.h>
+#include <DNSServer.h>
+//#include <WiFiClient.h>
+#include <FS.h>
+#include <WiFiUdp.h>
+#include "WebServer.h"
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include "SPIFFS.h"
+#include <Update.h>
+
+static const byte DNS_PORT = 53;
+static IPAddress apIP(192, 168, 4, 1);
+static DNSServer dnsServer;
+static WebServer  webServer(80);
+static WiFiClient client = webServer.client();
+
+//flag to use from web update to reboot the ESP
+static bool shouldReboot = false;
+static const char NOSPIFFS[] PROGMEM = "You have not uploaded the SPIFFs filesystem!!!, Please install the <b><a href=\"https://github.com/me-no-dev/arduino-esp32fs-plugin\">following plugin</a></b>.<br> Place the plugin file here: <b>\"C:\ Program Files (x86)\ Arduino \ tools \ ESP32FS \ tool \ esp32fs.jar\"</b>.<br><br> Next select <b>Tools > ESP32 Sketch Data Upload</b>.<br>NOTE: This is a seperate upload to the normal arduino upload!!!<br><br> The web interface will not work until you do this.";
+
+
+static bool firstRedirect = true;
+static bool HasSPIFFsBegun = false;
+
+static bool HTTPupdating = false;
+static bool airplaneMode = false;
 
 ///////////Extern Variable we need acces too///////////////////////
 
@@ -44,6 +74,22 @@ void HandleDNSServer( void * parameter ) {
   }
 }
 
+String getContentType(String filename) { // convert the file extension to the MIME type
+  if (filename.endsWith(".html")) return "text/html";
+  else if (filename.endsWith(".htm")) return "text/html";
+  else if (filename.endsWith(".css")) return "text/css";
+  else if (filename.endsWith(".js")) return "application/javascript";
+  else if (filename.endsWith(".png")) return "image/png";
+  else if (filename.endsWith(".gif")) return "image/gif";
+  else if (filename.endsWith(".svg")) return "image/svg+xml";
+  else if (filename.endsWith(".jpg")) return "image/jpeg";
+  else if (filename.endsWith(".ico")) return "image/x-icon";
+  else if (filename.endsWith(".xml")) return "text/xml";
+  else if (filename.endsWith(".pdf")) return "application/x-pdf";
+  else if (filename.endsWith(".zip")) return "application/x-zip";
+  else if (filename.endsWith(".gz")) return "application/x-gzip";
+  return "text/plain";
+}
 
 bool handleFileRead(String path) { // send the right file to the client (if it exists)
   HTTPupdating = true;
@@ -64,23 +110,6 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
   HTTPupdating = false;
   //Serial.println("on");
   return false;                                         // If the file doesn't exist, return false
-}
-
-String getContentType(String filename) { // convert the file extension to the MIME type
-  if (filename.endsWith(".html")) return "text/html";
-  else if (filename.endsWith(".htm")) return "text/html";
-  else if (filename.endsWith(".css")) return "text/css";
-  else if (filename.endsWith(".js")) return "application/javascript";
-  else if (filename.endsWith(".png")) return "image/png";
-  else if (filename.endsWith(".gif")) return "image/gif";
-  else if (filename.endsWith(".svg")) return "image/svg+xml";
-  else if (filename.endsWith(".jpg")) return "image/jpeg";
-  else if (filename.endsWith(".ico")) return "image/x-icon";
-  else if (filename.endsWith(".xml")) return "text/xml";
-  else if (filename.endsWith(".pdf")) return "application/x-pdf";
-  else if (filename.endsWith(".zip")) return "application/x-zip";
-  else if (filename.endsWith(".gz")) return "application/x-gzip";
-  return "text/plain";
 }
 
 void InitWifiAP() {
@@ -115,6 +144,162 @@ bool DoesSPIFFsExist() {
 
 }
 
+void updateRx (int band, int channel, int rx) {
+  rx = rx - 1;
+  setModuleChannelBand(band, channel, rx);
+  EepromSettings.RXBand[rx] = band;
+  setRXBand(rx, band);
+  EepromSettings.RXChannel[rx] = channel;
+  setRXChannel(rx, channel);
+  uint16_t index = getRXChannel(rx) + (8 * getRXBand(rx));
+  EepromSettings.RXfrequencies[rx] = channelFreqTable[index];
+}
+
+void SendStatusVars() {
+  webServer.send(200, "application/json", "{\"Var_VBAT\": " + String(getVbatFloat(), 2) + ", \"Var_WifiClients\": 1, \"Var_CurrMode\": \"IDLE\"}");
+}
+
+void SendStaticVars() {
+
+  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0));
+  sendSTR = sendSTR + ",\"Band\":{";
+  for (int i = 0; i < NumRecievers; i++) {
+    sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
+    if (NumRecievers > 1 && NumRecievers - i > 1) {
+      sendSTR = sendSTR + ",";
+    }
+  }
+  sendSTR = sendSTR + "},";
+  sendSTR = sendSTR + "\"Channel\":{";
+  for (int i = 0; i < NumRecievers; i++) {
+    sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXChannel[i];
+    if (NumRecievers > 1 && NumRecievers - i > 1) {
+      sendSTR = sendSTR + ",";
+    }
+  }
+  sendSTR = sendSTR + "}";
+  sendSTR = sendSTR +  "}";
+
+  webServer.send(200, "application/json", sendSTR);
+}
+
+void ProcessGeneralSettingsUpdate() {
+  String NumRXs = webServer.arg("NumRXs");
+  NumRecievers = (byte)NumRXs.toInt();
+
+  if (NumRecievers >= 0) {
+    String Band1 = webServer.arg("band1");
+    String Channel1 = webServer.arg("channel1");
+    int band1 = (byte)Band1.toInt();
+    int channel1 = (byte)Channel1.toInt();
+    updateRx(band1, channel1, 1);
+  }
+  if (NumRecievers >= 1) {
+    String Band2 = webServer.arg("band2");
+    String Channel2 = webServer.arg("channel2");
+    int band2 = (byte)Band2.toInt();
+    int channel2 = (byte)Channel2.toInt();
+    updateRx(band2, channel2, 2);
+  }
+  if (NumRecievers >= 2) {
+    String Band3 = webServer.arg("band3");
+    String Channel3 = webServer.arg("channel3");
+    int band3 = (byte)Band3.toInt();
+    int channel3 = (byte)Channel3.toInt();
+    updateRx(band3, channel3, 3);
+  }
+  if (NumRecievers >= 3) {
+    String Band4 = webServer.arg("band4");
+    String Channel4 = webServer.arg("channel4");
+    int band4 = (byte)Band4.toInt();
+    int channel4 = (byte)Channel4.toInt();
+    updateRx(band4, channel4, 4);
+  }
+  if (NumRecievers >= 4) {
+    String Band5 = webServer.arg("band5");
+    String Channel5 = webServer.arg("channel5");
+    int band5 = (byte)Band5.toInt();
+    int channel5 = (byte)Channel5.toInt();
+    updateRx(band5, channel5, 5);
+  }
+
+  if (NumRecievers >= 5) {
+    String Band6 = webServer.arg("band6");
+    String Channel6 = webServer.arg("channel6");
+    int band6 = (byte)Band6.toInt();
+    int channel6 = (byte)Channel6.toInt();
+    updateRx(band6, channel6, 6);
+  }
+
+  EepromSettings.NumRecievers = NumRecievers;
+
+  String Rssi = webServer.arg("RSSIthreshold");
+  int rssi = (byte)Rssi.toInt();
+  int value = rssi * 12;
+  for (int i = 0 ; i < MaxNumRecievers; i++) {
+    EepromSettings.RSSIthresholds[i] = value;
+    setRSSIThreshold(i, value);
+  }
+
+  webServer.sendHeader("Connection", "close");
+  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
+  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  file.close();
+  setSaveRequired();
+#ifdef OLED
+  oledUpdate();
+#endif
+
+//  PowerDownAll();
+//  SelectivePowerUp();
+//  for (int i = 0; i < NumRecievers; i++) {
+//    setModuleChannelBand(i);
+//    delay(10);
+//  }
+//  //TODO, clean up above code so we don't need to set freqs twice.
+
+}
+
+void calibrateRSSI() {
+    rssiCalibration();
+}
+void eepromReset(){
+    EepromSettings.defaults();
+}
+
+void ProcessVBATModeUpdate() {
+  String inADCVBATmode = webServer.arg("ADCVBATmode");
+  String inADCcalibValue = webServer.arg("ADCcalibValue");
+
+  ADCVBATmode = (ADCVBATmode_)(byte)inADCVBATmode.toInt();
+  VBATcalibration =  inADCcalibValue.toFloat();
+
+  EepromSettings.ADCVBATmode = ADCVBATmode;
+  EepromSettings.VBATcalibration = VBATcalibration;
+  setSaveRequired();
+
+  webServer.sendHeader("Connection", "close");
+  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
+  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  file.close();
+  setSaveRequired();
+}
+
+void ProcessADCRXFilterUpdate() {
+  String inRXFilter = webServer.arg("RXFilter");
+  RXADCfilter = (RXADCfilter_)(byte)inRXFilter.toInt();
+
+  EepromSettings.RXADCfilter = RXADCfilter;
+
+
+
+  webServer.sendHeader("Connection", "close");
+  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
+  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  file.close();
+  setSaveRequired();
+
+}
 
 void InitWebServer() {
 
@@ -247,165 +432,40 @@ void InitWebServer() {
 
 }
 
+void updateWifi() {
+  dnsServer.processNextRequest();
+  webServer.handleClient();
+}
 
-void SendStatusVars() {
-  webServer.send(200, "application/json", "{\"Var_VBAT\": " + String(VbatReadingFloat, 2) + ", \"Var_WifiClients\": 1, \"Var_CurrMode\": \"IDLE\"}");
+void airplaneModeOn() {
+  // Enable Airplane Mode (WiFi Off)
+  Serial.println("Airplane Mode On");
+  WiFi.mode(WIFI_OFF);
+  airplaneMode = true;
+}
 
+void airplaneModeOff() {
+  // Disable Airplane Mode (WiFi On)
+  Serial.println("Airplane Mode OFF");
+  InitWifiAP();
+  InitWebServer();
+  airplaneMode = false;
+}
+
+// Toggle Airplane mode on and off based on current state
+void toggleAirplaneMode() {
+  if (!airplaneMode) {
+    airplaneModeOn();
+  } else {
+    airplaneModeOff();
+  }
+}
+
+bool isAirplaneModeOn() {
+  return airplaneMode;
 }
 
 
-void SendStaticVars() {
-
-  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(RSSIthresholds[0]);
-  sendSTR = sendSTR + ",\"Band\":{";
-  for (int i = 0; i < NumRecievers; i++) {
-    sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
-    if (NumRecievers > 1 && NumRecievers - i > 1) {
-      sendSTR = sendSTR + ",";
-    }
-  }
-  sendSTR = sendSTR + "},";
-  sendSTR = sendSTR + "\"Channel\":{";
-  for (int i = 0; i < NumRecievers; i++) {
-    sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXChannel[i];
-    if (NumRecievers > 1 && NumRecievers - i > 1) {
-      sendSTR = sendSTR + ",";
-    }
-  }
-  sendSTR = sendSTR + "}";
-  sendSTR = sendSTR +  "}";
-
-  webServer.send(200, "application/json", sendSTR);
-}
-
-void updateRx (int band, int channel, int rx) {
-  rx = rx - 1;
-  setModuleChannelBand(band, channel, rx);
-  EepromSettings.RXBand[rx] = band;
-  RXBand[rx] = band;
-  EepromSettings.RXChannel[rx] = channel;
-  RXChannel[rx] = channel;
-  uint16_t index = RXChannel[rx] + (8 * RXBand[rx]);
-  EepromSettings.RXfrequencies[rx] = channelFreqTable[index];
-}
-
-void ProcessGeneralSettingsUpdate() {
-  String NumRXs = webServer.arg("NumRXs");
-  NumRecievers = (byte)NumRXs.toInt();
-
-  if (NumRecievers >= 0) {
-    String Band1 = webServer.arg("band1");
-    String Channel1 = webServer.arg("channel1");
-    int band1 = (byte)Band1.toInt();
-    int channel1 = (byte)Channel1.toInt();
-    updateRx(band1, channel1, 1);
-  }
-  if (NumRecievers >= 1) {
-    String Band2 = webServer.arg("band2");
-    String Channel2 = webServer.arg("channel2");
-    int band2 = (byte)Band2.toInt();
-    int channel2 = (byte)Channel2.toInt();
-    updateRx(band2, channel2, 2);
-  }
-  if (NumRecievers >= 2) {
-    String Band3 = webServer.arg("band3");
-    String Channel3 = webServer.arg("channel3");
-    int band3 = (byte)Band3.toInt();
-    int channel3 = (byte)Channel3.toInt();
-    updateRx(band3, channel3, 3);
-  }
-  if (NumRecievers >= 3) {
-    String Band4 = webServer.arg("band4");
-    String Channel4 = webServer.arg("channel4");
-    int band4 = (byte)Band4.toInt();
-    int channel4 = (byte)Channel4.toInt();
-    updateRx(band4, channel4, 4);
-  }
-  if (NumRecievers >= 4) {
-    String Band5 = webServer.arg("band5");
-    String Channel5 = webServer.arg("channel5");
-    int band5 = (byte)Band5.toInt();
-    int channel5 = (byte)Channel5.toInt();
-    updateRx(band5, channel5, 5);
-  }
-
-  if (NumRecievers >= 5) {
-    String Band6 = webServer.arg("band6");
-    String Channel6 = webServer.arg("channel6");
-    int band6 = (byte)Band6.toInt();
-    int channel6 = (byte)Channel6.toInt();
-    updateRx(band6, channel6, 6);
-  }
-
-  EepromSettings.NumRecievers = NumRecievers;
-
-  String Rssi = webServer.arg("RSSIthreshold");
-  int rssi = (byte)Rssi.toInt();
-  int value = rssi * 12;
-  for (int i = 0 ; i < MaxNumRecievers; i++) {
-    EepromSettings.RSSIthresholds[i] = value;
-    RSSIthresholds[i] = value;
-  }
-
-  webServer.sendHeader("Connection", "close");
-  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
-  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
-  file.close();
-  eepromSaveRquired = true;
-#ifdef OLED
-  oledUpdate();
-#endif
-
-//  PowerDownAll();
-//  SelectivePowerUp();
-//  for (int i = 0; i < NumRecievers; i++) {
-//    setModuleChannelBand(i);
-//    delay(10);
-//  }
-//  //TODO, clean up above code so we don't need to set freqs twice.
-
-}
-
-void ProcessVBATModeUpdate() {
-  String inADCVBATmode = webServer.arg("ADCVBATmode");
-  String inADCcalibValue = webServer.arg("ADCcalibValue");
-
-  ADCVBATmode = (ADCVBATmode_)(byte)inADCVBATmode.toInt();
-  VBATcalibration =  inADCcalibValue.toFloat();
-
-  EepromSettings.ADCVBATmode = ADCVBATmode;
-  EepromSettings.VBATcalibration = VBATcalibration;
-  eepromSaveRquired = true;
-
-  webServer.sendHeader("Connection", "close");
-  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
-  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
-  file.close();
-  eepromSaveRquired = true;
-}
-
-void ProcessADCRXFilterUpdate() {
-  String inRXFilter = webServer.arg("RXFilter");
-  RXADCfilter = (RXADCfilter_)(byte)inRXFilter.toInt();
-
-  EepromSettings.RXADCfilter = RXADCfilter;
-
-
-
-  webServer.sendHeader("Connection", "close");
-  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
-  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
-  file.close();
-  eepromSaveRquired = true;
-
-}
-
-void calibrateRSSI() {
-    rssiCalibration();
-}
-void eepromReset(){
-    EepromSettings.defaults();
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

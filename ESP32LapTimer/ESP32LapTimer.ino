@@ -11,20 +11,17 @@
 #include "WebServer.h"
 #include "Beeper.h"
 #include "Calibration.h"
+#include "UDP.h"
+#include "Buttons.h"
+#include "WebServer.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
-WiFiUDP UDPserver;
-
-WiFiUDP UDPserverDatalogger; //datalogging server 
 //
 #define MAX_SRV_CLIENTS 5
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
-volatile uint32_t LapTimes[MaxNumRecievers][100];
-volatile int LapTimePtr[MaxNumRecievers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
-
-uint32_t MinLapTime = 5000;  //this is in millis
+extern uint8_t raceMode;
 
 void setup() {
 
@@ -58,16 +55,16 @@ void setup() {
     Serial.println("Detected That EEPROM corruption has occured.... \n Resetting EEPROM to Defaults....");
   }
 
-  RXADCfilter = EepromSettings.RXADCfilter;
-  ADCVBATmode = EepromSettings.ADCVBATmode;
-  VBATcalibration = EepromSettings.VBATcalibration;
+  setRXADCfilter(EepromSettings.RXADCfilter);
+  setADCVBATmode(EepromSettings.ADCVBATmode);
+  setVbatCal(EepromSettings.VBATcalibration);
   NumRecievers = EepromSettings.NumRecievers;
   commsSetup();
 
   for (int i = 0; i < NumRecievers; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
-  UDPserver.begin(9000);
+  UDPinit();
 
   InitADCtimer();
 
@@ -97,20 +94,14 @@ void loop() {
   HandleSerialRead();
   HandleServerUDP();
   SendCurrRSSIloop();
-  dnsServer.processNextRequest();
-
-  //if (raceMode == 0) {
-  //if (client.connected()) {
-  webServer.handleClient();
-  //}
-  // }
+  updateWifi();
 
 #ifdef BluetoothEnabled
   HandleBluetooth();
 #endif
   EepromSettings.save();
 
-  if (ADCVBATmode == INA219) {
+  if (getADCVBATmode() == INA219) {
     ReadVBAT_INA219();
   }
   beeperUpdate();
