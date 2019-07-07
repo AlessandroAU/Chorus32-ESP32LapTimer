@@ -3,49 +3,53 @@
 #include <driver/timer.h>
 #include <esp_adc_cal.h>
 
-#include "HardwareConfig.h"
-#include "Comms.h"
 #include <Wire.h>
 #include <Adafruit_INA219.h>
+
+#include "HardwareConfig.h"
+#include "Comms.h"
 #include "settings_eeprom.h"
 #include "ADC.h"
 #include "Timer.h"
 #include "UDP.h"
 
-Timer ina219Timer = Timer(1000);
+static Timer ina219Timer = Timer(1000);
 
 extern RXADCfilter_ RXADCfilter;
 extern ADCVBATmode_ ADCVBATmode;
 extern byte NumRecievers;
 
-
-FilterBeLp2Slow FilterVBAT; //slow filter for VBAT readings
-
 extern RXADCfilter_ RXADCfilter; //variable to hold which filter we use.
 
-Adafruit_INA219 ina219; // A0+A1=GND
+static Adafruit_INA219 ina219; // A0+A1=GND
 
-uint32_t ADCstartMicros;
-uint32_t ADCfinishMicros;
-uint16_t ADCcaptime;
+static uint32_t ADCstartMicros;
+static uint32_t ADCfinishMicros;
+static uint16_t ADCcaptime;
 
-uint32_t LastADCcall;
-
-
-bool HTTPupdating;
-
-uint32_t cp0_regs[18];
+static uint32_t LastADCcall;
 
 hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
 SemaphoreHandle_t xBinarySemaphore;
 
-bool BeginADCReading = false;
-bool ADCreadingBusy = false;
-byte currentADCpin = 0;
+static esp_adc_cal_characteristics_t adc_chars;
 
-esp_adc_cal_characteristics_t adc_chars;
+static int RSSIthresholds[MaxNumRecievers];
+static uint16_t ADCReadingsRAW[MaxNumRecievers];
+static float VbatReadingFloat;
+static float mAReadingFloat;
+static unsigned int VbatReadingRaw;
+static unsigned int VbatReadingSmooth;
+static int FilteredADCvalues[MaxNumRecievers];
+static int ADCvalues[MaxNumRecievers];
+static uint16_t adcLoopCounter = 0;
+
+static FilterBeLp2_10HZ Filter_10HZ[6] = {FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ()};
+static FilterBeLp2_20HZ Filter_20HZ[6] = {FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ()};
+static FilterBeLp2_50HZ Filter_50HZ[6] = {FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ()};
+static FilterBeLp2_100HZ Filter_100HZ[6] = {FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ()};
 
 void ConfigureADC() {
 
@@ -262,4 +266,10 @@ uint16_t getRSSI(uint8_t index) {
     return ADCvalues[index];  
   }
   return 0;
+}
+
+void setRSSIThreshold(uint8_t node, uint16_t threshold) {
+  if(node < MaxNumRecievers) {
+    RSSIthresholds[node] = threshold;
+  }
 }
