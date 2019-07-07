@@ -144,6 +144,25 @@
 					</fieldset>
 				</form>
 
+				<form action="/WiFisettings">
+					<fieldset>
+						<legend>
+							<h2><b>WiFi Configuration</b></h2>
+						</legend>
+						WiFi Protocol:<br>
+						<select name="WiFiProtocol" id="WiFiProtocol">
+							<option value="0">b</option>
+							<option value="1">bgn</option>
+						</select>
+						<br>
+						WiFi Channel (1-13):<br>
+						<input type="int" name="WiFiChannel" min="0" max="13" value="" id="WiFiChannel">
+						<br>
+						<br>
+						<input type="submit" value="&nbsp;Update&nbsp;">
+					</fieldset>
+				</form>
+
 				<br>
 				<form method="get" action="/updateFilters">
 					<fieldset>

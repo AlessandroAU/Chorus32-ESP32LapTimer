@@ -43,6 +43,9 @@ extern float VBATcalibration;
 
 //////////////////////////////////////////////////////////////////
 
+void airplaneModeOn();
+void airplaneModeOff();
+
 String getMacAddress() {
   byte mac[6];
   WiFi.macAddress(mac);
@@ -114,22 +117,24 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
 void InitWifiAP() {
   HTTPupdating = true;
   Serial.println("off");
-  //ESP_ERROR_CHECK( esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11N) );
   //esp_wifi_set_protocol(ifx, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_LR)
   // WiFi.mode(WIFI_AP);
-
-
-
-
   WiFi.begin();
   delay( 500 ); // If not used, somethimes following command fails
   WiFi.mode( WIFI_AP );
-  //ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_AP, WIFI_PROTOCOL_11N));
+  uint8_t protocol = getWiFiProtocol() ? (WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N) : (WIFI_PROTOCOL_11B);
+  ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_AP, protocol));
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
   //WiFi.setSleep(false);
-  WiFi.softAP("Chorus32 LapTimer");
-
-
+  uint8_t channel = getWiFiChannel();
+  if(channel < 1 || channel > 13) {
+    channel = 1;
+  }
+  Serial.print("Starting wifi on channel ");
+  Serial.print(channel);
+  Serial.print(" and mode ");
+  Serial.println(protocol ? "bgn" : "b");
+  WiFi.softAP("Chorus32 LapTimer", NULL, channel);
   // if DNSServer is started with "*" for domain name, it will reply with
   // provided IP to all DNS request
   dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
@@ -160,7 +165,7 @@ void SendStatusVars() {
 
 void SendStaticVars() {
 
-  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0));
+  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());;
   sendSTR = sendSTR + ",\"Band\":{";
   for (int i = 0; i < NumRecievers; i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
@@ -297,6 +302,23 @@ void ProcessADCRXFilterUpdate() {
 
 }
 
+void ProcessWifiSettings() {
+  String inWiFiChannel = webServer.arg("WiFiChannel");
+  String inWiFiProtocol = webServer.arg("WiFiProtocol");
+
+  EepromSettings.WiFiProtocol = inWiFiProtocol.toInt();
+  EepromSettings.WiFiChannel = inWiFiChannel.toInt();
+
+  webServer.sendHeader("Connection", "close");
+  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
+  size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  (void)sent;
+  file.close();
+  setSaveRequired();
+  airplaneModeOn();
+  airplaneModeOff();
+}
+
 void InitWebServer() {
 
 
@@ -354,6 +376,8 @@ void InitWebServer() {
   webServer.on("/ADCVBATsettings", ProcessVBATModeUpdate);
   webServer.on("/calibrateRSSI",calibrateRSSI);
   webServer.on("/eepromReset",eepromReset);
+  
+  webServer.on("/WiFisettings", ProcessWifiSettings);
 
   webServer.on("/", HTTP_GET, []() {
     firstRedirect = false; //wait for it to hit the index page one time

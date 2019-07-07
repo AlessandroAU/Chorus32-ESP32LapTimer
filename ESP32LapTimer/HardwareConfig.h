@@ -15,7 +15,7 @@ void InitHardwarePins();
 
 // DO NOT CHANGE BELOW UNLESS USING CUSTOM HARDWARE
 
-#define EEPROM_VERSION_NUMBER 6 // Increment when eeprom struct modified
+#define EEPROM_VERSION_NUMBER 7 // Increment when eeprom struct modified
 
 #define MaxNumRecievers 6
 extern byte NumRecievers;
