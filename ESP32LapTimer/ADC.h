@@ -21,3 +21,7 @@ float getMaFloat();
 
 float getVbatFloat();
 void setVbatFloat(float val);
+
+float getVBATcalibration();
+void setVBATcalibration(float val);
+

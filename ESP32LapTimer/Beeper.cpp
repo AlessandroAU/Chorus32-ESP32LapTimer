@@ -5,7 +5,7 @@
 
 #include <Arduino.h>
 
-Timer beeperTimer = Timer(50);
+static Timer beeperTimer = Timer(50);
 
 void beep() {
   digitalWrite(BEEPER, HIGH);

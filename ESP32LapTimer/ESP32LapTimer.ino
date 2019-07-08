@@ -23,8 +23,6 @@
 #define MAX_SRV_CLIENTS 5
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
-extern uint8_t raceMode;
-
 void setup() {
 
 #ifdef OLED
@@ -99,7 +97,7 @@ void loop() {
     ReadVBAT_INA219();
   }
   beeperUpdate();
-  if(!raceMode) {
+  if(!isInRaceMode()) {
     thresholdModeStep();
   }
 }
