@@ -24,14 +24,9 @@ extern RXADCfilter_ RXADCfilter; //variable to hold which filter we use.
 
 static Adafruit_INA219 ina219; // A0+A1=GND
 
-static uint32_t ADCstartMicros;
-static uint32_t ADCfinishMicros;
-static uint16_t ADCcaptime;
-
 static uint32_t LastADCcall;
 
 static hw_timer_t * timer = NULL;
-static portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
 static SemaphoreHandle_t xBinarySemaphore;
 
@@ -39,9 +34,7 @@ static esp_adc_cal_characteristics_t adc_chars;
 
 static int RSSIthresholds[MaxNumRecievers];
 static uint16_t ADCReadingsRAW[MaxNumRecievers];
-static unsigned int VbatReadingRaw;
 static unsigned int VbatReadingSmooth;
-static int FilteredADCvalues[MaxNumRecievers];
 static int ADCvalues[MaxNumRecievers];
 static uint16_t adcLoopCounter = 0;
 
@@ -81,9 +74,6 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
     xSemaphoreTake( xBinarySemaphore, portMAX_DELAY );
     uint32_t now = micros();
-    //Serial.print(now - LastADCcall);
-    //Serial.print(",");
-    ADCstartMicros = now;
     LastADCcall = now;
 
     ADCReadingsRAW[0] = adc1_get_raw(ADC1);
@@ -139,15 +129,13 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
         VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[5], &adc_chars);
        setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
         break;
+      default:
+        break;
     }
 
     if (isInRaceMode() > 0) {
       CheckRSSIthresholdExceeded();
     }
-
-
-    //ADCcaptime = micros() - ADCstartMicros;
-    // Serial.println(ADCcaptime);
   }
 }
 
