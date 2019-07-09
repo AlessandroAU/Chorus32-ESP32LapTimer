@@ -36,12 +36,25 @@
 #include <SPI.h>
 #include <driver/timer.h>
 
-static volatile uint8_t RXBand[MAX_NUM_RECEIVERS];
-static volatile uint8_t RXChannel[MAX_NUM_RECEIVERS];
+static volatile uint8_t RXBandModule[MAX_NUM_RECEIVERS];
+static volatile uint8_t RXChannelModule[MAX_NUM_RECEIVERS];
+
+// TODO: this doesn't really belong here
+static volatile uint8_t RXBandPilot[MAX_NUM_PILOTS];
+static volatile uint8_t RXChannelPilot[MAX_NUM_PILOTS];
+
+static uint32_t lastUpdate[MAX_NUM_RECEIVERS] = {0,0,0,0,0,0};
 
 void InitSPI() {
   SPI.begin(VRX_SCK, VRX_MISO, VRX_MOSI);
   delay(200);
+  // Reset all modules to ensure they come back online in case they were offline without a power cycle (pressing the reset button)
+  RXResetAll();
+  delay(30);
+}
+
+bool IRAM_ATTR isRxReady(uint8_t module) {
+  return (micros() - lastUpdate[module]) > MIN_TUNE_TIME_US;
 }
 
 void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
@@ -52,9 +65,7 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
   SPI.transferBits(data, NULL, 25);
 
   digitalWrite(CSpin, HIGH);
-  delayMicroseconds(MIN_TUNE_TIME);
   SPI.endTransaction();
-
 }
 
 void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
@@ -62,6 +73,7 @@ void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
     rxWrite(addressBits, dataBits, CS_PINS[node]);
   }
 }
+
 
 void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
 
@@ -95,8 +107,14 @@ void RXreset(uint8_t NodeAddr) {
   rxWriteNode(NodeAddr, SPI_ADDRESS_STATE, ResetReg);
 }
 
+void RXResetAll() {
+  for (int i = 0; i < getNumReceivers(); i++) {
+    RXreset(i);
+  }
+}
 
-void PowerDownAll() {
+
+void RXPowerDownAll() {
   //for (int i = 0; i < getNumReceivers(); i++) {
   //rxWrite(SPI_ADDRESS_POWER, PowerDownState, i);
   //RXstandBy(i);
@@ -109,7 +127,7 @@ void RXPowerDown(uint8_t NodeAddr) {
   rxWriteNode(NodeAddr, SPI_ADDRESS_POWER, PowerDownState);
 }
 
-void PowerUpAll() {
+void RXPowerUpAll() {
   for (int i = 0; i < getNumReceivers(); i++) {
     rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, i);
   }
@@ -139,52 +157,32 @@ uint16_t getSynthRegisterBFreq(uint16_t f) {
 
 
 void setChannel(uint8_t channel, uint8_t NodeAddr) {
-  Serial.println(channel);
-
   if (channel <= 7) {
-    Serial.println("setChannel");
-    RXChannel[NodeAddr] = channel;
-    uint8_t band = RXBand[NodeAddr];
+    RXChannelModule[NodeAddr] = channel;
+    uint8_t band = RXBandModule[NodeAddr];
     uint16_t SetFreq = setModuleChannelBand(channel, band, NodeAddr);
     (void)SetFreq;
   }
 }
 
 void setBand(uint8_t band, uint8_t NodeAddr) {
-  Serial.println(band);
-
   if (band <= MAX_BAND) {
-    Serial.println("setBand");
-    RXBand[NodeAddr] = band;
-    uint8_t channel = RXChannel[NodeAddr];
+    RXBandModule[NodeAddr] = band;
+    uint8_t channel = RXChannelModule[NodeAddr];
     uint16_t SetFreq = setModuleChannelBand(channel, band, NodeAddr);
     (void)SetFreq;
   }
 }
 
 uint16_t setModuleChannelBand(uint8_t NodeAddr) {
-  Serial.println("setModuleChannelBand");
-  Serial.print(RXChannel[NodeAddr]);
-  Serial.print(",");
-  Serial.println(RXBand[NodeAddr]);
-
-  uint8_t index = RXChannel[NodeAddr] + (8 * RXBand[NodeAddr]);
-  Serial.println(index);
-  uint16_t frequency = channelFreqTable[index];
-  return setModuleFrequency(frequency, NodeAddr);
+  return setModuleChannelBand(RXChannelModule[NodeAddr], RXBandModule[NodeAddr], NodeAddr);
 }
 
-uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
-  Serial.println("setModuleChannelBand");
-  Serial.print(channel);
-  Serial.print(",");
-  Serial.println(band);
-  
+uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {  
   uint8_t index = channel + (8 * band);
-  Serial.println(index);
   uint16_t frequency = channelFreqTable[index];
-  RXBand[NodeAddr] = band;
-  RXChannel[NodeAddr] = channel;
+  RXBandModule[NodeAddr] = band;
+  RXChannelModule[NodeAddr] = channel;
   return setModuleFrequency(frequency, NodeAddr);
 }
 
@@ -230,26 +228,32 @@ String getBandLabel(int band) {
   }
 }
 
-void setRXBand(uint8_t node, uint8_t band) {
-  RXBand[node] = band;
+void setRXBandPilot(uint8_t pilot, uint8_t band) {
+  RXBandPilot[pilot] = band;
 }
-uint8_t getRXBand(uint8_t node) {
-  return RXBand[node];
-}
-
-void setRXChannel(uint8_t node, uint8_t channel) {
-  RXChannel[node] = channel;
+uint8_t getRXBandPilot(uint8_t pilot) {
+  return RXBandPilot[pilot];
 }
 
-uint8_t getRXChannel(uint8_t node) {
-  return RXChannel[node];
-}
-
-uint16_t getFrequencyFromBandChannel(uint8_t band, uint8_t channel) {
-  if(channel >= 8 || band > MAX_BAND) {
-    return 0;
+void setRXChannelPilot(uint8_t pilot, uint8_t channel) {
+  if(pilot < MAX_NUM_PILOTS) {
+    RXChannelPilot[pilot] = channel;
   }
-  uint8_t index = channel + (8 * band);
-  uint16_t frequency = channelFreqTable[index];
-  return frequency;
+}
+uint8_t getRXChannelPilot(uint8_t pilot) {
+  return RXChannelPilot[pilot];
+}
+
+void setRXBandModule(uint8_t module, uint8_t band) {
+  RXBandModule[module] = band;
+}
+uint8_t getRXBandModule(uint8_t module) {
+  return RXBandModule[module];
+}
+
+void setRXChannelModule(uint8_t module, uint8_t channel) {
+  RXChannelModule[module] = channel;
+}
+uint8_t getRXChannelModule(uint8_t module) {
+  return RXChannelModule[module];
 }

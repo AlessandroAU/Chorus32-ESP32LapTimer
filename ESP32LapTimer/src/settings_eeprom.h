@@ -36,10 +36,9 @@ enum ADCVBATmode_ {OFF, ADC_CH5, ADC_CH6, INA219};
 
 struct EepromSettingsStruct {
   uint16_t eepromVersionNumber;
-  uint8_t RXBand[MAX_NUM_RECEIVERS];
-  uint8_t RXChannel[MAX_NUM_RECEIVERS];
-  uint16_t RXfrequencies[MAX_NUM_RECEIVERS];
-  int RSSIthresholds[MAX_NUM_RECEIVERS];
+  uint8_t RXBand[MAX_NUM_PILOTS];
+  uint8_t RXChannel[MAX_NUM_PILOTS];
+  uint16_t RSSIthresholds[MAX_NUM_PILOTS];
   RXADCfilter_ RXADCfilter;
   ADCVBATmode_ ADCVBATmode;
   float VBATcalibration;

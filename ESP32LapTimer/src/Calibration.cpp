@@ -42,18 +42,21 @@ void rssiCalibration() {
   isCurrentlyCalibrating = true;
   calibrationFreqIndex = 0;
   setModuleFrequencyAll(channelFreqTable[calibrationFreqIndex]);
-  setRXADCfilter(LPF_10Hz);
   calibrationTimer.reset();
+  setDisplayScreenNumber(2);
 }
 
 void rssiCalibrationUpdate() {
   if (UNLIKELY(isCurrentlyCalibrating && calibrationTimer.hasTicked())) {
     for (uint8_t i = 0; i < getNumReceivers(); i++) {
-      if (getRSSI(i) < EepromSettings.RxCalibrationMin[i])
-        EepromSettings.RxCalibrationMin[i] = getRSSI(i);
+      while(!isRxReady(i)); // Wait for rx to become ready
+      adc1_channel_t channel = getADCChannel(i);
+      uint16_t value = multisample_adc1(channel, 10);
+      if (value < EepromSettings.RxCalibrationMin[i])
+        EepromSettings.RxCalibrationMin[i] = value;
 
-      if (getRSSI(i) > EepromSettings.RxCalibrationMax[i])
-        EepromSettings.RxCalibrationMax[i] = getRSSI(i);
+      if (value > EepromSettings.RxCalibrationMax[i])
+        EepromSettings.RxCalibrationMax[i] = value;
     }
     calibrationFreqIndex++;
     if (calibrationFreqIndex < 8*8) { // 8*8 = 8 bands * 8 channels = total number of freq in channelFreqTable.
@@ -69,7 +72,6 @@ void rssiCalibrationUpdate() {
       isCurrentlyCalibrating = false;
       setSaveRequired();
       setDisplayScreenNumber(0);
-      setRXADCfilter(EepromSettings.RXADCfilter);
     }
   }
 }
