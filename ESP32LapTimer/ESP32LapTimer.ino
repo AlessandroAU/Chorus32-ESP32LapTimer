@@ -1,6 +1,9 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
+
+#include <esp_task_wdt.h>
+
 #include "Comms.h"
 #include "ADC.h"
 #include "HardwareConfig.h"
@@ -16,12 +19,34 @@
 #include "UDP.h"
 #include "Buttons.h"
 #include "WebServer.h"
+#include "Watchdog.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
 //
 #define MAX_SRV_CLIENTS 5
 WiFiClient serverClients[MAX_SRV_CLIENTS];
+
+SemaphoreHandle_t adc_semaphore;
+
+void IRAM_ATTR adc_read() {
+  static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  /* un-block the interrupt processing task now */
+  xSemaphoreGiveFromISR( adc_semaphore, &xHigherPriorityTaskWoken );
+  if ( xHigherPriorityTaskWoken) {
+    portYIELD_FROM_ISR(); // this wakes up sample_timer_task immediately
+  }
+}
+
+void IRAM_ATTR adc_task(void* args) {
+  watchdog_add_task();
+  while(42) {
+    xSemaphoreTake( adc_semaphore, portMAX_DELAY );
+    nbADCread(NULL);
+    watchdog_feed();
+  }
+}
+
 
 void setup() {
 
@@ -63,7 +88,12 @@ void setup() {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
 
-  InitADCtimer();
+  adc_semaphore = xSemaphoreCreateBinary();
+  hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
+  timerAttachInterrupt(adc_task_timer, &adc_read, true);
+  timerAlarmWrite(adc_task_timer, 1667, true); // 6khz -> 1khz per adc channel
+  timerAlarmEnable(adc_task_timer);
+  xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, NULL, 0);
 
   //SelectivePowerUp();
 

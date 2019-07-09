@@ -6,9 +6,9 @@
 #include "Filter.h"
 
 void ConfigureADC();
-void InitADCtimer();
 void IRAM_ATTR CheckRSSIthresholdExceeded();
 void ReadVBAT_INA219();
+void IRAM_ATTR nbADCread( void * pvParameters );
 
 uint16_t getRSSI(uint8_t index);
 void setRSSIThreshold(uint8_t node, uint16_t threshold);
