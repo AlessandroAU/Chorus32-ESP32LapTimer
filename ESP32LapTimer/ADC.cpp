@@ -14,6 +14,7 @@
 #include "Output.h"
 #include "Calibration.h"
 #include "Laptime.h"
+#include "Utils.h"
 
 static Timer ina219Timer = Timer(1000);
 
@@ -92,7 +93,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
   ADCReadingsRAW[current_adc] = adc1_get_raw(channel);
 
   // Applying calibration
-  if (!isCalibrating()) {
+  if (LIKELY(!isCalibrating())) {
     // skip if voltage is on this channel
     if(!(getADCVBATmode() == ADC_CH5 && current_adc == 4) || (getADCVBATmode() == ADC_CH6 && current_adc == 5)) {
       uint16_t rawRSSI = constrain(ADCReadingsRAW[current_adc], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
@@ -128,7 +129,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
       break;
   }
 
-  if (isInRaceMode() > 0) {
+  if (LIKELY(isInRaceMode() > 0)) {
     CheckRSSIthresholdExceeded(current_adc);
   }
   current_adc = (current_adc + 1) % MaxNumRecievers;
