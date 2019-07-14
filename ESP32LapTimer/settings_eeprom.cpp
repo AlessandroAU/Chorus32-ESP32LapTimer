@@ -7,9 +7,9 @@ struct EepromSettingsStruct EepromSettings;
 
 ///////////Extern Variable we need acces too///////////////////////
 
-RXADCfilter_ RXADCfilter;
-ADCVBATmode_ ADCVBATmode;
-bool eepromSaveRequired = false;
+static RXADCfilter_ RXADCfilter;
+static ADCVBATmode_ ADCVBATmode;
+static bool eepromSaveRequired = false;
 
 uint8_t NumRecievers = 6;
 extern float VBATcalibration;
@@ -148,4 +148,11 @@ void setADCVBATmode(ADCVBATmode_ mode) {
 
 void setSaveRequired() {
   eepromSaveRequired = true;
+}
+
+int getWiFiChannel(){
+  return EepromSettings.WiFiChannel;
+}
+int getWiFiProtocol(){
+  return EepromSettings.WiFiProtocol;
 }

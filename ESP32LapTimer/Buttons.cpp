@@ -12,28 +12,28 @@
 
 #define newButtonDeBounce 40
 
-bool buttonOneTouched = false;
-bool buttonTwoTouched = false;
+static bool buttonOneTouched = false;
+static bool buttonTwoTouched = false;
 
-long buttonLongPressTime = 800; // How long to hold before a longtouch is registered
+static long buttonLongPressTime = 800; // How long to hold before a longtouch is registered
 
 // Timers to keep track of when the buttons were pressed
-long buttonTimer1 = 0;
-long buttonTimer2 = 0;
-long touchedTime1 = 0;
-long touchedTime2 = 0;
+static long buttonTimer1 = 0;
+static long buttonTimer2 = 0;
+static long touchedTime1 = 0;
+static long touchedTime2 = 0;
 
 // These are for the value of the capacitive touch. 
-uint8_t touch1;
-uint8_t touch2;
+static uint8_t touch1;
+static uint8_t touch2;
 
 // Bools to help with debounce and long touch
-bool buttonActive1 = false;
-bool longPressActive1 = false;
-bool buttonPressed1 = false;
-bool buttonActive2 = false;
-bool longPressActive2 = false;
-bool buttonPressed2 = false;
+static bool buttonActive1 = false;
+static bool longPressActive1 = false;
+static bool buttonPressed1 = false;
+static bool buttonActive2 = false;
+static bool longPressActive2 = false;
+static bool buttonPressed2 = false;
 
 void newButtonSetup() {
 #ifdef USE_NORMAL_BUTTONS
@@ -92,13 +92,8 @@ void newButtonUpdate() {
     }
     if ((millis() - buttonTimer1 > buttonLongPressTime) && (longPressActive1 == false)) {
       Serial.println("Button 1 Long Press.");
-      if (longPressActive2) {
-      }
       // vvv BUTTON 1 LONG press between these comments vvv
-      
-      doubleBeep();
-      setDisplayScreenNumber(0);
-
+      oledInjectInput(0, BUTTON_LONG);
       // ^^^ BUTTON 1 LONG press between these comments ^^^
       longPressActive1 = true;
     }
@@ -109,11 +104,7 @@ void newButtonUpdate() {
       } else {
         Serial.println("Button 1 Short press.");
         // vvv BUTTON 1 SHORT press between these comments vvv
-        
-        beep();
-        setNumberOfOledScreens(getNumberOfBaseScreens() + (NumRecievers)); // Re-calculating the number of screens while cycling through them
-        setDisplayScreenNumber(getDisplayScreenNumber() + 1);
-
+        oledInjectInput(0, BUTTON_SHORT);
         // ^^^ BUTTON 1 SHORT press between these comments ^^^
       }
       buttonActive1 = false;
@@ -130,16 +121,7 @@ void newButtonUpdate() {
       Serial.println("Button 2 Long Press.");
       // vvv BUTTON 2 LONG press between these comments vvv
 
-      doubleBeep();
-       if (getDisplayScreenNumber() % getNumberOfOledScreens() >= 4 && getDisplayScreenNumber() % getNumberOfOledScreens() <= 9) {
-          // Increment RX Frequency Here.
-          incrementRxBand();
-        }
-
-        if (getDisplayScreenNumber() % getNumberOfOledScreens() == 3) {
-          // Toggle Airplane Mode
-          toggleAirplaneMode();
-        }
+     oledInjectInput(1, BUTTON_LONG);
 
       // ^^^ BUTTON 2 LONG press between these comments ^^^
       longPressActive2 = true;
@@ -151,16 +133,7 @@ void newButtonUpdate() {
       } else {
         Serial.println("Button 2 Short press.");
         // vvv BUTTON 2 SHORT press between these comments vvv
-
-        beep();
-        if (getDisplayScreenNumber() % getNumberOfOledScreens() == 2) {
-          rssiCalibration();
-        }
-        if (getDisplayScreenNumber() % getNumberOfOledScreens() >= 4 && getDisplayScreenNumber() % getNumberOfOledScreens() <= 9) {
-          // Increment RX Frequency Here.
-          incrementRxFrequency();
-        }
-        
+        oledInjectInput(1, BUTTON_SHORT);
         // ^^^ BUTTON 2 SHORT press between these comments ^^^
       }
       buttonActive2 = false;

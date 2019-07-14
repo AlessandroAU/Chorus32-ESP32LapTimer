@@ -1,31 +1,30 @@
 #include "Bluetooth.h"
 
-#ifdef BluetoothEnabled
+#include "Output.h"
 
-char BluetootBuffIn[255];
-int BluetootBuffInPointer = 0;
+#include <stdint.h>
 
-char BluetootBufftoProcess[255];
+#define BLUETOOTH_BUFFER_SIZE 255
 
-char BluetoothBuffOut[255];
-int BluetoothBuffOutPointer=0;
+static uint8_t BluetootBuffIn[BLUETOOTH_BUFFER_SIZE];
+static int BluetootBuffInPointer = 0;
 
-BluetoothSerial SerialBT;
+static BluetoothSerial SerialBT;
 
-void ReadfromBLE() {
+void bluetooth_init(void* output) {
+  SerialBT.begin("Chorus Laptimer APP");
+}
 
+void bluetooth_update(void* output) {
   if (SerialBT.available()) {
+    if(BluetootBuffInPointer >= BLUETOOTH_BUFFER_SIZE - 1) {
+      Serial.println("Bluetooth input buffer full! Reseting...");
+      BluetootBuffInPointer = 0;
+    }
     BluetootBuffIn[BluetootBuffInPointer] = SerialBT.read();
-    Serial.print(BluetootBuffIn[BluetootBuffInPointer]);
-
     if (BluetootBuffIn[BluetootBuffInPointer] == '\n') {
-      //      for (int i  = 0 ; i < BluetoothBuffOutPointer; i++) {
-      //        Serial.print(BluetootBufftoProcess[i]);
-      //      }
-      memcpy(BluetootBufftoProcess, BluetootBuffIn, BluetootBuffInPointer);
-      uint8_t ControlPacket = BluetootBufftoProcess[0];
-      uint8_t NodeAddr = BluetootBufftoProcess[1];
-      handleSerialControlInput(BluetootBufftoProcess, ControlPacket, NodeAddr, BluetootBuffInPointer);
+      output_t* out = (output_t*)output;
+      out->handle_input_callback(BluetootBuffIn, BluetootBuffInPointer + 1);
       BluetootBuffInPointer = 0;
     } else {
       BluetootBuffInPointer++;
@@ -33,17 +32,8 @@ void ReadfromBLE() {
   }
 }
 
-void SendtoBLE() {
+void bluetooth_send_packet(void* output, uint8_t* buf, uint32_t size) {
   if (SerialBT.hasClient()) {
-    if (BluetoothBuffOut[BluetoothBuffOutPointer - 1] == '\n') {
-      SerialBT.write((const uint8_t*)BluetoothBuffOut, BluetoothBuffOutPointer);
-      BluetoothBuffOutPointer = 0;
-    }
+    SerialBT.write(buf, size);
   }
 }
-void HandleBluetooth() {
-  SendtoBLE();
-  ReadfromBLE();
-}
-
-#endif 
