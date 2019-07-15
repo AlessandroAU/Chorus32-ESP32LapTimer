@@ -179,10 +179,8 @@ void setRaceMode(uint8_t mode) {
     //playEndRaceTones();
   } else { // start race in specified mode
     //holeShot = true;
-    RaceStartTime = millis();
     raceMode = mode;
-    raceStartTime = millis();
-    lastMilliseconds = raceStartTime;
+    startRaceLap();
     newLapIndex = 0;
     for(uint8_t i = 0; i < NumRecievers; ++i) {
       if(thresholdSetupMode[i]) {
@@ -401,36 +399,20 @@ void setupThreshold(uint8_t phase, uint8_t node) {
 }
 
 void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
-
-  //  Serial.print("SendLap: ");
-  //  Serial.println(String(Lap) + " " + String(NodeAddr));
-
   uint32_t RequestedLap = 0;
 
-  if (raceMode == 0) {
-    Serial.println("RaceMode == 0 and sendlaps was called");
+  if (Lap == 0) {
+    Serial.println("Lap == 0 and sendlap was called");
     return;
   }
 
-
-  //  if (Lap == 1) {  ///ugh need to fix this logic at some point but it works for now
-  //    RequestedLap = LapTimes[NodeAddr][Lap] - RaceStartTime;
-  //  } else {
   if (raceMode == 1) {
-
-    if (Lap == 1) {
-      RequestedLap = getLaptime(NodeAddr, Lap) - RaceStartTime; // realtive mode
-    } else {
-      RequestedLap = getLaptime(NodeAddr, Lap) - getLaptime(NodeAddr, Lap - 1); // realtive mode
-    }
-
+    RequestedLap = getLaptimeRel(NodeAddr, Lap); // realtive mode
   } else if (raceMode == 2) {
-    RequestedLap = getLaptime(NodeAddr, Lap) - RaceStartTime;  //absolute mode
-
+    RequestedLap = getLaptimeRelToStart(NodeAddr, Lap);  //absolute mode
   } else {
     Serial.println("Error: Invalid RaceMode Set");
   }
-  //}
 
   uint8_t buf1[2];
   uint8_t buf2[8];
@@ -444,9 +426,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
   longToHex(buf2, RequestedLap);
   addToSendQueue(buf2, 8);
-
   addToSendQueue('\n');
-
 }
 
 void SendNumberOfnodes(byte NodeAddr) {
