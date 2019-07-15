@@ -35,7 +35,7 @@ static struct rxPageData_s {
 oled_page_t oled_pages[] = {
   {NULL, NULL, summary_page_update, next_page_input},
   {NULL, NULL, adc_page_update, next_page_input},
-  {NULL, NULL, calib_page_update, next_page_input},
+  {NULL, NULL, calib_page_update, calib_page_input},
   {NULL, NULL, airplane_page_update, airplane_page_input},
   {&rxPageData, rx_page_init, rx_page_update, rx_page_input}
 };
@@ -193,6 +193,16 @@ void calib_page_update(void* data) {
   display.drawString(0, 36, "Min = " + String(EepromSettings.RxCalibrationMin[3]) + ", Max = " + String(EepromSettings.RxCalibrationMax[3]));
   display.drawString(0, 45, "Min = " + String(EepromSettings.RxCalibrationMin[4]) + ", Max = " + String(EepromSettings.RxCalibrationMax[4]));
   display.drawString(0, 54, "Min = " + String(EepromSettings.RxCalibrationMin[5]) + ", Max = " + String(EepromSettings.RxCalibrationMax[5]));
+}
+
+void calib_page_input(void* data, uint8_t index, uint8_t type) {
+  (void)data;
+  if(index == 1 && type == BUTTON_SHORT) {
+    rssiCalibration();  
+  }
+  else {
+    next_page_input(data, index, type);
+  }
 }
 
 void airplane_page_update(void* data) {
