@@ -131,7 +131,7 @@ static uint32_t raceStartTime = 0;
 // Usage of signed int time adjustment constant from outside:
 // * set to zero means time adjustment procedure was not performed for this node
 // * set to INFINITE_TIME_ADJUSTMENT, means time adjustment was performed, but no need to adjust
-static int32_t timeAdjustment = 0;
+static int32_t timeAdjustment = INFINITE_TIME_ADJUSTMENT;
 
 // ----------------------------------------------------------------------------
 
