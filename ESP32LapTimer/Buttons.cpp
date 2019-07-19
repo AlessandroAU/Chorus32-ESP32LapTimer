@@ -1,7 +1,8 @@
+#include "HardwareConfig.h"
+#ifdef USE_BUTTONS
 #include "Buttons.h"
 
 #include "Timer.h"
-#include "HardwareConfig.h"
 #include "Beeper.h"
 #include "OLED.h"
 #include "Calibration.h"
@@ -152,3 +153,5 @@ void newButtonUpdate() {
     ESP.restart();
   }
 }
+
+#endif // USE_BUTTONS

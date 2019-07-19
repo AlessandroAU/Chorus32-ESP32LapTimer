@@ -14,7 +14,9 @@
 #include "Beeper.h"
 #include "Calibration.h"
 #include "UDP.h"
+#ifdef USE_BUTTONS
 #include "Buttons.h"
+#endif
 #include "WebServer.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
@@ -31,7 +33,9 @@ void setup() {
 
   Serial.begin(115200);
   Serial.println("Booting....");
+#ifdef USE_BUTTONS
   newButtonSetup();
+#endif
 
   EepromSettings.setup();
 
@@ -84,7 +88,9 @@ void loop() {
   //    delay(100);
   //    ESP.restart();
   //  }
+#ifdef USE_BUTTONS
   newButtonUpdate();
+#endif
 #ifdef OLED
   OLED_CheckIfUpdateReq();
 #endif

@@ -30,6 +30,10 @@ extern byte NumRecievers;
 
 #include "targets/target.h" // Needs to be at the bottom
 
+#if defined(BUTTON1) && defined(BUTTON2)
+#define USE_BUTTONS
+#endif
+
 // Define unconfigured pins
 #ifndef SCK
 #define SCK -1
