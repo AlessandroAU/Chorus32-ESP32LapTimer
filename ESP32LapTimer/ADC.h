@@ -6,7 +6,7 @@
 #include "Filter.h"
 
 void ConfigureADC();
-void IRAM_ATTR CheckRSSIthresholdExceeded();
+void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t node);
 void ReadVBAT_INA219();
 void IRAM_ATTR nbADCread( void * pvParameters );
 
@@ -24,4 +24,3 @@ void setVbatFloat(float val);
 
 float getVBATcalibration();
 void setVBATcalibration(float val);
-
