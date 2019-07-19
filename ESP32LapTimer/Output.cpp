@@ -16,7 +16,7 @@ static int output_buffer_pos = 0; //Keep track of where we are in the Que
 static output_t outputs[] = {
   {NULL, udp_init, udp_send_packet, udp_update, output_input_callback},
 #ifdef USE_SERIAL_OUTPUT
-  {NULL, serial_init, serial_send_packet, serial_update, output_input_callback}
+  {NULL, serial_init, serial_send_packet, serial_update, output_input_callback},
 #endif // USE_SERIAL_OUTPUT
 #ifdef USE_BLUETOOTH
   {NULL, bluetooth_init, bluetooth_send_packet, bluetooth_update, output_input_callback},
