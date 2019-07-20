@@ -6,6 +6,7 @@
 #include "settings_eeprom.h"
 #include "OLED.h"
 #include "Timer.h"
+#include "Utils.h"
 
 static int calibrationFreqIndex = 0;
 static bool isCurrentlyCalibrating = false;
@@ -29,7 +30,7 @@ void rssiCalibration() {
 }
 
 void rssiCalibrationUpdate() {
-  if (isCurrentlyCalibrating && calibrationTimer.hasTicked()) {
+  if (UNLIKELY(isCurrentlyCalibrating && calibrationTimer.hasTicked())) {
     for (uint8_t i = 0; i < NumRecievers; i++) {
       if (getRSSI(i) < EepromSettings.RxCalibrationMin[i])
         EepromSettings.RxCalibrationMin[i] = getRSSI(i);

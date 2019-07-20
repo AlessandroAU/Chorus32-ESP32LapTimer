@@ -22,6 +22,7 @@
 #endif
 #include "WebServer.h"
 #include "Watchdog.h"
+#include "Utils.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
@@ -133,7 +134,7 @@ void loop() {
     ReadVBAT_INA219();
   }
   beeperUpdate();
-  if(!isInRaceMode()) {
+  if(UNLIKELY(!isInRaceMode())) {
     thresholdModeStep();
   }
 }

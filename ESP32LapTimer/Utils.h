@@ -13,3 +13,6 @@ void IRAM_ATTR intToHex(uint8_t *buf, uint16_t val);
 void IRAM_ATTR longToHex(uint8_t *buf, uint32_t val);
 
 float fmap(float x, float in_min, float in_max, float out_min, float out_max);
+
+#define LIKELY(x) __builtin_expect((x), 1)
+#define UNLIKELY(x) __builtin_expect((x), 0)
