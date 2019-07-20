@@ -3,7 +3,7 @@
 #include "RX5808.h"
 #include "Utils.h"
 #include "HardwareConfig.h"
-#include "UDP.h"
+#include "Output.h"
 #include "settings_eeprom.h"
 #include "Laptime.h"
 #include "ADC.h"
