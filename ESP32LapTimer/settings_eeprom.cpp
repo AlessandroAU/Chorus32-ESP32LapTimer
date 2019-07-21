@@ -1,6 +1,7 @@
 #include <EEPROM.h>
 #include "settings_eeprom.h"
 #include "Comms.h"
+#include "RX5808.h"
 
 struct EepromSettingsStruct EepromSettings;
 
@@ -124,7 +125,29 @@ void EepromSettingsStruct::save() {
 }
 
 void EepromSettingsStruct::defaults() {
-  memcpy_P(this, &EepromDefaults, sizeof(EepromDefaults));
+  // We are using a temporary struct since we might have invalid values during setup and core 0 might use them
+  EepromSettingsStruct settings;
+  // by setting everything to 0 we guarantee that every variable is initialized
+  memset(&settings, 0, sizeof(EepromSettingsStruct));
+  for(uint8_t i = 0; i < MaxNumRecievers; ++i){
+    settings.RxCalibrationMax[i] = 2700;
+    settings.RxCalibrationMin[i] = 800;
+    settings.RSSIthresholds[i] = 2048;
+    settings.RXBand[i] = 0;
+    settings.RXChannel[i] = i % 8;
+    settings.RXfrequencies[i] = getFrequencyFromBandChannel(settings.RXBand[i], settings.RXChannel[i]);
+  }
+
+  settings.eepromVersionNumber = EEPROM_VERSION_NUMBER;
+  settings.ADCVBATmode = INA219;
+  settings.RXADCfilter = LPF_20Hz;
+  settings.VBATcalibration = 1;
+  settings.NumRecievers = 6;
+  settings.WiFiProtocol = 1;
+  settings.WiFiChannel = 1;
+
+  *this = settings;
+
   EEPROM.put(0, *this);
   EEPROM.commit();
 }

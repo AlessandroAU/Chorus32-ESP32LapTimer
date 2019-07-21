@@ -436,6 +436,16 @@ uint8_t getRXBand(uint8_t node) {
 void setRXChannel(uint8_t node, uint8_t channel) {
   RXChannel[node] = channel;
 }
+
 uint8_t getRXChannel(uint8_t node) {
   return RXChannel[node];
+}
+
+uint16_t getFrequencyFromBandChannel(uint8_t band, uint8_t channel) {
+  if(channel >= 8 || band > MAX_BAND) {
+    return 0;
+  }
+  uint8_t index = channel + (8 * band);
+  uint16_t frequency = channelFreqTable[index];
+  return frequency;
 }
