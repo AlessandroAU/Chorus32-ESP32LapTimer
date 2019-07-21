@@ -18,11 +18,6 @@
 
 static Timer ina219Timer = Timer(1000);
 
-extern RXADCfilter_ RXADCfilter;
-extern ADCVBATmode_ ADCVBATmode;
-
-extern RXADCfilter_ RXADCfilter; //variable to hold which filter we use.
-
 static Adafruit_INA219 ina219; // A0+A1=GND
 
 static uint32_t LastADCcall;
