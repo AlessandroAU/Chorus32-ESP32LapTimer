@@ -259,8 +259,12 @@ void ProcessGeneralSettingsUpdate() {
 void calibrateRSSI() {
     rssiCalibration();
 }
+
 void eepromReset(){
-    EepromSettings.defaults();
+  EepromSettings.defaults();
+  webServer.sendHeader("Connection", "close");
+  File file = SPIFFS.open("/redirect.html", "r");
+  webServer.streamFile(file, "text/html");
 }
 
 void ProcessVBATModeUpdate() {
