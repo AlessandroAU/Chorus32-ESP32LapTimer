@@ -39,6 +39,14 @@ static float VBATcalibration;
 static float mAReadingFloat;
 static float VbatReadingFloat;
 
+static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
+  uint32_t val = 0;
+  for(uint8_t i = 0; i < samples; ++i) {
+    val += adc1_get_raw(channel);
+  }
+  return val/samples;
+}
+
 void ConfigureADC() {
 
   adc1_config_width(ADC_WIDTH_BIT_12);
@@ -85,7 +93,13 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
       channel = ADC6;
       break;
   }
-  ADCReadingsRAW[current_adc] = adc1_get_raw(channel);
+
+  if(LIKELY(isInRaceMode())) {
+    ADCReadingsRAW[current_adc] = adc1_get_raw(channel);
+  } else {
+    // multisample when not in race mode (for threshold calibration etc)
+    ADCReadingsRAW[current_adc] = multisample_adc1(channel, 10);
+  }
 
   // Applying calibration
   if (LIKELY(!isCalibrating())) {
