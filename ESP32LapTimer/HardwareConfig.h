@@ -25,6 +25,7 @@ extern byte NumRecievers;
 #define OLED //uncomment this to enable OLED support
 
 #define MAX_UDP_CLIENTS 5
+#define MAX_LAPS_NUM 100 // Maximum number of supported laps per pilot
 
 //#define USE_BLUETOOTH // Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
 #define USE_SERIAL_OUTPUT
