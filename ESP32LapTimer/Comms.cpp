@@ -104,25 +104,18 @@
 #define SEND_ALL_DEVICE_STATE       255
 
 //----- RSSI --------------------------------------
-#define FILTER_ITERATIONS 5 // software filtering iterations; set 0 - if filtered in hardware; set 5 - if not
 static uint16_t rssiThreshold = 190;
-
 
 static uint32_t lastRSSIsent;
 
-#define MIN_RSSI_MONITOR_INTERVAL 1 // in milliseconds
 static uint16_t rssiMonitorInterval = 0; // zero means the RSSI monitor is OFF
-static uint32_t lastRssiMonitorReading = 0; // millis when rssi monitor value was last read
 
 #define RSSI_SETUP_INITIALIZE 0
 #define RSSI_SETUP_NEXT_STEP 1
 
 //----- Lap timings--------------------------------
-static uint32_t lastMilliseconds = 0;
-static uint32_t raceStartTime = 0;
 #define MIN_MIN_LAP_TIME 1 //seconds
 #define MAX_MIN_LAP_TIME 120 //seconds
-#define MAX_LAPS 100
 
 //----- Time Adjustment (for accuracy) ------------
 #define INFINITE_TIME_ADJUSTMENT 0x7FFFFFFFF // max positive 32 bit signed number
@@ -133,21 +126,11 @@ static uint32_t raceStartTime = 0;
 // * set to INFINITE_TIME_ADJUSTMENT, means time adjustment was performed, but no need to adjust
 static int32_t timeAdjustment = INFINITE_TIME_ADJUSTMENT;
 
-// ----------------------------------------------------------------------------
-
-//-----------
-static uint8_t CurrNodeAddrAPI = 0;  //used for functions like R*# and R*a to enumerate over all node ids
-static uint8_t CurrNodeAddrLaps = 0;  //used for functions like R*# and R*a to enumerate over all node ids
-
-
 //----- other globals------------------------------
 static uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted relative to last lap end; 2: lap times are relative to the race start (sum of all previous lap times);
 //static uint8_t isSoundEnabled = 1; // TODO: implement this option
 static uint8_t isConfigured = 0; //changes to 1 if any input changes the state of the device. it will mean that externally stored preferences should not be applied
-static uint8_t newLapIndex = 0;
 static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
-
-static uint32_t RaceStartTime = 0;
 
 static uint8_t thresholdSetupMode[MaxNumRecievers];
 static uint16_t RXfrequencies[MaxNumRecievers];
@@ -175,13 +158,11 @@ void setRaceMode(uint8_t mode) {
     resetLaptimes();
 
     raceMode = 0;
-    newLapIndex = 0;
     //playEndRaceTones();
   } else { // start race in specified mode
     //holeShot = true;
     raceMode = mode;
     startRaceLap();
-    newLapIndex = 0;
     for(uint8_t i = 0; i < NumRecievers; ++i) {
       if(thresholdSetupMode[i]) {
         thresholdSetupMode[i] = 0;
@@ -622,8 +603,6 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   //Serial.println(length);
 
   if (ControlByte == CONTROL_NUM_RECIEVERS) {
-    CurrNodeAddrAPI = 0;
-    CurrNodeAddrLaps = 0;
     SendNumberOfnodes(NodeAddrByte);
   }
 
@@ -706,7 +685,6 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
       case CONTROL_RSSI_MON_INTERVAL:
         rssiMonitorInterval = (HEX_TO_UINT16((uint8_t*)&controlData[3]));
-        lastRssiMonitorReading = 0;
         isConfigured = 1;
         SendRSSImonitorInterval(NodeAddrByte);
         break;
