@@ -1,6 +1,7 @@
 #include "Bluetooth.h"
 
 #include "Output.h"
+#include "HardwareConfig.h"
 
 #include <stdint.h>
 
@@ -12,7 +13,7 @@ static int BluetootBuffInPointer = 0;
 static BluetoothSerial SerialBT;
 
 void bluetooth_init(void* output) {
-  SerialBT.begin("Chorus Laptimer APP");
+  SerialBT.begin(BLUETOOTH_NAME);
 }
 
 void bluetooth_update(void* output) {

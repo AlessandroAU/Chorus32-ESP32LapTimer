@@ -17,6 +17,9 @@ void InitHardwarePins();
 
 #define EEPROM_VERSION_NUMBER 7 // Increment when eeprom struct modified
 
+#define WIFI_AP_NAME "Chorus32 LapTimer"
+#define BLUETOOTH_NAME WIFI_AP_NAME
+
 #define MaxNumRecievers 6
 extern byte NumRecievers;
 

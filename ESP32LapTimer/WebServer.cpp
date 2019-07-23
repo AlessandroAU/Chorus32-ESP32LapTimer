@@ -127,11 +127,11 @@ void InitWifiAP() {
   if(channel < 1 || channel > 13) {
     channel = 1;
   }
-  Serial.print("Starting wifi on channel ");
+  Serial.print("Starting wifi \"" WIFI_AP_NAME "\" on channel ");
   Serial.print(channel);
   Serial.print(" and mode ");
   Serial.println(protocol ? "bgn" : "b");
-  WiFi.softAP("Chorus32 LapTimer", NULL, channel);
+  WiFi.softAP(WIFI_AP_NAME, NULL, channel);
   // if DNSServer is started with "*" for domain name, it will reply with
   // provided IP to all DNS request
   dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
