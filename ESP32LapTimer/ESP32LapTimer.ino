@@ -85,11 +85,10 @@ void setup() {
   setRXADCfilter(EepromSettings.RXADCfilter);
   setADCVBATmode(EepromSettings.ADCVBATmode);
   setVbatCal(EepromSettings.VBATcalibration);
-  NumRecievers = EepromSettings.NumRecievers;
   commsSetup();
   init_outputs();
 
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < getNumReceivers(); i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
 
@@ -103,8 +102,8 @@ void setup() {
   //SelectivePowerUp();
 
   // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
-  for (int i = 0; i < NumRecievers*10; i++) {
-    setModuleChannelBand(i % NumRecievers);
+  for (int i = 0; i < getNumReceivers()*10; i++) {
+    setModuleChannelBand(i % getNumReceivers());
   }
 
   //beep();

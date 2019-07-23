@@ -11,8 +11,6 @@
 #include "Calibration.h"
 #include "WebServer.h"
 
-extern uint8_t NumRecievers;
-
 static uint8_t oledRefreshTime = 50;
 
 static Timer oledTimer = Timer(oledRefreshTime);
@@ -96,7 +94,7 @@ void rx_page_input(void* data, uint8_t index, uint8_t type) {
   rxPageData_s* my_data = (rxPageData_s*) data;
   if(index == 0 && type == BUTTON_SHORT) {
     ++my_data->currentPilotNumber;
-    if(my_data->currentPilotNumber >= NumRecievers) {
+    if(my_data->currentPilotNumber >= getNumReceivers()) {
       oledNextPage();
       my_data->currentPilotNumber = 0;
     }
@@ -166,7 +164,7 @@ void summary_page_update(void* data) {
   
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < getNumReceivers(); i++) {
     display.drawString(0, 9 + i * 9, getBandLabel(getRXBand(i)) + String(getRXChannel(i) + 1) + ", " + String(getRSSI(i) / 12));
     if (getRSSI(i) < 600) {
       display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(600, 600, 3500, 0, 85));

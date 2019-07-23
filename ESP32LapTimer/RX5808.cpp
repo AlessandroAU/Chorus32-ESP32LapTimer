@@ -12,14 +12,15 @@
 #include "RX5808.h"
 
 #include "HardwareConfig.h"
+#include "settings_eeprom.h"
 
 #include <Arduino.h>
 #include <stdint.h>
 #include <SPI.h>
 #include <driver/timer.h>
 
-static volatile uint8_t RXBand[MaxNumRecievers];
-static volatile uint8_t RXChannel[MaxNumRecievers];
+static volatile uint8_t RXBand[MaxNumReceivers];
+static volatile uint8_t RXChannel[MaxNumReceivers];
 
 void InitSPI() {
   SPI.begin(SCK, MISO, MOSI);
@@ -101,7 +102,7 @@ void RXreset(uint8_t NodeAddr) {
 
 
 void PowerDownAll() {
-  //for (int i = 0; i < NumRecievers; i++) {
+  //for (int i = 0; i < getNumReceivers(); i++) {
   //rxWrite(SPI_ADDRESS_POWER, PowerDownState, i);
   //RXstandBy(i);
   //delay(100);
@@ -114,7 +115,7 @@ void RXPowerDown(uint8_t NodeAddr) {
 }
 
 void PowerUpAll() {
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < getNumReceivers(); i++) {
     rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, i);
   }
 }
@@ -124,7 +125,7 @@ void RXPowerUp(uint8_t NodeAddr) {
 }
 
 void SelectivePowerUp() { //powerup only the RXs that have been requested
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < getNumReceivers(); i++) {
     RXreset(i);
     //RXstandBy(i);
     delay(50);

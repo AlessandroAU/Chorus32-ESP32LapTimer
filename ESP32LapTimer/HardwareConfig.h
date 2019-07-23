@@ -20,8 +20,7 @@ void InitHardwarePins();
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 #define BLUETOOTH_NAME WIFI_AP_NAME
 
-#define MaxNumRecievers 6
-extern byte NumRecievers;
+#define MaxNumReceivers 6
 
 #define MIN_TUNE_TIME 30000 // value in micro seconds
 

@@ -3,15 +3,16 @@
 #include <stdint.h>
 
 #include "HardwareConfig.h"
+#include "settings_eeprom.h"
 
-static volatile uint32_t LapTimes[MaxNumRecievers][MAX_LAPS_NUM];
-static volatile int lap_counter[MaxNumRecievers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
+static volatile uint32_t LapTimes[MaxNumReceivers][MAX_LAPS_NUM];
+static volatile int lap_counter[MaxNumReceivers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
 
 static uint32_t MinLapTime = 5000;  //this is in millis
 static uint32_t start_time = 0;
 
 void resetLaptimes() {
-  for (int i = 0; i < NumRecievers; ++i) {
+  for (int i = 0; i < getNumReceivers(); ++i) {
     lap_counter[i] = 0;
   }
 }

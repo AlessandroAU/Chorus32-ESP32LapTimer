@@ -18,16 +18,16 @@ enum ADCVBATmode_ {OFF, ADC_CH5, ADC_CH6, INA219};
 
 struct EepromSettingsStruct {
   uint16_t eepromVersionNumber;
-  uint8_t RXBand[MaxNumRecievers];
-  uint8_t RXChannel[MaxNumRecievers];
-  uint16_t RXfrequencies[MaxNumRecievers];
-  int RSSIthresholds[MaxNumRecievers];
+  uint8_t RXBand[MaxNumReceivers];
+  uint8_t RXChannel[MaxNumReceivers];
+  uint16_t RXfrequencies[MaxNumReceivers];
+  int RSSIthresholds[MaxNumReceivers];
   RXADCfilter_ RXADCfilter;
   ADCVBATmode_ ADCVBATmode;
   float VBATcalibration;
-  uint8_t NumRecievers;
-  uint16_t RxCalibrationMin[MaxNumRecievers];
-  uint16_t RxCalibrationMax[MaxNumRecievers];
+  uint8_t NumReceivers;
+  uint16_t RxCalibrationMin[MaxNumReceivers];
+  uint16_t RxCalibrationMax[MaxNumReceivers];
   uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
   uint8_t WiFiChannel;
 
@@ -49,5 +49,7 @@ void setADCVBATmode(ADCVBATmode_ mode);
 
 int getWiFiChannel();
 int getWiFiProtocol();
+
+uint8_t getNumReceivers();
 
 void setSaveRequired();

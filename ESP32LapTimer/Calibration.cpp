@@ -17,7 +17,7 @@ bool isCalibrating() {
 }
 
 void rssiCalibration() {
-  for (uint8_t i = 0; i < NumRecievers; i++) {
+  for (uint8_t i = 0; i < getNumReceivers(); i++) {
     EepromSettings.RxCalibrationMin[i] = 5000;
     EepromSettings.RxCalibrationMax[i] = 0;
   }
@@ -31,7 +31,7 @@ void rssiCalibration() {
 
 void rssiCalibrationUpdate() {
   if (UNLIKELY(isCurrentlyCalibrating && calibrationTimer.hasTicked())) {
-    for (uint8_t i = 0; i < NumRecievers; i++) {
+    for (uint8_t i = 0; i < getNumReceivers(); i++) {
       if (getRSSI(i) < EepromSettings.RxCalibrationMin[i])
         EepromSettings.RxCalibrationMin[i] = getRSSI(i);
 
@@ -44,7 +44,7 @@ void rssiCalibrationUpdate() {
       calibrationTimer.reset();
 
     } else {
-      for (int i = 0; i < NumRecievers; i++) {
+      for (int i = 0; i < getNumReceivers(); i++) {
         setModuleChannelBand(i);
       }
       isCurrentlyCalibrating = false;

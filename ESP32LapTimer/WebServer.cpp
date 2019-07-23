@@ -33,12 +33,6 @@ static bool HasSPIFFsBegun = false;
 static bool HTTPupdating = false;
 static bool airplaneMode = false;
 
-///////////Extern Variable we need acces too///////////////////////
-
-extern byte NumRecievers;
-
-//////////////////////////////////////////////////////////////////
-
 void airplaneModeOn();
 void airplaneModeOff();
 
@@ -158,19 +152,19 @@ void SendStatusVars() {
 
 void SendStaticVars() {
 
-  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());;
+  String sendSTR = "{\"NumRXs\": " + String(getNumReceivers() - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());;
   sendSTR = sendSTR + ",\"Band\":{";
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < getNumReceivers(); i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
-    if (NumRecievers > 1 && NumRecievers - i > 1) {
+    if (getNumReceivers() > 1 && getNumReceivers() - i > 1) {
       sendSTR = sendSTR + ",";
     }
   }
   sendSTR = sendSTR + "},";
   sendSTR = sendSTR + "\"Channel\":{";
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < getNumReceivers(); i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXChannel[i];
-    if (NumRecievers > 1 && NumRecievers - i > 1) {
+    if (getNumReceivers() > 1 && getNumReceivers() - i > 1) {
       sendSTR = sendSTR + ",";
     }
   }
@@ -182,38 +176,38 @@ void SendStaticVars() {
 
 void ProcessGeneralSettingsUpdate() {
   String NumRXs = webServer.arg("NumRXs");
-  NumRecievers = (byte)NumRXs.toInt();
+  EepromSettings.NumReceivers = (byte)NumRXs.toInt();
 
-  // NumRecievers is always >= 0
-  // TODO: why does NumRecievers == 0 equals to 1 rx?
+  // getNumReceivers() is always >= 0
+  // TODO: why does getNumReceivers() == 0 equals to 1 rx?
   String Band1 = webServer.arg("band1");
   String Channel1 = webServer.arg("channel1");
   int band1 = (byte)Band1.toInt();
   int channel1 = (byte)Channel1.toInt();
   updateRx(band1, channel1, 1);
 
-  if (NumRecievers >= 1) {
+  if (getNumReceivers() >= 1) {
     String Band2 = webServer.arg("band2");
     String Channel2 = webServer.arg("channel2");
     int band2 = (byte)Band2.toInt();
     int channel2 = (byte)Channel2.toInt();
     updateRx(band2, channel2, 2);
   }
-  if (NumRecievers >= 2) {
+  if (getNumReceivers() >= 2) {
     String Band3 = webServer.arg("band3");
     String Channel3 = webServer.arg("channel3");
     int band3 = (byte)Band3.toInt();
     int channel3 = (byte)Channel3.toInt();
     updateRx(band3, channel3, 3);
   }
-  if (NumRecievers >= 3) {
+  if (getNumReceivers() >= 3) {
     String Band4 = webServer.arg("band4");
     String Channel4 = webServer.arg("channel4");
     int band4 = (byte)Band4.toInt();
     int channel4 = (byte)Channel4.toInt();
     updateRx(band4, channel4, 4);
   }
-  if (NumRecievers >= 4) {
+  if (getNumReceivers() >= 4) {
     String Band5 = webServer.arg("band5");
     String Channel5 = webServer.arg("channel5");
     int band5 = (byte)Band5.toInt();
@@ -221,7 +215,7 @@ void ProcessGeneralSettingsUpdate() {
     updateRx(band5, channel5, 5);
   }
 
-  if (NumRecievers >= 5) {
+  if (getNumReceivers() >= 5) {
     String Band6 = webServer.arg("band6");
     String Channel6 = webServer.arg("channel6");
     int band6 = (byte)Band6.toInt();
@@ -229,12 +223,10 @@ void ProcessGeneralSettingsUpdate() {
     updateRx(band6, channel6, 6);
   }
 
-  EepromSettings.NumRecievers = NumRecievers;
-
   String Rssi = webServer.arg("RSSIthreshold");
   int rssi = (byte)Rssi.toInt();
   int value = rssi * 12;
-  for (int i = 0 ; i < MaxNumRecievers; i++) {
+  for (int i = 0 ; i < MaxNumReceivers; i++) {
     EepromSettings.RSSIthresholds[i] = value;
     setRSSIThreshold(i, value);
   }
@@ -248,7 +240,7 @@ void ProcessGeneralSettingsUpdate() {
 
 //  PowerDownAll();
 //  SelectivePowerUp();
-//  for (int i = 0; i < NumRecievers; i++) {
+//  for (int i = 0; i < getNumReceivers(); i++) {
 //    setModuleChannelBand(i);
 //    delay(10);
 //  }

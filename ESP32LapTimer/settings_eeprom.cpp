@@ -12,7 +12,6 @@ static RXADCfilter_ RXADCfilter;
 static ADCVBATmode_ ADCVBATmode;
 static bool eepromSaveRequired = false;
 
-uint8_t NumRecievers = 6;
 extern float VBATcalibration;
 
 //////////////////////////////////////////////////////////////////
@@ -26,8 +25,8 @@ void EepromSettingsStruct::load() {
   EEPROM.get(0, *this);
   Serial.println("EEPROM LOADED");
 
-  Serial.println(EepromSettings.NumRecievers);
-  Serial.println(NumRecievers);
+  Serial.println(EepromSettings.NumReceivers);
+  Serial.println(NumReceivers);
 
   if (this->eepromVersionNumber != EEPROM_VERSION_NUMBER) {
     this->defaults();
@@ -39,10 +38,10 @@ bool EepromSettingsStruct::SanityCheck() {
 
   bool IsGoodEEPROM = true;
 
-  if (EepromSettings.NumRecievers > MaxNumRecievers) {
+  if (EepromSettings.NumReceivers > MaxNumReceivers) {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value NumRecievers: ");
-    Serial.println(EepromSettings.NumRecievers);
+    Serial.println(EepromSettings.NumReceivers);
     return IsGoodEEPROM;
   }
 
@@ -68,7 +67,7 @@ bool EepromSettingsStruct::SanityCheck() {
     return IsGoodEEPROM;
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if (EepromSettings.RXBand[i] > MaxBand) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -80,7 +79,7 @@ bool EepromSettingsStruct::SanityCheck() {
 
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if (EepromSettings.RXChannel[i] > MaxChannel) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -91,7 +90,7 @@ bool EepromSettingsStruct::SanityCheck() {
     }
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if ((EepromSettings.RXfrequencies[i] > MaxFreq) or (EepromSettings.RXfrequencies[i] < MinFreq)) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -102,7 +101,7 @@ bool EepromSettingsStruct::SanityCheck() {
     }
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < EepromSettings.NumReceivers; i++) {
     if (EepromSettings.RSSIthresholds[i] > MaxThreshold) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -129,7 +128,7 @@ void EepromSettingsStruct::defaults() {
   EepromSettingsStruct settings;
   // by setting everything to 0 we guarantee that every variable is initialized
   memset(&settings, 0, sizeof(EepromSettingsStruct));
-  for(uint8_t i = 0; i < MaxNumRecievers; ++i){
+  for(uint8_t i = 0; i < MaxNumReceivers; ++i){
     settings.RxCalibrationMax[i] = 2700;
     settings.RxCalibrationMin[i] = 800;
     settings.RSSIthresholds[i] = 2048;
@@ -142,7 +141,7 @@ void EepromSettingsStruct::defaults() {
   settings.ADCVBATmode = INA219;
   settings.RXADCfilter = LPF_20Hz;
   settings.VBATcalibration = 1;
-  settings.NumRecievers = 6;
+  settings.NumReceivers = 6;
   settings.WiFiProtocol = 1;
   settings.WiFiChannel = 1;
 
@@ -178,4 +177,8 @@ int getWiFiChannel(){
 }
 int getWiFiProtocol(){
   return EepromSettings.WiFiProtocol;
+}
+
+uint8_t getNumReceivers() {
+  return EepromSettings.NumReceivers;
 }
