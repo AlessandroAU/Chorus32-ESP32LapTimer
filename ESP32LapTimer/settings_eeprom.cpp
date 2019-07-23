@@ -5,16 +5,7 @@
 
 struct EepromSettingsStruct EepromSettings;
 
-
-///////////Extern Variable we need acces too///////////////////////
-
-static RXADCfilter_ RXADCfilter;
-static ADCVBATmode_ ADCVBATmode;
 static bool eepromSaveRequired = false;
-
-extern float VBATcalibration;
-
-//////////////////////////////////////////////////////////////////
 
 void EepromSettingsStruct::setup() {
   EEPROM.begin(512);
@@ -153,19 +144,19 @@ void EepromSettingsStruct::defaults() {
 
 
 RXADCfilter_ getRXADCfilter() {
-  return RXADCfilter;
+  return EepromSettings.RXADCfilter;
 }
 
 ADCVBATmode_ getADCVBATmode() {
-  return ADCVBATmode;
+  return EepromSettings.ADCVBATmode;
 }
 
 void setRXADCfilter(RXADCfilter_ filter) {
-  RXADCfilter = filter;
+  EepromSettings.RXADCfilter = filter;
 }
 
 void setADCVBATmode(ADCVBATmode_ mode) {
-  ADCVBATmode = mode;
+  EepromSettings.ADCVBATmode = mode;
 }
 
 void setSaveRequired() {
