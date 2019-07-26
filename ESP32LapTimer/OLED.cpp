@@ -165,10 +165,12 @@ void summary_page_update(void* data) {
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   #define RSSI_BAR_LENGTH (127 - 42)
+  #define RSSI_BAR_HEIGHT 8
+  #define RSSI_BAR_X_OFFSET 40
   for (int i = 0; i < getNumReceivers(); i++) {
     display.drawString(0, 9 + i * 9, getBandLabel(getRXBand(i)) + String(getRXChannel(i) + 1) + ", " + String(getRSSI(i) / 12));
-    display.drawProgressBar(40, 10 + i * 9, RSSI_BAR_LENGTH, 8, map(getRSSI(i), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
-    display.drawVerticalLine(40 + map(getRSSIThreshold(i), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + i * 9, 8); // line to show the RSSIthresholds
+    display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + i * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
+    display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(getRSSIThreshold(i), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + i * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
   }
 }
 
