@@ -10,6 +10,7 @@
 #include "RX5808.h"
 #include "Calibration.h"
 #include "WebServer.h"
+#include "Utils.h"
 
 static uint8_t oledRefreshTime = 50;
 
@@ -170,7 +171,7 @@ void summary_page_update(void* data) {
   for (int i = 0; i < getNumReceivers(); i++) {
     display.drawString(0, 9 + i * 9, getBandLabel(getRXBand(i)) + String(getRXChannel(i) + 1) + ", " + String(getRSSI(i) / 12));
     display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + i * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
-    display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(getRSSIThreshold(i), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + i * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
+    display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(MAX(getRSSIThreshold(i), RSSI_ADC_READING_MIN), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + i * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
   }
 }
 
