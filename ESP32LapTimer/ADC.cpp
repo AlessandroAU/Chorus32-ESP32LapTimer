@@ -102,7 +102,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
   // Applying calibration
   if (LIKELY(!isCalibrating())) {
     uint16_t rawRSSI = constrain(ADCReadingsRAW[current_adc], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
-    ADCReadingsRAW[current_adc] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
+    ADCReadingsRAW[current_adc] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
   }
 
   switch (getRXADCfilter()) {

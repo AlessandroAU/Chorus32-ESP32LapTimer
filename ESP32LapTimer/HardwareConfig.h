@@ -34,6 +34,10 @@ void InitHardwarePins();
 //#define USE_BLUETOOTH // Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
 #define USE_SERIAL_OUTPUT
 
+// 800 and 2700 are about average min max raw values
+#define RSSI_ADC_READING_MAX 2700
+#define RSSI_ADC_READING_MIN 800
+
 #include "targets/target.h" // Needs to be at the bottom
 
 #if defined(BUTTON1) && defined(BUTTON2)
