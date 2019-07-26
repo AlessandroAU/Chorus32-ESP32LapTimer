@@ -19,7 +19,7 @@ void setADCLoopCount(uint16_t count);
 void setVbatCal(float calibration);
 float getMaFloat();
 
-float getVbatFloat();
+float getVbatFloat(bool force_read = false);
 void setVbatFloat(float val);
 
 float getVBATcalibration();

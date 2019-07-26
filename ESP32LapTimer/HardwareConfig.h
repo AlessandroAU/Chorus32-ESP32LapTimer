@@ -22,6 +22,8 @@ void InitHardwarePins();
 
 #define MaxNumReceivers 6
 
+#define VOLTAGE_UPDATE_INTERVAL_MS 1000
+
 #define MIN_TUNE_TIME 30000 // value in micro seconds
 
 #define OLED //uncomment this to enable OLED support

@@ -129,9 +129,6 @@ void loop() {
   updateWifi();
 
   EepromSettings.save();
-  if (getADCVBATmode() == INA219) {
-    ReadVBAT_INA219();
-  }
   beeperUpdate();
   if(UNLIKELY(!isInRaceMode())) {
     thresholdModeStep();

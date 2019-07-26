@@ -16,8 +16,6 @@
 #include "Laptime.h"
 #include "Utils.h"
 
-static Timer ina219Timer = Timer(1000);
-
 static Adafruit_INA219 ina219; // A0+A1=GND
 
 static uint32_t LastADCcall;
@@ -103,11 +101,8 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
   // Applying calibration
   if (LIKELY(!isCalibrating())) {
-    // skip if voltage is on this channel
-    if(!(getADCVBATmode() == ADC_CH5 && current_adc == 4) || (getADCVBATmode() == ADC_CH6 && current_adc == 5)) {
-      uint16_t rawRSSI = constrain(ADCReadingsRAW[current_adc], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
-      ADCReadingsRAW[current_adc] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
-    }
+    uint16_t rawRSSI = constrain(ADCReadingsRAW[current_adc], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
+    ADCReadingsRAW[current_adc] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
   }
 
   switch (getRXADCfilter()) {
@@ -125,19 +120,6 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
       break;
   }
 
-  switch (getADCVBATmode()) {
-    case ADC_CH5:
-      VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[4], &adc_chars);
-      setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
-      break;
-    case ADC_CH6:
-      VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[5], &adc_chars);
-      setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
-      break;
-    default:
-      break;
-  }
-
   if (LIKELY(isInRaceMode() > 0)) {
     CheckRSSIthresholdExceeded(current_adc);
   }
@@ -146,11 +128,8 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
 
 void ReadVBAT_INA219() {
-  if (ina219Timer.hasTicked()) {
-    setVbatFloat(ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV() / 1000));
-    mAReadingFloat = ina219.getCurrent_mA();
-    ina219Timer.reset();
-  }
+  setVbatFloat(ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV() / 1000));
+  mAReadingFloat = ina219.getCurrent_mA();
 }
 
 void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t node) {
@@ -196,7 +175,25 @@ float getMaFloat() {
   return mAReadingFloat;
 }
 
-float getVbatFloat(){
+float getVbatFloat(bool force_read){
+  static uint32_t last_voltage_update = 0;
+  if((millis() - last_voltage_update) > VOLTAGE_UPDATE_INTERVAL_MS || force_read) {
+    switch (getADCVBATmode()) {
+      case ADC_CH5:
+        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC5), &adc_chars);
+        setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
+        break;
+      case ADC_CH6:
+        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC6), &adc_chars);
+        setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
+        break;
+      case INA219:
+        ReadVBAT_INA219();
+      default:
+        break;
+    }
+    last_voltage_update = millis();
+  }
   return VbatReadingFloat;
 }
 
