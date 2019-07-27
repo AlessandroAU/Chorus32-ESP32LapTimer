@@ -588,6 +588,7 @@ void SendAllSettings(uint8_t NodeAddr) {
   SendVRxFreq(NodeAddr);
   SendRSSImonitorInterval(NodeAddr);
   SendTimerCalibration(NodeAddr);
+  SendAllLaps(NodeAddr);
   sendAPIversion();
   sendThresholdMode(NodeAddr);
   SendXdone(NodeAddr);
@@ -612,7 +613,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   }
 
 
-  if (controlData[2] == 'a') {
+  if (controlData[2] == CONTROL_GET_ALL_DATA) {
     for (int i = 0; i < getNumReceivers(); i++) {
       SendAllSettings(i);
       //delay(100);
