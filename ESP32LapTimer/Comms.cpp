@@ -183,7 +183,7 @@ void setMinLap(uint8_t mlt) {
 void SendMinLap(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('M');
+  addToSendQueue(RESPONSE_MIN_LAP_TIME);
   addToSendQueue('0');
   addToSendQueue(TO_HEX((getMinLapTime() / 1000)));
   addToSendQueue('\n');
@@ -194,7 +194,7 @@ void SendIsModuleConfigured() {
   for (int i = 0; i < getNumReceivers(); i ++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
-    addToSendQueue('y');
+    addToSendQueue(RESPONSE_IS_CONFIGURED);
     addToSendQueue(TO_HEX(isConfigured));
     addToSendQueue('\n');
   }
@@ -203,7 +203,7 @@ void SendIsModuleConfigured() {
 void SendXdone(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('x');
+  addToSendQueue(RESPONSE_END_SEQUENCE);
   addToSendQueue('1');
   addToSendQueue('\n');
 }
@@ -238,7 +238,7 @@ void SendMillis() {
   for (int i = 0; i < getNumReceivers(); i ++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
-    addToSendQueue('t');
+    addToSendQueue(RESPONSE_TIME);
     addToSendQueue(buf, 8);
     addToSendQueue('\n');
   }
@@ -247,7 +247,7 @@ void SendMillis() {
 void SendThresholdValue(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('T');
+  addToSendQueue(RESPONSE_THRESHOLD);
   uint8_t buf[4];
   intToHex(buf, getRSSIThreshold(NodeAddr) / 12);
   addToSendQueue(buf, 4);
@@ -262,7 +262,7 @@ void SendCurrRSSI(uint8_t NodeAddr) {
   //MirrorToSerial = false;  // this so it doesn't spam the serial console with RSSI updates
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('r');
+  addToSendQueue(RESPONSE_RSSI);
   uint8_t buf[4];
   intToHex(buf, Result / 12);
   addToSendQueue(buf, 4);
@@ -400,7 +400,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('L');
+  addToSendQueue(RESPONSE_LAPTIME);
 
   byteToHex(buf1, Lap - 1);
   addToSendQueue(buf1, 2);
@@ -431,7 +431,7 @@ void SendRSSImonitorInterval(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   uint8_t buf[4];
-  addToSendQueue('I');
+  addToSendQueue(RESPONSE_RSSI_MON_INTERVAL);
   intToHex(buf, rssiMonitorInterval);
   addToSendQueue(buf, 4);
   addToSendQueue('\n');
@@ -440,7 +440,7 @@ void SendRSSImonitorInterval(uint8_t NodeAddr) {
 void SendSoundMode(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('S');
+  addToSendQueue(RESPONSE_SOUND);
   addToSendQueue('0');
   addToSendQueue('\n');
 }
@@ -448,7 +448,7 @@ void SendSoundMode(uint8_t NodeAddr) {
 void SendLipoVoltage() {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(0));
-  addToSendQueue('v');
+  addToSendQueue(RESPONSE_VOLTAGE);
   uint8_t buf[4];
   float VbatFloat = 0;
 
@@ -464,7 +464,7 @@ void SendLipoVoltage() {
 void WaitFirstLap(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('1');
+  addToSendQueue(RESPONSE_WAIT_FIRST_LAP);
   addToSendQueue(TO_HEX(shouldWaitForFirstLap));
   addToSendQueue('\n');
 }
@@ -475,7 +475,7 @@ void SendTimerCalibration(uint8_t NodeAddr) {
   longToHex(buf, timeAdjustment);
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('J');
+  addToSendQueue(RESPONSE_TIME_ADJUSTMENT);
   addToSendQueue(buf, 8);
   addToSendQueue('\n');
 }
@@ -484,7 +484,7 @@ void SendRaceMode(uint8_t NodeAddr) {
 
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('R');
+  addToSendQueue(RESPONSE_RACE_MODE);
   addToSendQueue(TO_HEX(raceMode));
   addToSendQueue('\n');
 
@@ -495,7 +495,7 @@ void SendVRxBand(uint8_t NodeAddr) {
   //Cmd Byte B
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('B');
+  addToSendQueue(RESPONSE_BAND);
   addToSendQueue(TO_HEX(getRXBand(NodeAddr)));
   addToSendQueue('\n');
   //SendVRxFreq(NodeAddr);
@@ -506,7 +506,7 @@ void SendVRxChannel(uint8_t NodeAddr) {
 
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('C');
+  addToSendQueue(RESPONSE_CHANNEL);
   addToSendQueue(TO_HEX(getRXChannel(NodeAddr)));
   addToSendQueue('\n');
   //SendVRxFreq(NodeAddr);
@@ -520,7 +520,7 @@ void SendVRxFreq(uint8_t NodeAddr) {
 
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('F');
+  addToSendQueue(RESPONSE_FREQUENCY);
 
   uint8_t buf[4];
   intToHex(buf, frequency);
@@ -533,7 +533,7 @@ void sendAPIversion() {
   for (int i = 0; i < getNumReceivers(); i++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
-    addToSendQueue('#');
+    addToSendQueue(RESPONSE_API_VERSION);
     addToSendQueue('0');
     addToSendQueue('0');
     addToSendQueue('0');
