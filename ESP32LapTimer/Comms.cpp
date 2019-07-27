@@ -422,6 +422,7 @@ void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
   uint8_t Pointer = getCurrentLap(NodeAddr);
   for (uint8_t i = 0; i < Pointer; i++) {
     sendLap(i, NodeAddr);
+    update_outputs(); // Flush outputs as the buffer could overflow with a large number of laps
   }
 }
 
@@ -593,6 +594,7 @@ void SendAllSettings(uint8_t NodeAddr) {
   sendThresholdMode(NodeAddr);
   SendXdone(NodeAddr);
 
+  update_outputs(); // Flush output after each node to prevent lost messages
 }
 
 void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t NodeAddr, uint8_t length) {
