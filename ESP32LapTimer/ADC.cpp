@@ -136,8 +136,7 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t node) {
   uint32_t CurrTime = millis();
   if ( ADCvalues[node] > RSSIthresholds[node]) {
     if (CurrTime > (getMinLapTime() + getLaptime(node))) {
-      uint8_t lap_num = addLap(node, CurrTime);
-      sendLap(lap_num, node);
+      addLap(node, CurrTime);
     }
   }
 }

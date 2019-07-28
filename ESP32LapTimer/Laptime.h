@@ -22,4 +22,7 @@ uint8_t addLap(uint8_t receiver, uint32_t time);
 /// Laps begin at 1. lap 0 is always 0
 uint8_t getCurrentLap(uint8_t receiver);
 
+/// Sends unsent laps to the output queue
+void sendNewLaps();
+
 #endif // __LAPTIME_H__
