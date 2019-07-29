@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "HardwareConfig.h"
+#include "crc.h"
 
 enum RXADCfilter_ {LPF_10Hz, LPF_20Hz, LPF_50Hz, LPF_100Hz};
 enum ADCVBATmode_ {OFF, ADC_CH5, ADC_CH6, INA219};
@@ -30,6 +31,7 @@ struct EepromSettingsStruct {
   uint16_t RxCalibrationMax[MaxNumReceivers];
   uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
   uint8_t WiFiChannel;
+  crc_t crc; // This MUST be the last variable!
 
 
   void setup();
@@ -37,6 +39,9 @@ struct EepromSettingsStruct {
   void save();
   void defaults();
   bool SanityCheck();
+  void updateCRC();
+  bool validateCRC();
+  crc_t calcCRC();
 };
 
 extern EepromSettingsStruct EepromSettings;

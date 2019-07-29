@@ -2,6 +2,7 @@
 #include "settings_eeprom.h"
 #include "Comms.h"
 #include "RX5808.h"
+#include "crc.h"
 
 struct EepromSettingsStruct EepromSettings;
 
@@ -102,11 +103,12 @@ bool EepromSettingsStruct::SanityCheck() {
       return IsGoodEEPROM;
     }
   }
-  return IsGoodEEPROM;
+  return IsGoodEEPROM && this->validateCRC();
 }
 
 void EepromSettingsStruct::save() {
   if (eepromSaveRequired) {
+    this->updateCRC();
     EEPROM.put(0, *this);
     EEPROM.commit();
     eepromSaveRequired = false;
@@ -136,12 +138,28 @@ void EepromSettingsStruct::defaults() {
   settings.WiFiProtocol = 1;
   settings.WiFiChannel = 1;
 
+  settings.updateCRC();
+
   *this = settings;
 
   EEPROM.put(0, *this);
   EEPROM.commit();
 }
 
+crc_t EepromSettingsStruct::calcCRC() {
+  crc_t crc = crc_init();
+  crc = crc_update(crc, this, sizeof(*this) - sizeof(this->crc));
+  crc = crc_finalize(crc);
+  return crc;
+}
+
+void EepromSettingsStruct::updateCRC() {
+  this->crc = this->calcCRC();
+}
+
+bool EepromSettingsStruct::validateCRC(){
+  return this->crc == this->calcCRC();
+}
 
 RXADCfilter_ getRXADCfilter() {
   return EepromSettings.RXADCfilter;
