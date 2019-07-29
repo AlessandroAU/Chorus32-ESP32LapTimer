@@ -152,7 +152,7 @@ void SendStatusVars() {
 
 void SendStaticVars() {
 
-  String sendSTR = "{\"NumRXs\": " + String(getNumReceivers() - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());;
+  String sendSTR = "{\"displayTimeout\": " + String(getDisplayTimeout()) + ", \"NumRXs\": " + String(getNumReceivers() - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());;
   sendSTR = sendSTR + ",\"Band\":{";
   for (int i = 0; i < getNumReceivers(); i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
@@ -312,6 +312,14 @@ void ProcessWifiSettings() {
   airplaneModeOff();
 }
 
+void ProcessDisplaySettingsUpdate() {
+  EepromSettings.display_timeout_ms = webServer.arg("displayTimeout").toInt() * 1000;
+  File file = SPIFFS.open("/redirect.html", "r");                 // Open it
+  webServer.streamFile(file, "text/html"); // And send it to the client
+  file.close();
+  setSaveRequired();
+}
+
 void InitWebServer() {
 
 
@@ -367,6 +375,7 @@ void InitWebServer() {
   webServer.on("/updateGeneral", ProcessGeneralSettingsUpdate);
   webServer.on("/updateFilters", ProcessADCRXFilterUpdate);
   webServer.on("/ADCVBATsettings", ProcessVBATModeUpdate);
+  webServer.on("/displaySettings", ProcessDisplaySettingsUpdate);
   webServer.on("/calibrateRSSI",calibrateRSSI);
   webServer.on("/eepromReset",eepromReset);
   

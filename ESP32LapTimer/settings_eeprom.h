@@ -31,6 +31,7 @@ struct EepromSettingsStruct {
   uint16_t RxCalibrationMax[MaxNumReceivers];
   uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
   uint8_t WiFiChannel;
+  uint32_t display_timeout_ms;
   crc_t crc; // This MUST be the last variable!
 
 
@@ -56,5 +57,6 @@ int getWiFiChannel();
 int getWiFiProtocol();
 
 uint8_t getNumReceivers();
+uint32_t getDisplayTimeout();
 
 void setSaveRequired();
