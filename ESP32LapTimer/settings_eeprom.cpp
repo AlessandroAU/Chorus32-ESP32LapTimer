@@ -191,3 +191,7 @@ int getWiFiProtocol(){
 uint8_t getNumReceivers() {
   return EepromSettings.NumReceivers;
 }
+
+uint32_t getDisplayTimeout() {
+  return EepromSettings.display_timeout_ms;
+}

@@ -17,6 +17,7 @@
             document.getElementById('RSSIthreshold').value = updateRSSIThreshold(parseInt(data.RSSIthreshold))
             document.getElementById('WiFiProtocol').value = parseInt(data.WiFiProtocol);
             document.getElementById('WiFiChannel').value = parseInt(data.WiFiChannel);
+            document.getElementById('displayTimeout').value = parseInt(data.displayTimeout);
 
             createBandChannel(data.NumRXs)
             updateBandChannel(data)

@@ -13,6 +13,8 @@
 #include "Utils.h"
 
 static uint8_t oledRefreshTime = 50;
+static uint32_t last_input_ms = 0;
+static bool display_standby_status = false;
 
 static Timer oledTimer = Timer(oledRefreshTime);
 
@@ -60,23 +62,40 @@ void oledSetup(void) {
       oled_pages[i].init(oled_pages[i].data);
     }
   }
+  last_input_ms = millis();
 }
 
 void OLED_CheckIfUpdateReq() {
   if (oledTimer.hasTicked()) {
-    if(oled_pages[current_page].draw_page) {
-      display.clear();
-      oled_pages[current_page].draw_page(oled_pages[current_page].data);
-      display.display();
+    if(millis() - last_input_ms > getDisplayTimeout() && getDisplayTimeout() != 0) {
+      if(!display_standby_status) {
+        display.displayOff(); // going in standby
+        display_standby_status = true;
+      }
+    } else if(display_standby_status) {
+        display.displayOn();
+        display_standby_status = false;
+    }
+    if(!display_standby_status) {
+      if(oled_pages[current_page].draw_page) {
+        display.clear();
+        oled_pages[current_page].draw_page(oled_pages[current_page].data);
+        display.display();
+      }
     }
     oledTimer.reset();
   }
 }
 
 void oledInjectInput(uint8_t index, uint8_t type) {
-  if(oled_pages[current_page].process_input) {
-    oled_pages[current_page].process_input(oled_pages[current_page].data, index, type);
+  if(!display_standby_status) {
+    if(oled_pages[current_page].process_input) {
+      oled_pages[current_page].process_input(oled_pages[current_page].data, index, type);
+    }
+  } else { // turn display on again
+    display.displayOn();
   }
+  last_input_ms = millis();
 }
 
 void next_page_input(void* data, uint8_t index, uint8_t type) {
