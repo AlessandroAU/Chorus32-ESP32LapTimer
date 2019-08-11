@@ -16,7 +16,7 @@ Updates:
 
 As of last commit the default pinout has been changed to match that of the PCBs currently being tested.
 
-For anyone that has built a Chorus32 with original schematics do not worry, your unit will continue working with future updates. However you must comment out '#define Default_Pins " and un-comnent '//#define Old_Default_Pins' in 'HardwareConfig.h' when compiling.
+For anyone that has built a Chorus32 with original schematics do not worry, your unit will continue working with future updates. However you must change `#define BOARD BOARD_DEFAULT` to `#define BOARD BOARD_OLD` in 'HardwareConfig.h' when compiling.
 
 Added OLED and VBAT measurement support
 Auto RSSI threshold setup is also not implemented, just set thresholds manually for now.
