@@ -46,6 +46,8 @@ void rssiCalibrationUpdate() {
     } else {
       for (int i = 0; i < getNumReceivers(); i++) {
         setModuleChannelBand(i);
+        // Prevent min > max
+        EepromSettings.RxCalibrationMax[i] = MAX(EepromSettings.RxCalibrationMax[i], EepromSettings.RxCalibrationMin[i] + 1);
       }
       isCurrentlyCalibrating = false;
       setSaveRequired();
