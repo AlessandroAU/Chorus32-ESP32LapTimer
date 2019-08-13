@@ -13,12 +13,12 @@
 #endif
 
 // Define unconfigured pins
-#ifndef SCK
-#define SCK -1
+#ifndef VRX_SCK
+#define VRX_SCK -1
 #endif
-#ifndef MOSI
-#define MOSI -1
+#ifndef VRX_MOSI
+#define VRX_MOSI -1
 #endif
-#ifndef MISO
-#define MISO -1
+#ifndef VRX_MISO
+#define VRX_MISO -1
 #endif

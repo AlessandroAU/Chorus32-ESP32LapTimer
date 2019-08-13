@@ -1,6 +1,7 @@
 #include "Laptime.h"
 
 #include <stdint.h>
+#include <Arduino.h>
 
 #include "HardwareConfig.h"
 #include "settings_eeprom.h"

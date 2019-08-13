@@ -1,6 +1,4 @@
 #pragma once
-#include <stdint.h>
-#include <Arduino.h>
 
 /// These are all the available targets
 #define BOARD_DEFAULT 1

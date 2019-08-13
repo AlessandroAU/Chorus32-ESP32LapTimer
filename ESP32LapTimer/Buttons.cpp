@@ -10,6 +10,7 @@
 #include "WebServer.h"
 
 #include <stdint.h>
+#include <Arduino.h>
 
 #define newButtonDeBounce 40
 

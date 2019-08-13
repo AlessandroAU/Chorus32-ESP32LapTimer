@@ -23,7 +23,7 @@ static volatile uint8_t RXBand[MaxNumReceivers];
 static volatile uint8_t RXChannel[MaxNumReceivers];
 
 void InitSPI() {
-  SPI.begin(SCK, MISO, MOSI);
+  SPI.begin(VRX_SCK, VRX_MISO, VRX_MOSI);
   delay(200);
 }
 

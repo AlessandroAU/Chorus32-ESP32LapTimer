@@ -3,6 +3,9 @@
 
 #include "HardwareConfig.h"
 
+#include <stdint.h>
+#include <esp_attr.h>
+
 void HandleSerialRead();
 void HandleServerUDP();
 void SendCurrRSSIloop();
