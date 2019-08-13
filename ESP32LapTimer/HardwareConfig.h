@@ -39,19 +39,4 @@
 
 #include "targets/target.h" // Needs to be at the bottom
 
-#if defined(BUTTON1) && defined(BUTTON2)
-#define USE_BUTTONS
-#endif
-
-// Define unconfigured pins
-#ifndef SCK
-#define SCK -1
-#endif
-#ifndef MOSI
-#define MOSI -1
-#endif
-#ifndef MISO
-#define MISO -1
-#endif
-
 void InitHardwarePins();
