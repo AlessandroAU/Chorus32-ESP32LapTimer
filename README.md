@@ -2,11 +2,11 @@
 
 This is an ESP32 port of the popular Chorus RF laptimer (https://github.com/voroshkov/Chorus-RF-Laptimer). Using an ESP32 provides much more processing power than AVR based Arduino boards and also has built in Wifi and Bluetooth networking simplifying connectivity options.
 
-Compared to the original ChorusRF Lamptimer this ESP32 version only requires one RX module per pilot and a single ESP32 (nodemcu or similar) board. This allows you to connect your Lap timer wirelessly with no extra hardware required. However, due to ADC constraints, we are limited to 6 pilots per device. 
+Compared to the original ChorusRF Lamptimer this ESP32 version only requires one RX module per pilot and a single ESP32 (nodemcu or similar) board. This allows you to connect your Lap timer wirelessly with no extra hardware required. However, due to ADC constraints, we are limited to 6 pilots per device.
 
-Hardware construction is also simplified as both parts are 3.3v logic and there is no need for level shifting or resistors.  
+Hardware construction is also simplified as both parts are 3.3v logic and there is no need for level shifting or resistors.
 
-[Click HERE for a video showing the full setup process to get Chorus32 running on your ESP32 using Arduino IDE.](https://www.youtube.com/watch?v=ip2HUVk_lMs). 
+[Click HERE for a video showing the full setup process to get Chorus32 running on your ESP32 using Arduino IDE.](https://www.youtube.com/watch?v=ip2HUVk_lMs).
 
 [Click Here for German version Part 1](https://www.youtube.com/watch?v=z8xTfuLECME) [Part 2](https://www.youtube.com/watch?v=7wl0CgA8YnM).
 
@@ -28,9 +28,9 @@ Application Support:
 -----
 Chorus32 communicates using the Chorus RF Laptimer API, which is supported by LiveTime.
 
-LiveTime is an incredibly powerful and feature-rich timing system which runs on Windows. It is, however, quite complex, and likely overkill for most users. 
+LiveTime is an incredibly powerful and feature-rich timing system which runs on Windows. It is, however, quite complex, and likely overkill for most users.
 
-More information can be found here: https://www.livetimescoring.com/ 
+More information can be found here: https://www.livetimescoring.com/
 
 If you are looking for a simpler setup, you can also use the Chorus RF Lap Timer app available for:
 
@@ -38,7 +38,7 @@ Android: https://play.google.com/store/apps/details?id=app.andrey_voroshkov.chor
 
 iOS: https://itunes.apple.com/us/app/chorus-rf-laptimer/id1296647206?mt=8
 
-Serial to UDP bridge. 
+Serial to UDP bridge.
 -----
 
 To use this wirelessly with livetime you must use a third party application to a bridge vitural serial port with the UDP connection to the timer. The native ethernet TCP mode does not work at the moment. You can use this free application https://www.netburner.com/download/virtual-comm-port-driver-windows-xp-10/?fbclid=IwAR2W9V_YzjuP5_u9U-nJx1x38beFWNR0eRI59QOyYO_-NSePmTnW14kk7yA
@@ -51,7 +51,7 @@ Hardware:
 -----
 Construction is easy and only requires some basic point to point wiring of each module to the ESP32 board.
 
-See HardwareConfig.h for pin assignments, it is possible to change any pin assignments apart from ADC channels. Note that pin assignments are GPIO hardware pin numbers and not pin numbers specific to the particular ESP32 development board you may be using. 
+See HardwareConfig.h for pin assignments, it is possible to change any pin assignments apart from ADC channels. Note that pin assignments are GPIO hardware pin numbers and not pin numbers specific to the particular ESP32 development board you may be using.
 
 PCB designs are currently being tested
 
@@ -100,7 +100,7 @@ To upload the files for the webpage you'll need to download https://github.com/m
 
 #### Libraries
 
-First head to "Sketch -> Include Library -> Manage Libraries" and search for "adafruit ina219" and "ssd1306 esp32" and install them both.
+First head to "Sketch -> Include Library -> Manage Libraries" and search for "adafruit ina219" and "ssd1306 esp32" and install them both. Now head to https://github.com/me-no-dev/ESPAsyncWebServer and https://github.com/me-no-dev/AsyncTCP and click on "Clone or download -> Download ZIP". In the Arduino IDE nagivate to "Sketch -> Include Library -> Add .ZIP Library" and add them both.
 
 #### Flashing
 Now hit the upload button (with an arrow to the right) to upload the code to the board. After that upload the webpage data by clicking on "Tools -> ESP32 Sketch Data Upload". This should be done on every update!
@@ -115,7 +115,7 @@ Depending on your operating system there is a folder named "arduino_build_\<some
   - Linux: /tmp
   - Windows: %AppData%
   - OSX: No idea, sorry
-  
+
 Inside that folder should be a file called "ESP32LapTimer.ino.bin", which can be uploaded in the web interface.
 
 
