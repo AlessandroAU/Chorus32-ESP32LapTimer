@@ -122,8 +122,8 @@ void EepromSettingsStruct::defaults() {
   // by setting everything to 0 we guarantee that every variable is initialized
   memset(&settings, 0, sizeof(EepromSettingsStruct));
   for(uint8_t i = 0; i < MaxNumReceivers; ++i){
-    settings.RxCalibrationMax[i] = 2700;
-    settings.RxCalibrationMin[i] = 800;
+    settings.RxCalibrationMax[i] = RSSI_ADC_READING_MAX;
+    settings.RxCalibrationMin[i] = RSSI_ADC_READING_MIN;
     settings.RSSIthresholds[i] = 2048;
     settings.RXBand[i] = 0;
     settings.RXChannel[i] = i % 8;
