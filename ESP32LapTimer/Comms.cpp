@@ -632,7 +632,6 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   ControlByte = controlData[2]; //This is dirty but we rewrite this byte....
 
   if (length > 4) { // set value commands  changed to n+1 ie, 3+1 = 4.
-
     switch (ControlByte) {
 
       case CONTROL_RACE_MODE:

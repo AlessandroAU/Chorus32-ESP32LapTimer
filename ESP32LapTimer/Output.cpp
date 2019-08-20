@@ -82,7 +82,16 @@ void init_outputs() {
 }
 
 void output_input_callback(uint8_t* buf, uint32_t size) {
-  uint8_t ControlPacket = buf[0];
-  uint8_t NodeAddr = buf[1];
-  handleSerialControlInput((char*)buf, ControlPacket, NodeAddr, size);
+  for(uint32_t i = 0; i < size; ++i) {
+    if(buf[i] == '\n') {
+      i += 1; // include \n
+      uint8_t ControlPacket = buf[0];
+      uint8_t NodeAddr = buf[1];
+      handleSerialControlInput((char*)buf, ControlPacket, NodeAddr, i);
+      // We move the buf pointer and adjust the size, so we can begin from i=0 again
+      buf = buf + i;
+      size -= i;
+      i = 0;
+    }
+  }
 }
