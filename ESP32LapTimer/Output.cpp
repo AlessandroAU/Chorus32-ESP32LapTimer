@@ -6,6 +6,9 @@
 #ifdef USE_BLUETOOTH
 #include "Bluetooth.h"
 #endif
+#ifdef USE_TCP
+#include "TCP.h"
+#endif
 
 #include <freertos/semphr.h>
 
@@ -25,6 +28,9 @@ static output_t outputs[] = {
 #ifdef USE_BLUETOOTH
   {NULL, bluetooth_init, bluetooth_send_packet, bluetooth_update, output_input_callback},
 #endif // USE_BLUETOOTH
+#ifdef USE_TCP
+  {NULL, tcp_init, tcp_send_packet, tcp_update, output_input_callback},
+#endif // USE_TCP
 };
 
 #define OUTPUT_SIZE (sizeof(outputs)/sizeof(outputs[0]))
