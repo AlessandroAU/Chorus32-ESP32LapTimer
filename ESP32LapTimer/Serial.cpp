@@ -5,39 +5,24 @@
 #include <Arduino.h>
 #include <stdint.h>
 
-static char rc;
-static char endMarker = '\n';
-static char SerialBuffIn[50];
-static uint8_t ndx = 0;
+#define SERIAL_INPUT_BUF 50
 
-void IRAM_ATTR ProcessSerialCommand(void* output, char * BuffIn, uint8_t StartIndex, uint8_t Length) {
-  uint8_t DatatoProcess[20];
-
-  memcpy(DatatoProcess, &BuffIn[+StartIndex], Length);
-  output_t* out = (output_t*)output;
-  out->handle_input_callback(DatatoProcess, Length);
-}
+static uint8_t SerialBuffIn[SERIAL_INPUT_BUF];
+static uint8_t current_pos = 0;
 
 void serial_update(void* output) {
-  while (Serial.available() > 0 ) {
-    rc = Serial.read();
-    SerialBuffIn[ndx] = rc;
-    ndx++;
-  }
-
-  for (int i = 0; i < ndx; i++) {
-    if (SerialBuffIn[i] == endMarker) {
-      for (int j = 0; j <= i; j++) {
-        ProcessSerialCommand(output, SerialBuffIn, 0, i + 1);
-        break;
-      }
-      memcpy(SerialBuffIn, &SerialBuffIn[i + 1], 50 - i);
-      for (int i = 0; i < 20; i++) {
-      if (SerialBuffIn[i] == 0)
-        ndx = i;
-        break;
-      }
-      return;
+  while (Serial.available() > 0) {
+    char rc = Serial.read();
+    SerialBuffIn[current_pos] = rc;
+    ++current_pos;
+    // Found packet, so handle it
+    if(rc == '\n') {
+      output_t* out = (output_t*)output;
+      out->handle_input_callback(SerialBuffIn, current_pos);
+      current_pos = 0;
+    } else if(current_pos >= SERIAL_INPUT_BUF) {
+      // we are overflowing, so we just discard the current buffer which should just be garbage
+      current_pos = 0;
     }
   }
 }
@@ -47,5 +32,6 @@ void serial_init(void* output) {
 }
 
 void serial_send_packet(void* output, uint8_t* buf, uint32_t size) {
+  (void) output;
   Serial.write(buf, size);
 }
