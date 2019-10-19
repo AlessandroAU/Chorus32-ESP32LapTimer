@@ -66,11 +66,38 @@ The Chorus32 Lap timer was compared to the $600USD ImmersionRC LapRF 8-Way at a 
 ![alt text](img/Comparison1.png)
 ![alt text](img/Comparison2.png)
 
-Compiling the Project:
------
-~~Due to the fact that both the Bluetooth and Wifi stack are used quite alot of program memory is required. To compile the project you must choose 'Partition Scheme' -> Minimal SPIFFS in the Arduino IDE. Board should be selected as 'ESP32 Dev Module' in most cases.~~
+## Compiling the Project:
 
-As we are not supoorting bluetooth for now and are using the SPIFFS partition leave the Partition Scheme as 'default'
+#### Add esp32 to the Arduino IDE
+
+Navigate to "File -> Preferences" and add "https://dl.espressif.com/dl/package_esp32_index.json" to "Additional Boards Manager URLs". If there is already an entry, just separate them with a ",".
+
+Now navigate to "Tools -> Board -> Boards Manager..." search for "esp32" and click install.
+
+#### Data Upload
+
+To upload the files for the webpage you'll need to download https://github.com/me-no-dev/arduino-esp32fs-plugin/releases/ and extract it in "<Your Arduino install folder>/tools/". So that you end up with a folder called "ESP32FS" which has a folder "tool" inside of it.
+
+#### Libraries
+
+First head to "Sketch -> Include Library -> Manage Libraries" and search for "adafruit ina219" and "ssd1306 esp32" and install them both.
+
+#### Flashing
+Now hit the upload button (with an arrow to the right) to upload the code to the board. After that upload the webpage data by clicking on "Tools -> ESP32 Sketch Data Upload". This should be done on every update!
+
+You can edit file "HardwareConfig.h" to specify your board type and for some advanced configuration.
+
+#### Updating
+
+For updates either follow the normal flashing procedure or use the web UI.
+To use the web UI updater open your Arduino IDE and click the verify button (the most left one).
+Depending on your operating system there is a folder named "arduino_build_\<some numbers\>" in:
+  - Linux: /tmp
+  - Windows: %AppData%
+  - OSX: No idea, sorry
+  
+Inside that folder should be a file called "ESP32LapTimer.ino.bin", which can be uploaded in the web interface.
+
 
 Library requirements:
 -----
