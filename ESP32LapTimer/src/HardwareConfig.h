@@ -8,11 +8,6 @@
 
 void InitHardwarePins();
 
-///Define Pin configuration here, these are the defaults as given on github
-
-#define BOARD BOARD_DEFAULT
-
-
 // DO NOT CHANGE BELOW UNLESS USING CUSTOM HARDWARE
 
 #define EEPROM_VERSION_NUMBER 7 // Increment when eeprom struct modified
