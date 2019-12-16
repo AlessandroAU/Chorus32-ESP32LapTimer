@@ -2,10 +2,6 @@
 #include <stdint.h>
 #include <Arduino.h>
 
-#define BOARD_DEFAULT 1
-#define BOARD_OLD 2
-#define BOARD_TTGO_LORA 3
-
 void InitHardwarePins();
 
 // DO NOT CHANGE BELOW UNLESS USING CUSTOM HARDWARE
