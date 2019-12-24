@@ -13,14 +13,14 @@
 #ifdef OLED
 #include "OLED.h"
 #endif
-#include "WebServer.h"
+#include "TimerWebServer.h"
 #include "Beeper.h"
 #include "Calibration.h"
 #include "Output.h"
 #ifdef USE_BUTTONS
 #include "Buttons.h"
 #endif
-#include "WebServer.h"
+#include "TimerWebServer.h"
 #include "Watchdog.h"
 #include "Utils.h"
 #include "Laptime.h"

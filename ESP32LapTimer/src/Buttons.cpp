@@ -7,7 +7,7 @@
 #include "OLED.h"
 #include "Calibration.h"
 #include "settings_eeprom.h"
-#include "WebServer.h"
+#include "TimerWebServer.h"
 
 #include <stdint.h>
 #include <Arduino.h>

@@ -9,7 +9,7 @@
 #include "settings_eeprom.h"
 #include "RX5808.h"
 #include "Calibration.h"
-#include "WebServer.h"
+#include "TimerWebServer.h"
 #include "Utils.h"
 
 static uint8_t oledRefreshTime = 50;

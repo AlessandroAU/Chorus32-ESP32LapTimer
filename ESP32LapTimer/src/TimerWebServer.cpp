@@ -1,4 +1,4 @@
-#include "WebServer.h"
+#include "TimerWebServer.h"
 
 #include "settings_eeprom.h"
 #include "ADC.h"
@@ -10,7 +10,7 @@
 //#include <WiFiClient.h>
 #include <FS.h>
 #include <WiFiUdp.h>
-#include "WebServer.h"
+#include "TimerWebServer.h"
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include "SPIFFS.h"
@@ -495,7 +495,7 @@ bool isAirplaneModeOn() {
 ///Below is code for ASYNC webserver which would be much faster, but it appears that at the moment it is not stable for ESP32 platforms.
 
 //#include <Arduino.h>
-//#include "WebServer.h"
+//#include "TimerWebServer.h"
 ////#include <Hash.h>
 ////#include <ESP8266WiFi.h>
 //#include <WiFi.h>

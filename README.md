@@ -66,7 +66,27 @@ The Chorus32 Lap timer was compared to the $600USD ImmersionRC LapRF 8-Way at a 
 ![alt text](img/Comparison1.png)
 ![alt text](img/Comparison2.png)
 
-## Compiling the Project:
+## Compiling the project using platformio
+
+## Installing
+ TODO
+
+## Compiling and uploading
+
+### IDE
+TODO
+
+### CLI
+To upload the code to your timer just run
+```
+pio run -e <your board> -t upload
+pio run -e <your board> -t uploadfs
+```
+Insert the board you are using, which is probably `BOARD_DEFAULT`. To list all valid targets just insert some random string as the board (sorry, I have no idea on how to list them properly).
+
+To update using the webpage, run the same commands (and ignore the errors about a failed connection). The path to the file you upload should now be `<project dir>/.pio/build/<BOARD NAME>/firmware.bin`.
+
+## Compiling the Project using the Arduino IDE (the old way):
 
 #### Add esp32 to the Arduino IDE
 
