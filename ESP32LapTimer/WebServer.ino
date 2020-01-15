@@ -98,6 +98,7 @@ void InitWifiAP() {
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
   //WiFi.setSleep(false);
   WiFi.softAP("Chorus32 LapTimer");
+  //WiFi.softAP("Chorus32 LapTimer", "DroneRace69");
 
 
   // if DNSServer is started with "*" for domain name, it will reply with
