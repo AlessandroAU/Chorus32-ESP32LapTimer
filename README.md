@@ -1,3 +1,7 @@
+# Changes:
+
+This fork adds an additional PCB option and assosiated software changes to Chorus32, check out the PCB folder [here](pcb/AaronSmith/PCB%20V2) for more hardware details.
+
 # Chorus32-ESP32Laptimer
 
 Based on the popular Chorus RF Laptimer, this ESP32 port provides many significant advantages. Not only does the ESP32 provide much more processing power than AVR based Arduino boards, but it also has built in Wifi and Bluetooth networking, which greatly improve connectivity options.
