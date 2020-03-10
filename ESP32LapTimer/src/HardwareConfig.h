@@ -9,7 +9,9 @@
 ///For jye's PCB v2.x the value doesn't need to be changed
 ///If you are using v1 of jye's PCB or used the wiring diagram you'll need to change this to "BOARD_OLD"
 ///To define your own custom board take a look at the "targets" directory
+#ifndef BOARD
 #define BOARD BOARD_DEFAULT
+#endif
 
 /// If your setup doesn't use an OLED remove or comment the following line
 #define OLED
