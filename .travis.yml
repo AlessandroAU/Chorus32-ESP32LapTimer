@@ -1,0 +1,22 @@
+language: python
+
+sudo: false
+cache:
+    directories:
+        - "~/.platformio"
+install:
+    - pip install -U platformio
+    - pio update
+script:
+    - pushd ESP32LapTimer && pio run && pio run -t buildfs && popd
+before_deploy:
+    - ./gather_releases.sh ./ESP32LapTimer/.pio/build /tmp/esp32timer_firmware firmware.bin
+    - ./gather_releases.sh ./ESP32LapTimer/.pio/build /tmp/esp32timer_firmware spiffs.bin
+deploy:
+    provider: releases
+    file_glob: true
+    api_key: $GH_TOKEN
+    file: /tmp/esp32timer_firmware/*
+    skip_cleanup: true
+    on:
+        tags: true
