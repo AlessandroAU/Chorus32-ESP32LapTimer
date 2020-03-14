@@ -22,6 +22,7 @@
 #include "Watchdog.h"
 #include "Utils.h"
 #include "Laptime.h"
+#include "Wireless.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
@@ -121,7 +122,8 @@ void loop() {
   sendNewLaps();
   update_outputs();
   SendCurrRSSIloop();
-  updateWifi();
+  handleDNSRequests();
+  handleNewHTTPClients();
 
   EepromSettings.save();
   beeperUpdate();
