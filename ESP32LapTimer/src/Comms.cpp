@@ -412,7 +412,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
 void SendNumberOfnodes() {
     addToSendQueue('N');
-    addToSendQueue(TO_HEX(MAX_NUM_PILOTS));
+    addToSendQueue(TO_HEX(getNumReceivers()));
     addToSendQueue('\n');
 }
 
