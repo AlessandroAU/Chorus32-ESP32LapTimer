@@ -6,13 +6,9 @@
 #include "Calibration.h"
 
 #include <esp_wifi.h>
-#include <DNSServer.h>
-//#include <WiFiClient.h>
 #include <FS.h>
-#include <WiFiUdp.h>
 #include "TimerWebServer.h"
 #include <WebServer.h>
-#include <ESPmDNS.h>
 #include "SPIFFS.h"
 #include <Update.h>
 
@@ -50,13 +46,6 @@ void HandleWebServer( void * parameter ) {
     vTaskDelay(50);
   }
 
-}
-
-void HandleDNSServer( void * parameter ) {
-  while (1) {
-    dnsServer.processNextRequest();
-    //vTaskDelay(100);
-  }
 }
 
 String getContentType(String filename) { // convert the file extension to the MIME type
@@ -395,27 +384,6 @@ void InitWebServer() {
   Serial.println("HTTP server started");
   client.setNoDelay(1);
   delay(1000);
-
-
-  /////////////////////////////////////Not Using FreeRTOS tasks at the moment/////////////////////
-  //  xTaskCreate(
-  //    HandleWebServer,          /* Task function. */
-  //    "HandleWebServer",        /* String with name of task. */
-  //    10000,            /* Stack size in bytes. */
-  //    NULL,             /* Parameter passed as input of the task */
-  //    2,                /* Priority of the task. */
-  //    NULL);            /* Task handle. */
-
-  //  xTaskCreate(
-  //    HandleDNSServer,          /* Task function. */
-  //    "HandleDNSServer",        /* String with name of task. */
-  //    4096,            /* Stack size in bytes. */
-  //    NULL,             /* Parameter passed as input of the task */
-  //    1,                /* Priority of the task. */
-  //    NULL);            /* Task handle. */
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 }
 
 void updateWifi() {

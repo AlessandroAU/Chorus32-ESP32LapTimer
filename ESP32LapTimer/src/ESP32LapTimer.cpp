@@ -1,6 +1,5 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
-#include <WiFiUdp.h>
 
 #include <esp_task_wdt.h>
 
@@ -20,16 +19,11 @@
 #ifdef USE_BUTTONS
 #include "Buttons.h"
 #endif
-#include "TimerWebServer.h"
 #include "Watchdog.h"
 #include "Utils.h"
 #include "Laptime.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
-
-//
-#define MAX_SRV_CLIENTS 5
-WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 static TaskHandle_t adc_task_handle = NULL;
 
