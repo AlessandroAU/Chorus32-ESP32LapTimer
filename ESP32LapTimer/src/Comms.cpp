@@ -410,12 +410,10 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
   addToSendQueue('\n');
 }
 
-void SendNumberOfnodes(byte NodeAddr) {
-  for (int i = NodeAddr + 1; i <= getNumReceivers() + NodeAddr; i++) {
+void SendNumberOfnodes() {
     addToSendQueue('N');
-    addToSendQueue(TO_HEX(i));
+    addToSendQueue(TO_HEX(MAX_NUM_PILOTS));
     addToSendQueue('\n');
-  }
 }
 
 void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
@@ -606,7 +604,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   //Serial.println(length);
 
   if (ControlByte == CONTROL_NUM_RECIEVERS) {
-    SendNumberOfnodes(NodeAddrByte);
+    SendNumberOfnodes();
   }
 
   if (controlData[2] == CONTROL_GET_TIME) {
