@@ -386,8 +386,7 @@ void InitWebServer() {
   delay(1000);
 }
 
-void updateWifi() {
-  dnsServer.processNextRequest();
+void handleNewHTTPClients() {
   webServer.handleClient();
 }
 
