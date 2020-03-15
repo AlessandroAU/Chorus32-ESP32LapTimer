@@ -5,6 +5,7 @@
 #include <Arduino.h>
 
 int SELECT_PINS[PP_NARG(CS_PINS)] = { CS_PINS };
+adc1_channel_t ANALOG_PINS[PP_NARG(ADC_PINS)] = { ADC_PINS };
 
 void InitHardwarePins() {
 

@@ -49,12 +49,9 @@ void ConfigureADC() {
 
   adc1_config_width(ADC_WIDTH_BIT_12);
 
-  adc1_config_channel_atten(ADC1, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC2, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC3, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC4, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC5, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC6, ADC_ATTEN_6db);
+  for(int i = 0; i < PP_NARG(ADC_PINS); i++) {
+    adc1_config_channel_atten(ANALOG_PINS[i], ADC_ATTEN_6db);
+  }
 
   //since the reference voltage can range from 1000mV to 1200mV we are using 1100mV as a default
   esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_6db, ADC_WIDTH_BIT_12, 1100, &adc_chars);
@@ -70,27 +67,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
   uint32_t now = micros();
   LastADCcall = now;
-  adc1_channel_t channel = ADC1;
-  switch (current_adc) {
-    case 0:
-      channel = ADC1;
-      break;
-    case 1:
-      channel = ADC2;
-      break;
-    case 2:
-      channel = ADC3;
-      break;
-    case 3:
-      channel = ADC4;
-      break;
-    case 4:
-      channel = ADC5;
-      break;
-    case 5:
-      channel = ADC6;
-      break;
-  }
+  adc1_channel_t channel = ANALOG_PINS[current_adc];
 
   if(LIKELY(isInRaceMode())) {
     ADCReadingsRAW[current_adc] = adc1_get_raw(channel);
@@ -179,11 +156,11 @@ float getVbatFloat(bool force_read){
   if((millis() - last_voltage_update) > VOLTAGE_UPDATE_INTERVAL_MS || force_read) {
     switch (getADCVBATmode()) {
       case ADC_CH5:
-        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC5), &adc_chars);
+        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ANALOG_PINS[4]), &adc_chars);
         setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
         break;
       case ADC_CH6:
-        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC6), &adc_chars);
+        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ANALOG_PINS[5]), &adc_chars);
         setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
         break;
       case INA219:

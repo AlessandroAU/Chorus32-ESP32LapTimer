@@ -44,6 +44,8 @@
 #define RSSI_ADC_READING_MIN 800
 
 #include "targets/target.h" // Needs to be at the bottom
+#include <driver/adc.h>
 
 void InitHardwarePins();
 extern int SELECT_PINS[PP_NARG(CS_PINS)];
+extern adc1_channel_t ANALOG_PINS[PP_NARG(ADC_PINS)];

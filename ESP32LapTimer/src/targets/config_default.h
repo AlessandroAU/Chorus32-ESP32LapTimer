@@ -6,13 +6,12 @@
 #define BUTTON2 T4 // 13
 
 #define CS_PINS 16, 5, 4, 15, 25, 26
-
-#define ADC1 ADC1_CHANNEL_0
-#define ADC2 ADC1_CHANNEL_3
-#define ADC3 ADC1_CHANNEL_6
-#define ADC4 ADC1_CHANNEL_7
-#define ADC5 ADC1_CHANNEL_4
-#define ADC6 ADC1_CHANNEL_5
+#define ADC_PINS ADC1_CHANNEL_0, \
+                 ADC1_CHANNEL_3, \
+                 ADC1_CHANNEL_6, \
+                 ADC1_CHANNEL_7, \
+                 ADC1_CHANNEL_4, \
+                 ADC1_CHANNEL_5
 
 #define ADC1_GPIO 36
 #define ADC2_GPIO 39
