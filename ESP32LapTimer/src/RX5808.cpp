@@ -20,8 +20,8 @@
 #include <SPI.h>
 #include <driver/timer.h>
 
-static volatile uint8_t RXBand[MaxNumReceivers];
-static volatile uint8_t RXChannel[MaxNumReceivers];
+static volatile uint8_t RXBand[MAX_NUM_RECEIVERS];
+static volatile uint8_t RXChannel[MAX_NUM_RECEIVERS];
 
 void InitSPI() {
   SPI.begin(VRX_SCK, VRX_MISO, VRX_MOSI);

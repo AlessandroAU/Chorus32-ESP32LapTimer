@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "HardwareConfig.h"
 #include "crc.h"
@@ -19,16 +19,16 @@ enum ADCVBATmode_ {OFF, ADC_CH5, ADC_CH6, INA219};
 
 struct EepromSettingsStruct {
   uint16_t eepromVersionNumber;
-  uint8_t RXBand[MaxNumReceivers];
-  uint8_t RXChannel[MaxNumReceivers];
-  uint16_t RXfrequencies[MaxNumReceivers];
-  int RSSIthresholds[MaxNumReceivers];
+  uint8_t RXBand[MAX_NUM_RECEIVERS];
+  uint8_t RXChannel[MAX_NUM_RECEIVERS];
+  uint16_t RXfrequencies[MAX_NUM_RECEIVERS];
+  int RSSIthresholds[MAX_NUM_RECEIVERS];
   RXADCfilter_ RXADCfilter;
   ADCVBATmode_ ADCVBATmode;
   float VBATcalibration;
   uint8_t NumReceivers;
-  uint16_t RxCalibrationMin[MaxNumReceivers];
-  uint16_t RxCalibrationMax[MaxNumReceivers];
+  uint16_t RxCalibrationMin[MAX_NUM_RECEIVERS];
+  uint16_t RxCalibrationMax[MAX_NUM_RECEIVERS];
   uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
   uint8_t WiFiChannel;
   uint32_t display_timeout_ms;

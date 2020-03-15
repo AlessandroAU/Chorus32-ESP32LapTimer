@@ -226,7 +226,7 @@ void ProcessGeneralSettingsUpdate() {
   String Rssi = webServer.arg("RSSIthreshold");
   int rssi = (byte)Rssi.toInt();
   int value = rssi * 12;
-  for (int i = 0 ; i < MaxNumReceivers; i++) {
+  for (int i = 0 ; i < MAX_NUM_RECEIVERS; i++) {
     EepromSettings.RSSIthresholds[i] = value;
     setRSSIThreshold(i, value);
   }
@@ -378,7 +378,7 @@ void InitWebServer() {
   webServer.on("/displaySettings", ProcessDisplaySettingsUpdate);
   webServer.on("/calibrateRSSI",calibrateRSSI);
   webServer.on("/eepromReset",eepromReset);
-  
+
   webServer.on("/WiFisettings", ProcessWifiSettings);
 
   webServer.on("/", HTTP_GET, []() {

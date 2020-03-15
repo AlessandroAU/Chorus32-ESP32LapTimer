@@ -22,10 +22,10 @@ static uint32_t LastADCcall;
 
 static esp_adc_cal_characteristics_t adc_chars;
 
-static int RSSIthresholds[MaxNumReceivers];
-static uint16_t ADCReadingsRAW[MaxNumReceivers];
+static int RSSIthresholds[MAX_NUM_RECEIVERS];
+static uint16_t ADCReadingsRAW[MAX_NUM_RECEIVERS];
 static unsigned int VbatReadingSmooth;
-static int ADCvalues[MaxNumReceivers];
+static int ADCvalues[MAX_NUM_RECEIVERS];
 static uint16_t adcLoopCounter = 0;
 
 static FilterBeLp2_10HZ Filter_10HZ[6] = {FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ()};
@@ -123,7 +123,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
   if (LIKELY(isInRaceMode() > 0)) {
     CheckRSSIthresholdExceeded(current_adc);
   }
-  current_adc = (current_adc + 1) % MaxNumReceivers;
+  current_adc = (current_adc + 1) % MAX_NUM_RECEIVERS;
 }
 
 
@@ -142,14 +142,14 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t node) {
 }
 
 uint16_t getRSSI(uint8_t index) {
-  if(index < MaxNumReceivers) {
+  if(index < MAX_NUM_RECEIVERS) {
     return ADCvalues[index];
   }
   return 0;
 }
 
 void setRSSIThreshold(uint8_t node, uint16_t threshold) {
-  if(node < MaxNumReceivers) {
+  if(node < MAX_NUM_RECEIVERS) {
     RSSIthresholds[node] = threshold;
   }
 }
