@@ -4,6 +4,7 @@
 #include "ADC.h"
 #include "RX5808.h"
 #include "Calibration.h"
+#include "Wireless.h"
 
 #include <esp_wifi.h>
 #include <FS.h>
