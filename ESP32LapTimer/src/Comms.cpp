@@ -118,7 +118,7 @@ static uint16_t rssiMonitorInterval = 0; // zero means the RSSI monitor is OFF
 #define MAX_MIN_LAP_TIME 120 //seconds
 
 //----- Time Adjustment (for accuracy) ------------
-#define INFINITE_TIME_ADJUSTMENT 0x7FFFFFFFF // max positive 32 bit signed number
+#define INFINITE_TIME_ADJUSTMENT 0x7FFFFFFF // max positive 32 bit signed number
 // Usage of signed int time adjustment constant inside this firmware:
 // * calibratedMs = readMs + readMs/timeAdjustment
 // Usage of signed int time adjustment constant from outside:
