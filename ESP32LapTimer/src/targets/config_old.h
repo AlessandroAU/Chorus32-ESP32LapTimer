@@ -8,12 +8,8 @@
 #define VRX_SCK 14
 #define VRX_MOSI 12
 
-#define CS1 16
-#define CS2 5
-#define CS3 4
-#define CS4 15
-#define CS5 25
-#define CS6 26
+#define NUM_RECEIVERS 6
+#define CS_PINs 16, 5, 4, 15, 25, 26
 
 #define ADC1 ADC1_CHANNEL_0
 #define ADC2 ADC1_CHANNEL_6

@@ -41,26 +41,7 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
 }
 
 void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
-  switch (node) {
-    case 0:
-      rxWrite(addressBits, dataBits, CS1);
-      break;
-    case 1:
-      rxWrite(addressBits, dataBits, CS2);
-      break;
-    case 2:
-      rxWrite(addressBits, dataBits, CS3);
-      break;
-    case 3:
-      rxWrite(addressBits, dataBits, CS4);
-      break;
-    case 4:
-      rxWrite(addressBits, dataBits, CS5);
-      break;
-    case 5:
-      rxWrite(addressBits, dataBits, CS6);
-      break;
-  }
+  rxWrite(addressBits, dataBits, SELECT_PINS[node]);
 }
 
 
@@ -68,22 +49,19 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
 
   uint32_t data = addressBits | (1 << 4) | (dataBits << 5);
   SPI.beginTransaction(SPISettings(1000000, LSBFIRST, SPI_MODE0));
-  digitalWrite(CS1, LOW);
-  digitalWrite(CS2, LOW);
-  digitalWrite(CS3, LOW);
-  digitalWrite(CS4, LOW);
-  digitalWrite(CS5, LOW);
-  digitalWrite(CS6, LOW);
+
+  for(int i = 0; i < NUM_RECEIVERS; i++) {
+    digitalWrite(SELECT_PINS[i], LOW);
+  }
 
   SPI.transferBits(data, NULL, 25);
 
   delayMicroseconds(MIN_TUNE_TIME);
-  digitalWrite(CS1, HIGH);
-  digitalWrite(CS2, HIGH);
-  digitalWrite(CS3, HIGH);
-  digitalWrite(CS4, HIGH);
-  digitalWrite(CS5, HIGH);
-  digitalWrite(CS6, HIGH);
+
+  for(int i = 0; i < NUM_RECEIVERS; i++) {
+    digitalWrite(SELECT_PINS[i], HIGH);
+  }
+
   SPI.endTransaction();
 
 }
@@ -184,7 +162,7 @@ uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
   Serial.print(channel);
   Serial.print(",");
   Serial.println(band);
-  
+
   uint8_t index = channel + (8 * band);
   Serial.println(index);
   uint16_t frequency = channelFreqTable[index];

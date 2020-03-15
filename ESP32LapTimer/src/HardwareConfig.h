@@ -44,3 +44,4 @@
 #include "targets/target.h" // Needs to be at the bottom
 
 void InitHardwarePins();
+extern int SELECT_PINS[NUM_RECEIVERS];
