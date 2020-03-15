@@ -7,6 +7,8 @@
 #define BUTTON1 13
 #define BUTTON2 12
 
+// Ordering of pins is important.
+// E.g the first cs pin should match the first adc pin.
 #define CS_PINS 16, 5, 4, 15, 25, 26
 #define ADC_PINS ADC1_CHANNEL_0, \
                  ADC1_CHANNEL_3, \
