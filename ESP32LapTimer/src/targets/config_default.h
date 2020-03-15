@@ -5,7 +5,6 @@
 #define BUTTON1 T7 // 27
 #define BUTTON2 T4 // 13
 
-#define NUM_RECEIVERS 6
 #define CS_PINS 16, 5, 4, 15, 25, 26
 
 #define ADC1 ADC1_CHANNEL_0

@@ -13,6 +13,7 @@
 
 #include "HardwareConfig.h"
 #include "settings_eeprom.h"
+#include "pp_helpers.h"
 
 #include <Arduino.h>
 #include <stdint.h>
@@ -50,7 +51,7 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
   uint32_t data = addressBits | (1 << 4) | (dataBits << 5);
   SPI.beginTransaction(SPISettings(1000000, LSBFIRST, SPI_MODE0));
 
-  for(int i = 0; i < NUM_RECEIVERS; i++) {
+  for(int i = 0; i < PP_NARG(CS_PINS); i++) {
     digitalWrite(SELECT_PINS[i], LOW);
   }
 
@@ -58,7 +59,7 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
 
   delayMicroseconds(MIN_TUNE_TIME);
 
-  for(int i = 0; i < NUM_RECEIVERS; i++) {
+  for(int i = 0; i < PP_NARG(CS_PINS); i++) {
     digitalWrite(SELECT_PINS[i], HIGH);
   }
 

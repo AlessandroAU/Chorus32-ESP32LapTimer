@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pp_helpers.h"
+
 /// These are all the available targets
 #define BOARD_DEFAULT 1
 #define BOARD_OLD 2
@@ -44,4 +46,4 @@
 #include "targets/target.h" // Needs to be at the bottom
 
 void InitHardwarePins();
-extern int SELECT_PINS[NUM_RECEIVERS];
+extern int SELECT_PINS[PP_NARG(CS_PINS)];
