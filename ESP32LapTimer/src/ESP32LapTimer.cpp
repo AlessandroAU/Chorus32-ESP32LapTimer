@@ -32,7 +32,7 @@
 #error "Too many CS_PINS defined (cannot exceed 6)"
 #endif
 #if PP_NARG(ADC_PINS) > MAX_NUM_RECEIVERS
-#error "Too many ADC_PINS defined (cannot excced 6"
+#error "Too many ADC_PINS defined (cannot excced 6)"
 #endif
 
 //
