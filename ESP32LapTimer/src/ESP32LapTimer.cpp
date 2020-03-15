@@ -24,8 +24,16 @@
 #include "Watchdog.h"
 #include "Utils.h"
 #include "Laptime.h"
+#include "pp_helpers.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
+
+#if PP_NARG(CS_PINS) > MAX_NUM_RECEIVERS
+#error "Too many CS_PINS defined (cannot exceed 6)"
+#endif
+#if PP_NARG(ADC_PINS) > MAX_NUM_RECEIVERS
+#error "Too many ADC_PINS defined (cannot excced 6"
+#endif
 
 //
 #define MAX_SRV_CLIENTS 5
