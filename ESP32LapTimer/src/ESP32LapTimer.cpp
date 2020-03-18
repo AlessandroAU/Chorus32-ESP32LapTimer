@@ -69,7 +69,17 @@ void setup() {
   //PowerDownAll(); // Powers down all RX5808's
   delay(250);
 
+#if defined(WIFI_MODE_AP)
   InitWifiAP();
+#elif defined(WIFI_MODE_CLIENT)
+  if(!InitWifiClient()) {
+    Serial.println("Failed to connect to WiFi Network");
+    Serial.println("Starting up in AP mode instead!");
+    InitWifiAP();
+  }
+#else
+#error "No WIFI_MODE selected"
+#endif
 
   InitWebServer();
 
@@ -122,7 +132,11 @@ void loop() {
   sendNewLaps();
   update_outputs();
   SendCurrRSSIloop();
+
+#ifdef WIFI_MODE_AP
   handleDNSRequests();
+#endif
+
   handleNewHTTPClients();
 
   EepromSettings.save();
