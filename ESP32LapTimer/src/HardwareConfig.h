@@ -19,15 +19,16 @@
 // Selects the wifi mode to operate in.
 // One of these must be uncommented.
 //
-// For now the AP name needs to be defined regardless of wifi mode.
 #define WIFI_MODE_ACESSPOINT
+// For now the AP name needs to be defined regardless of mode.
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 
 // When in client mode you also need to specify the
 // ssid and password.
 //#define WIFI_MODE_CLIENT
-//#define WIFI_SSID "testnetwork"
-//#define WIFI_PASSWORD "testpassword"
+// For now the ssid and password needs to be defined regardless of mode
+#define WIFI_SSID "testnetwork"
+#define WIFI_PASSWORD "testpassword"
 
 /// Enables Bluetooth support. Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
 //#define USE_BLUETOOTH
