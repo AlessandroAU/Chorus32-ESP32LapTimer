@@ -13,3 +13,4 @@ void airplaneModeOn();
 void airplaneModeOff();
 void toggleAirplaneMode();
 bool isAirplaneModeOn();
+bool InitWifiClient();

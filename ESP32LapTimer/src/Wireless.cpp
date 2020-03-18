@@ -6,11 +6,14 @@
 
 #include "TimerWebServer.h"
 #include "settings_eeprom.h"
+#include "targets/target.h"
 
 static const byte DNS_PORT = 53;
 static IPAddress apIP(192, 168, 4, 1);
 static DNSServer dnsServer;
 static bool airplaneMode = false;
+static uint32_t delayTime = 500; // milliseconds
+static uint32_t maxConnectionTime = 60000; // 2 minutes
 
 void InitWifiAP() {
   Serial.println("off");
@@ -34,6 +37,39 @@ void InitWifiAP() {
   dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
   dnsServer.start(DNS_PORT, "*", apIP);
   Serial.println("on");
+}
+
+bool InitWifiClient() {
+  uint32_t timeWaited = 0;
+
+  Serial.printf("Connecting to: %s", WIFI_SSID);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  while(WiFi.status() != WL_CONNECTED) {
+    if(timeWaited >= maxConnectionTime) {
+      Serial.printf("\nConnection timeout");
+      return false;
+    }
+
+    delay(delayTime);
+    timeWaited = timeWaited + delayTime;
+    Serial.print(".");
+  }
+
+  Serial.printf("\n");
+  Serial.println("WiFi connected");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  if(!MDNS.begin("chorus32")) {
+    Serial.print("Error settings up mDNS responder");
+  } else {
+    Serial.println("mDNS responder started");
+  }
+
+  MDNS.addService("http", "tcp", 80);
+
+  return true;
 }
 
 void handleDNSRequests() {
