@@ -19,8 +19,8 @@
 // Selects the wifi mode to operate in.
 // One of these must be uncommented.
 //
-#define WIFI_MODE_AP
 // For now the AP name needs to be defined regardless of wifi mode.
+#define WIFI_MODE_ACESSPOINT
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 
 // When in client mode you also need to specify the

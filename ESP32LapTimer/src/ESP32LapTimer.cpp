@@ -69,7 +69,7 @@ void setup() {
   //PowerDownAll(); // Powers down all RX5808's
   delay(250);
 
-#if defined(WIFI_MODE_AP)
+#if defined(WIFI_MODE_ACESSPOINT)
   InitWifiAP();
 #elif defined(WIFI_MODE_CLIENT)
   if(!InitWifiClient()) {
