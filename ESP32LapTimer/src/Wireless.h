@@ -2,7 +2,6 @@
 #include <WiFi.h>
 #include <DNSServer.h>
 
-extern byte DNS_PORT;
 extern IPAddress apIP;
 extern DNSServer dnsServer;
 

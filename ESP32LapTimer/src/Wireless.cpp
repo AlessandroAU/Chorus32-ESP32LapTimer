@@ -8,7 +8,7 @@
 #include "settings_eeprom.h"
 #include "targets/target.h"
 
-static const byte DNS_PORT = 53;
+static const uint16_t DNS_PORT = 53;
 static IPAddress apIP(192, 168, 4, 1);
 static DNSServer dnsServer;
 static bool airplaneMode = false;
