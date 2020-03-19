@@ -16,7 +16,6 @@ static uint32_t delayTime = 500; // milliseconds
 static uint32_t maxConnectionTime = 60000; // 2 minutes
 
 void InitWifiAP() {
-  Serial.println("off");
   WiFi.begin();
   delay( 500 ); // If not used, somethimes following command fails
   WiFi.mode( WIFI_AP );
@@ -27,46 +26,44 @@ void InitWifiAP() {
   if(channel < 1 || channel > 13) {
     channel = 1;
   }
-  Serial.print("Starting wifi \"" WIFI_AP_NAME "\" on channel ");
-  Serial.print(channel);
-  Serial.print(" and mode ");
-  Serial.println(protocol ? "bgn" : "b");
+  log_i("Starting wifi \"" WIFI_AP_NAME "\" on channel ");
+  log_i("%s", channel);
+  log_i(" and mode ");
+  log_i("%s", protocol ? "bgn" : "b");
   WiFi.softAP(WIFI_AP_NAME, NULL, channel);
   // if DNSServer is started with "*" for domain name, it will reply with
   // provided IP to all DNS request
   dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
   dnsServer.start(DNS_PORT, "*", apIP);
-  Serial.println("on");
 }
 
 bool InitWifiClient() {
   uint32_t timeWaited = 0;
 
-  Serial.printf("Connecting to: %s", WIFI_SSID);
+  log_i("Connecting to: %s", WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
   while(WiFi.status() != WL_CONNECTED) {
     if(timeWaited >= maxConnectionTime) {
-      Serial.printf("\nConnection timeout");
+      log_e("Connection timeout");
       return false;
     }
 
     delay(delayTime);
     timeWaited = timeWaited + delayTime;
-    Serial.print(".");
   }
 
-  Serial.printf("\n");
-  Serial.println("WiFi connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  log_i("WiFi connected");
+  log_i("IP address: %s", WiFi.localIP().toString().c_str());
 
   if(!MDNS.begin("chorus32")) {
-    Serial.print("Error settings up mDNS responder");
-  } else {
-    Serial.println("mDNS responder started");
+    log_e("Error settings up mDNS responder");
+    while(1) {
+      delay(1000);
+    }
   }
 
+  log_i("mDNS responder started");
   MDNS.addService("http", "tcp", 80);
 
   return true;
@@ -78,14 +75,14 @@ void handleDNSRequests() {
 
 void airplaneModeOn() {
   // Enable Airplane Mode (WiFi Off)
-  Serial.println("Airplane Mode On");
+  log_i("Airplane Mode On");
   WiFi.mode(WIFI_OFF);
   airplaneMode = true;
 }
 
 void airplaneModeOff() {
   // Disable Airplane Mode (WiFi On)
-  Serial.println("Airplane Mode OFF");
+  log_i("Airplane Mode OFF");
   InitWifiAP();
   InitWebServer();
   airplaneMode = false;
