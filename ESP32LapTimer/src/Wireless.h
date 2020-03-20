@@ -1,9 +1,5 @@
-#include <Arduino.h>
-#include <WiFi.h>
-#include <DNSServer.h>
-
-extern IPAddress apIP;
-extern DNSServer dnsServer;
+#ifndef __WIRELESS_H__
+#define __WIRELESS_H__
 
 void InitWifiAP();
 void handleDNSRequests();
@@ -13,3 +9,5 @@ void airplaneModeOff();
 void toggleAirplaneMode();
 bool isAirplaneModeOn();
 bool InitWifiClient();
+
+#endif // __WIRELESS_H__
