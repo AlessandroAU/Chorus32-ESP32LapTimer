@@ -115,6 +115,13 @@ void setup() {
 }
 
 void loop() {
+  #ifdef WIFI_MODE_CLIENT
+    if(WiFi.status() != WL_CONNECTED) {
+      log_i("WiFi connection lost, rebooting...");
+      ESP.restart();
+    }
+  #endif
+
   rssiCalibrationUpdate();
   // touchMonitor(); // A function to monitor capacitive touch values, defined in buttons.ino
 
