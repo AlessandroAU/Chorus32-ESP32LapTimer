@@ -64,7 +64,6 @@ bool InitWifiClient() {
   }
 
   log_i("mDNS responder started");
-  MDNS.addService("http", "tcp", 80);
 
   return true;
 }
