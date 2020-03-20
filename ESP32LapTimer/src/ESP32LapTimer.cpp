@@ -76,6 +76,14 @@ void setup() {
     Serial.println("Failed to connect to WiFi Network");
     Serial.println("Starting up in AP mode instead!");
     InitWifiAP();
+  } else {
+    WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
+      log_i("WiFi network disconnected, retrying...");
+       WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+       while(WiFi.status() != WL_CONNECTED) {
+         delay(100);
+       }
+    }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
   }
 #else
 #error "No WIFI_MODE selected"
