@@ -80,7 +80,6 @@ void setup() {
     WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
       log_i("WiFi network disconnected, retrying...");
       WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-      delay(500);
     }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
   }
 #else
