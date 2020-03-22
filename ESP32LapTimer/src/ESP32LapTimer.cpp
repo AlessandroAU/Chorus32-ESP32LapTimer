@@ -82,8 +82,6 @@ void setup() {
       WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
   }
-#else
-#error "No WIFI_MODE selected"
 #endif
 
   InitWebServer();
