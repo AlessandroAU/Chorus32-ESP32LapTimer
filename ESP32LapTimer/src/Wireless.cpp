@@ -26,10 +26,7 @@ void InitWifiAP() {
   if(channel < 1 || channel > 13) {
     channel = 1;
   }
-  log_i("Starting wifi \"" WIFI_AP_NAME "\" on channel ");
-  log_i("%s", channel);
-  log_i(" and mode ");
-  log_i("%s", protocol ? "bgn" : "b");
+  log_i("Starting wifi %s on channel %i in mode %s", WIFI_AP_NAME, channel, protocol ? "bgn" : "b");
   WiFi.softAP(WIFI_AP_NAME, NULL, channel);
   // if DNSServer is started with "*" for domain name, it will reply with
   // provided IP to all DNS request
