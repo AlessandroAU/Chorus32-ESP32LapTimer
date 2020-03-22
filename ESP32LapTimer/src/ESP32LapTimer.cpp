@@ -73,8 +73,8 @@ void setup() {
   InitWifiAP();
 #elif defined(WIFI_MODE_CLIENT)
   if(!InitWifiClient()) {
-    Serial.println("Failed to connect to WiFi Network");
-    Serial.println("Starting up in AP mode instead!");
+    log_i("Failed to connect to WiFi Network");
+    log_i("Starting up in AP mode instead!");
     InitWifiAP();
   } else {
     WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
