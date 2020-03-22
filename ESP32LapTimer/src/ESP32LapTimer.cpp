@@ -84,6 +84,8 @@ void setup() {
   }
 #endif
 
+  WiFi.setHostname("chorus32");
+
   InitWebServer();
 
   if (!EepromSettings.SanityCheck()) {
