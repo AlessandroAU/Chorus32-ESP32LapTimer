@@ -1,10 +1,8 @@
 #pragma once
 
-void InitWifiAP();
 void InitWebServer();
 
-void updateWifi();
-
+void handleNewHTTPClients();
 bool isAirplaneModeOn();
 void toggleAirplaneMode();
 void airplaneModeOff();

@@ -22,3 +22,7 @@
 #ifndef VRX_MISO
 #define VRX_MISO -1
 #endif
+
+#if !defined(WIFI_MODE_CLIENT) && !defined(WIFI_MODE_ACCESSPOINT)
+  #error "No WIFI_MODE selected"
+#endif

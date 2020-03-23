@@ -16,12 +16,24 @@
 /// If your setup doesn't use an OLED remove or comment the following line
 #define OLED
 
-///  Sets the WiFi acces point name
+// Selects the wifi mode to operate in.
+// One of these must be uncommented.
+//
+#define WIFI_MODE_ACCESSPOINT
+// For now the AP name needs to be defined regardless of mode.
 #define WIFI_AP_NAME "Chorus32 LapTimer"
-#define BLUETOOTH_NAME WIFI_AP_NAME
+
+// When in client mode you also need to specify the
+// ssid and password.
+//#define WIFI_MODE_CLIENT
+// For now the ssid and password needs to be defined regardless of mode
+#define WIFI_SSID "testnetwork"
+#define WIFI_PASSWORD "testpassword"
 
 /// Enables Bluetooth support. Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
 //#define USE_BLUETOOTH
+// For now the bluetooth name needs to be defined regardless of if it's enabled or not
+#define BLUETOOTH_NAME WIFI_AP_NAME
 /// Outputs all messages on the serial port. Used to use Livetime via USB
 #define USE_SERIAL_OUTPUT
 

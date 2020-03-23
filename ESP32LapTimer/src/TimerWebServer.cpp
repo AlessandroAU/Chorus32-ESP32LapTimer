@@ -4,21 +4,15 @@
 #include "ADC.h"
 #include "RX5808.h"
 #include "Calibration.h"
+#include "Wireless.h"
 
 #include <esp_wifi.h>
-#include <DNSServer.h>
-//#include <WiFiClient.h>
 #include <FS.h>
-#include <WiFiUdp.h>
 #include "TimerWebServer.h"
 #include <WebServer.h>
-#include <ESPmDNS.h>
 #include "SPIFFS.h"
 #include <Update.h>
 
-static const byte DNS_PORT = 53;
-static IPAddress apIP(192, 168, 4, 1);
-static DNSServer dnsServer;
 static WebServer  webServer(80);
 static WiFiClient client = webServer.client();
 
@@ -31,10 +25,6 @@ static bool firstRedirect = true;
 static bool HasSPIFFsBegun = false;
 
 static bool HTTPupdating = false;
-static bool airplaneMode = false;
-
-void airplaneModeOn();
-void airplaneModeOff();
 
 String getMacAddress() {
   byte mac[6];
@@ -57,13 +47,6 @@ void HandleWebServer( void * parameter ) {
     vTaskDelay(50);
   }
 
-}
-
-void HandleDNSServer( void * parameter ) {
-  while (1) {
-    dnsServer.processNextRequest();
-    //vTaskDelay(100);
-  }
 }
 
 String getContentType(String filename) { // convert the file extension to the MIME type
@@ -103,36 +86,6 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
   HTTPupdating = false;
   //Serial.println("on");
   return false;                                         // If the file doesn't exist, return false
-}
-
-void InitWifiAP() {
-  HTTPupdating = true;
-  Serial.println("off");
-  //esp_wifi_set_protocol(ifx, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N | WIFI_PROTOCOL_LR)
-  // WiFi.mode(WIFI_AP);
-  WiFi.begin();
-  delay( 500 ); // If not used, somethimes following command fails
-  WiFi.mode( WIFI_AP );
-  uint8_t protocol = getWiFiProtocol() ? (WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G | WIFI_PROTOCOL_11N) : (WIFI_PROTOCOL_11B);
-  ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_AP, protocol));
-  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  //WiFi.setSleep(false);
-  uint8_t channel = getWiFiChannel();
-  if(channel < 1 || channel > 13) {
-    channel = 1;
-  }
-  Serial.print("Starting wifi \"" WIFI_AP_NAME "\" on channel ");
-  Serial.print(channel);
-  Serial.print(" and mode ");
-  Serial.println(protocol ? "bgn" : "b");
-  WiFi.softAP(WIFI_AP_NAME, NULL, channel);
-  // if DNSServer is started with "*" for domain name, it will reply with
-  // provided IP to all DNS request
-  dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
-  dnsServer.start(DNS_PORT, "*", apIP);
-  HTTPupdating = false;
-  Serial.println("on");
-
 }
 
 void updateRx (int band, int channel, int rx) {
@@ -378,7 +331,7 @@ void InitWebServer() {
   webServer.on("/displaySettings", ProcessDisplaySettingsUpdate);
   webServer.on("/calibrateRSSI",calibrateRSSI);
   webServer.on("/eepromReset",eepromReset);
-  
+
   webServer.on("/WiFisettings", ProcessWifiSettings);
 
   webServer.on("/", HTTP_GET, []() {
@@ -432,63 +385,11 @@ void InitWebServer() {
   Serial.println("HTTP server started");
   client.setNoDelay(1);
   delay(1000);
-
-
-  /////////////////////////////////////Not Using FreeRTOS tasks at the moment/////////////////////
-  //  xTaskCreate(
-  //    HandleWebServer,          /* Task function. */
-  //    "HandleWebServer",        /* String with name of task. */
-  //    10000,            /* Stack size in bytes. */
-  //    NULL,             /* Parameter passed as input of the task */
-  //    2,                /* Priority of the task. */
-  //    NULL);            /* Task handle. */
-
-  //  xTaskCreate(
-  //    HandleDNSServer,          /* Task function. */
-  //    "HandleDNSServer",        /* String with name of task. */
-  //    4096,            /* Stack size in bytes. */
-  //    NULL,             /* Parameter passed as input of the task */
-  //    1,                /* Priority of the task. */
-  //    NULL);            /* Task handle. */
-  ////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 }
 
-void updateWifi() {
-  dnsServer.processNextRequest();
+void handleNewHTTPClients() {
   webServer.handleClient();
 }
-
-void airplaneModeOn() {
-  // Enable Airplane Mode (WiFi Off)
-  Serial.println("Airplane Mode On");
-  WiFi.mode(WIFI_OFF);
-  airplaneMode = true;
-}
-
-void airplaneModeOff() {
-  // Disable Airplane Mode (WiFi On)
-  Serial.println("Airplane Mode OFF");
-  InitWifiAP();
-  InitWebServer();
-  airplaneMode = false;
-}
-
-// Toggle Airplane mode on and off based on current state
-void toggleAirplaneMode() {
-  if (!airplaneMode) {
-    airplaneModeOn();
-  } else {
-    airplaneModeOff();
-  }
-}
-
-bool isAirplaneModeOn() {
-  return airplaneMode;
-}
-
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

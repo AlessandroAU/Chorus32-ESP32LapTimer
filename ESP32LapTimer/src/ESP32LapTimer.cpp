@@ -1,6 +1,5 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
-#include <WiFiUdp.h>
 
 #include <esp_task_wdt.h>
 
@@ -20,16 +19,12 @@
 #ifdef USE_BUTTONS
 #include "Buttons.h"
 #endif
-#include "TimerWebServer.h"
 #include "Watchdog.h"
 #include "Utils.h"
 #include "Laptime.h"
+#include "Wireless.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
-
-//
-#define MAX_SRV_CLIENTS 5
-WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 static TaskHandle_t adc_task_handle = NULL;
 
@@ -50,7 +45,6 @@ void IRAM_ATTR adc_task(void* args) {
     watchdog_feed();
   }
 }
-
 
 void setup() {
 
@@ -74,7 +68,7 @@ void setup() {
   //PowerDownAll(); // Powers down all RX5808's
   delay(250);
 
-  InitWifiAP();
+  InitWifi();
 
   InitWebServer();
 
@@ -127,7 +121,12 @@ void loop() {
   sendNewLaps();
   update_outputs();
   SendCurrRSSIloop();
-  updateWifi();
+
+#ifdef WIFI_MODE_ACCESSPOINT
+  handleDNSRequests();
+#endif
+
+  handleNewHTTPClients();
 
   EepromSettings.save();
   beeperUpdate();
