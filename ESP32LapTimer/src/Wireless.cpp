@@ -15,6 +15,24 @@ static bool airplaneMode = false;
 static uint32_t delayTime = 500; // milliseconds
 static uint32_t maxConnectionTime = 60000; // 2 minutes
 
+void WiFiEvent(WiFiEvent_t event) {
+  switch(event) {
+    case SYSTEM_EVENT_AP_START:
+      log_i("Setting system hostname");
+      WiFi.softAPsetHostname("chorus32");
+      break;
+    case SYSTEM_EVENT_STA_START:
+      log_i("Setting system hostname");
+      WiFi.setHostname("chorus32");
+      break;
+    case SYSTEM_EVENT_STA_DISCONNECTED:
+      log_i("WiFi network disconnected, retrying...");
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    default:
+      break;
+  }
+}
+
 void InitWifiAP() {
   WiFi.begin();
   delay( 500 ); // If not used, somethimes following command fails
@@ -65,6 +83,20 @@ bool InitWifiClient() {
   log_i("mDNS responder started");
 
   return true;
+}
+
+void InitWifi() {
+  WiFi.onEvent(WiFiEvent);
+
+  #if defined(WIFI_MODE_ACCESSPOINT)
+    InitWifiAP();
+  #elif defined(WIFI_MODE_CLIENT)
+    if(!InitWifiClient()) {
+      log_i("Failed to connect to WiFi Network");
+      log_i("Starting up in AP mode instead!");
+      InitWifiAP();
+    }
+  #endif
 }
 
 void handleDNSRequests() {
