@@ -53,7 +53,7 @@ void WiFiEvent(WiFiEvent_t event) {
       WiFi.softAPsetHostname("chorus32");
       break;
     case SYSTEM_EVENT_STA_START:
-      log_i("Setting systemhostname");
+      log_i("Setting system hostname");
       WiFi.setHostname("chorus32");
       break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
