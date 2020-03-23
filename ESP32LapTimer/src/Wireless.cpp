@@ -15,7 +15,7 @@ static bool airplaneMode = false;
 static uint32_t delayTime = 500; // milliseconds
 static uint32_t maxConnectionTime = 60000; // 2 minutes
 
-void WiFiEvent(WiFiEvent_t event) {
+static void WiFiEvent(WiFiEvent_t event) {
   switch(event) {
     case SYSTEM_EVENT_AP_START:
       log_i("Setting system hostname");
