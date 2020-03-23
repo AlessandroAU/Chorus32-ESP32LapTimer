@@ -7,9 +7,9 @@
 #include "settings_eeprom.h"
 #include "Comms.h"
 
-static volatile uint32_t LapTimes[MaxNumReceivers][MAX_LAPS_NUM];
-static volatile int lap_counter[MaxNumReceivers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
-static int last_lap_sent[MaxNumReceivers];
+static volatile uint32_t LapTimes[MAX_NUM_RECEIVERS][MAX_LAPS_NUM];
+static volatile int lap_counter[MAX_NUM_RECEIVERS] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
+static int last_lap_sent[MAX_NUM_RECEIVERS];
 
 static uint32_t MinLapTime = 5000;  //this is in millis
 static uint32_t start_time = 0;
