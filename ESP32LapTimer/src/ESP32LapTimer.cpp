@@ -46,6 +46,24 @@ void IRAM_ATTR adc_task(void* args) {
   }
 }
 
+void WiFiEvent(WiFiEvent_t event) {
+  switch(event) {
+    case SYSTEM_EVENT_AP_START:
+      log_i("Setting system hostname");
+      WiFi.softAPsetHostname("chorus32");
+      break;
+    case SYSTEM_EVENT_STA_START:
+      log_i("Setting systemhostname");
+      WiFi.setHostname("chorus32");
+      break;
+    case SYSTEM_EVENT_STA_DISCONNECTED:
+      log_i("WiFi network disconnected, retrying...");
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    default:
+      break;
+  }
+}
+
 
 void setup() {
 
@@ -69,6 +87,8 @@ void setup() {
   //PowerDownAll(); // Powers down all RX5808's
   delay(250);
 
+  WiFi.onEvent(WiFiEvent);
+
 #if defined(WIFI_MODE_ACCESSPOINT)
   InitWifiAP();
 #elif defined(WIFI_MODE_CLIENT)
@@ -76,15 +96,8 @@ void setup() {
     log_i("Failed to connect to WiFi Network");
     log_i("Starting up in AP mode instead!");
     InitWifiAP();
-  } else {
-    WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
-      log_i("WiFi network disconnected, retrying...");
-      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    }, WiFiEvent_t::SYSTEM_EVENT_STA_DISCONNECTED);
   }
 #endif
-
-  WiFi.setHostname("chorus32");
 
   InitWebServer();
 
