@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 /// These are all the available targets
 #define BOARD_DEFAULT 1
 #define BOARD_OLD 2
@@ -56,3 +58,4 @@
 #include "targets/target.h" // Needs to be at the bottom
 
 void InitHardwarePins();
+extern uint8_t CS_PINS[MAX_NUM_RECEIVERS];

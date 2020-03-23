@@ -3,16 +3,15 @@
 
 #include <Arduino.h>
 
+uint8_t CS_PINS[MAX_NUM_RECEIVERS] = {CS1, CS2, CS3, CS4, CS5, CS6};
+
 void InitHardwarePins() {
 
   pinMode(SCK, OUTPUT);
   pinMode(MOSI, OUTPUT);
-  pinMode(CS1, OUTPUT);
-  pinMode(CS2, OUTPUT);
-  pinMode(CS3, OUTPUT);
-  pinMode(CS4, OUTPUT);
-  pinMode(CS5, OUTPUT);
-  pinMode(CS6, OUTPUT);
+  for(int i = 0; i < MAX_NUM_RECEIVERS; i++) {
+    pinMode(CS_PINS[i], OUTPUT);
+  }
   //pinMode(MISO, INPUT);
   pinMode(BEEPER, OUTPUT);
   digitalWrite(BEEPER, LOW);
