@@ -69,7 +69,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
   uint32_t now = micros();
   LastADCcall = now;
-  adc1_channel_t channel = ADC_PINS[current_adc];
+  adc1_channel_t channel = ADC_PINS[MIN(current_adc, MAX_NUM_RECEIVERS - 1)];
 
   if(LIKELY(isInRaceMode())) {
     ADCReadingsRAW[current_adc] = adc1_get_raw(channel);
