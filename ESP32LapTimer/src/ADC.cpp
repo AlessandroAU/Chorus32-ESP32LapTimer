@@ -22,10 +22,10 @@ static uint32_t LastADCcall;
 
 static esp_adc_cal_characteristics_t adc_chars;
 
-static int RSSIthresholds[MaxNumReceivers];
-static uint16_t ADCReadingsRAW[MaxNumReceivers];
+static int RSSIthresholds[MAX_NUM_RECEIVERS];
+static uint16_t ADCReadingsRAW[MAX_NUM_RECEIVERS];
 static unsigned int VbatReadingSmooth;
-static int ADCvalues[MaxNumReceivers];
+static int ADCvalues[MAX_NUM_RECEIVERS];
 static uint16_t adcLoopCounter = 0;
 
 static FilterBeLp2_10HZ Filter_10HZ[6] = {FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ()};
@@ -36,6 +36,8 @@ static FilterBeLp2_100HZ Filter_100HZ[6] = {FilterBeLp2_100HZ(), FilterBeLp2_100
 static float VBATcalibration;
 static float mAReadingFloat;
 static float VbatReadingFloat;
+
+static adc1_channel_t ADC_PINS[MAX_NUM_RECEIVERS] = {ADC1, ADC2, ADC3, ADC4, ADC5, ADC6};
 
 static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
   uint32_t val = 0;
@@ -49,12 +51,9 @@ void ConfigureADC() {
 
   adc1_config_width(ADC_WIDTH_BIT_12);
 
-  adc1_config_channel_atten(ADC1, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC2, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC3, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC4, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC5, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC6, ADC_ATTEN_6db);
+  for(int i = 0; i < MAX_NUM_RECEIVERS; i++) {
+    adc1_config_channel_atten(ADC_PINS[i], ADC_ATTEN_6db);
+  }
 
   //since the reference voltage can range from 1000mV to 1200mV we are using 1100mV as a default
   esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_6db, ADC_WIDTH_BIT_12, 1100, &adc_chars);
@@ -70,27 +69,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
   uint32_t now = micros();
   LastADCcall = now;
-  adc1_channel_t channel = ADC1;
-  switch (current_adc) {
-    case 0:
-      channel = ADC1;
-      break;
-    case 1:
-      channel = ADC2;
-      break;
-    case 2:
-      channel = ADC3;
-      break;
-    case 3:
-      channel = ADC4;
-      break;
-    case 4:
-      channel = ADC5;
-      break;
-    case 5:
-      channel = ADC6;
-      break;
-  }
+  adc1_channel_t channel = ADC_PINS[MIN(current_adc, MAX_NUM_RECEIVERS - 1)];
 
   if(LIKELY(isInRaceMode())) {
     ADCReadingsRAW[current_adc] = adc1_get_raw(channel);
@@ -123,7 +102,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
   if (LIKELY(isInRaceMode() > 0)) {
     CheckRSSIthresholdExceeded(current_adc);
   }
-  current_adc = (current_adc + 1) % MaxNumReceivers;
+  current_adc = (current_adc + 1) % MAX_NUM_RECEIVERS;
 }
 
 
@@ -142,14 +121,14 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t node) {
 }
 
 uint16_t getRSSI(uint8_t index) {
-  if(index < MaxNumReceivers) {
+  if(index < MAX_NUM_RECEIVERS) {
     return ADCvalues[index];
   }
   return 0;
 }
 
 void setRSSIThreshold(uint8_t node, uint16_t threshold) {
-  if(node < MaxNumReceivers) {
+  if(node < MAX_NUM_RECEIVERS) {
     RSSIthresholds[node] = threshold;
   }
 }

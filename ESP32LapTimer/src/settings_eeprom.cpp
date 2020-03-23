@@ -30,7 +30,7 @@ bool EepromSettingsStruct::SanityCheck() {
 
   bool IsGoodEEPROM = true;
 
-  if (EepromSettings.NumReceivers > MaxNumReceivers) {
+  if (EepromSettings.NumReceivers > MAX_NUM_RECEIVERS) {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value NumRecievers: ");
     Serial.println(EepromSettings.NumReceivers);
@@ -121,7 +121,7 @@ void EepromSettingsStruct::defaults() {
   EepromSettingsStruct settings;
   // by setting everything to 0 we guarantee that every variable is initialized
   memset(&settings, 0, sizeof(EepromSettingsStruct));
-  for(uint8_t i = 0; i < MaxNumReceivers; ++i){
+  for(uint8_t i = 0; i < MAX_NUM_RECEIVERS; ++i){
     settings.RxCalibrationMax[i] = RSSI_ADC_READING_MAX;
     settings.RxCalibrationMin[i] = RSSI_ADC_READING_MIN;
     settings.RSSIthresholds[i] = 2048;
