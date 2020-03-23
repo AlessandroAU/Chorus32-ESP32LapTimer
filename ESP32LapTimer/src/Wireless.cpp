@@ -37,6 +37,8 @@ void InitWifiAP() {
 bool InitWifiClient() {
   uint32_t timeWaited = 0;
 
+  WiFi.mode(WIFI_MODE_STA);
+
   log_i("Connecting to: %s", WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
