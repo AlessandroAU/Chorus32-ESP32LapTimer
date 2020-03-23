@@ -41,7 +41,9 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
 }
 
 void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
-  rxWrite(addressBits, dataBits, CS_PINS[node]);
+  if (node < MAX_NUM_RECEIVERS) {
+    rxWrite(addressBits, dataBits, CS_PINS[node]);
+  }
 }
 
 void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
