@@ -73,12 +73,7 @@ bool InitWifiClient() {
   log_i("WiFi connected");
   log_i("IP address: %s", WiFi.localIP().toString().c_str());
 
-  if(!MDNS.begin("chorus32")) {
-    log_e("Error settings up mDNS responder");
-    while(1) {
-      delay(1000);
-    }
-  }
+  MDNS.begin("chorus32");
 
   log_i("mDNS responder started");
 
