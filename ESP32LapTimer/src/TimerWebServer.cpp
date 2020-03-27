@@ -274,7 +274,7 @@ void InitWebServer() {
   });
 
   webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest* req) {
-    AsyncWebServerResponse *response = req->beginResponse(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK, module rebooting");
+    AsyncWebServerResponse *response = req->beginResponse((Update.hasError()) ? 400 : 200, "text/plain", (Update.hasError()) ? "FAIL" : "OK, module rebooting");
     response->addHeader("Connection", "close");
     req->send(response);
     Serial.println("off-updating");
@@ -282,15 +282,22 @@ void InitWebServer() {
   }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
     isHTTPUpdating = true;
     if(!index) {
-      Serial.printf("Update Start: %s\n", filename.c_str());
-      if (!Update.begin()) { //start with max available size
-        Update.printError(Serial);
+      int partition = data[0] == 0xE9 ? U_FLASH : U_SPIFFS;
+      if(partition == U_SPIFFS) {
+        // Since we don't have a magic number, we are checking the filename for "spiffs"
+        if(strstr(filename.c_str(), "spiffs") == NULL) {
+          partition = -1; // set partition to an invalid value
+        }
+      }
+      log_i("Update Start: %s on partition %d\n", filename.c_str(), partition);
+      if (!Update.begin(UPDATE_SIZE_UNKNOWN, partition)) { //start with max available size
+        log_e("%s\n", Update.errorString());
         isHTTPUpdating = false;
       }
     }
     if(!Update.hasError()){
       if(Update.write(data, len) != len){
-        Update.printError(Serial);
+        log_e("%s\n", Update.errorString());
         isHTTPUpdating = false;
       }
     }
@@ -298,7 +305,7 @@ void InitWebServer() {
       if(Update.end(true)){
         Serial.printf("Update Success: %uB\n", index+len);
       } else {
-        Update.printError(Serial);
+        log_e("%s\n", Update.errorString());
       }
       isHTTPUpdating = false;
     }
