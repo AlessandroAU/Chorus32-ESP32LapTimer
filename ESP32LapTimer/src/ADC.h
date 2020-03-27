@@ -54,4 +54,8 @@ void setPilotFilters(uint16_t cutoff);
 
 void setPilotBand(uint8_t pilot, uint8_t band);
 void setPilotChannel(uint8_t pilot, uint8_t channel);
+void setPilotFrequency(uint8_t pilot, uint16_t frequency);
 
+uint8_t getPilotBand(uint8_t pilot);
+uint8_t getPilotChannel(uint8_t pilot);
+uint16_t getPilotFrequency(uint8_t pilot);

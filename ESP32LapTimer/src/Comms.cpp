@@ -534,7 +534,7 @@ void SendVRxBand(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue(RESPONSE_BAND);
-  addToSendQueue(TO_HEX(getRXBandPilot(NodeAddr)));
+  addToSendQueue(TO_HEX(getPilotBand(NodeAddr)));
   addToSendQueue('\n');
   //SendVRxFreq(NodeAddr);
 
@@ -545,7 +545,7 @@ void SendVRxChannel(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue(RESPONSE_CHANNEL);
-  addToSendQueue(TO_HEX(getRXChannelPilot(NodeAddr)));
+  addToSendQueue(TO_HEX(getPilotChannel(NodeAddr)));
   addToSendQueue('\n');
   //SendVRxFreq(NodeAddr);
 
@@ -553,7 +553,7 @@ void SendVRxChannel(uint8_t NodeAddr) {
 
 void SendVRxFreq(uint8_t NodeAddr) {
   //Cmd Byte F
-  uint8_t index = getRXChannelPilot(NodeAddr) + (8 * getRXBandPilot(NodeAddr));
+  uint8_t index = getPilotChannel(NodeAddr) + (8 * getPilotBand(NodeAddr));
   uint16_t frequency = channelFreqTable[index];
 
   addToSendQueue('S');
@@ -709,7 +709,11 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
 
       case CONTROL_FREQUENCY:
-        //  TODO: convert to band/freq?
+        InString += (char)controlData[3];
+        InString += (char)controlData[4];
+        InString += (char)controlData[5];
+        InString += (char)controlData[6];
+        setPilotFrequency(InString.toInt(), NodeAddrByte);
         isConfigured = 1;
         break;
 

@@ -40,8 +40,6 @@
 
 static Adafruit_INA219 ina219; // A0+A1=GND
 
-static uint32_t LastADCcall;
-
 static esp_adc_cal_characteristics_t adc_chars;
 
 static unsigned int VbatReadingSmooth;
@@ -205,9 +203,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
   if(xSemaphoreTake(pilots_lock, 1)) { // lock changes to pilots from other cores
     if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US && isRxReady(current_adc)) {
       if(setNextPilot(current_adc)) {
-        // TODO: add class between this and rx5808
-        // TODO: add better multiplexing. Maybe based on the last laptime?
-        setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot->number), getRXBandPilot(receivers[current_adc].current_pilot->number), current_adc);
+        setModuleFrequency(getPilotFrequency(receivers[current_adc].current_pilot->number), current_adc);
         receivers[current_adc].last_hop = now;
       }
     }
@@ -427,25 +423,47 @@ void setPilotFilters(uint16_t cutoff) {
 }
 
 void setPilotChannel(uint8_t pilot, uint8_t channel) {
-  setRXChannelPilot(pilot, channel);
   EepromSettings.RXChannel[pilot] = channel;
+  setPilotFrequency(pilot, getFrequencyFromBandChannel(EepromSettings.RXBand[pilot], channel));
+}
+
+
+void setPilotBand(uint8_t pilot, uint8_t band) {
+  EepromSettings.RXBand[pilot] = band;
+  setPilotFrequency(pilot, getFrequencyFromBandChannel(band, EepromSettings.RXChannel[pilot]));
+}
+
+void setPilotFrequency(uint8_t pilot, uint16_t frequency) {
+  EepromSettings.RXFrequency[pilot] = frequency;
   setSaveRequired();
   if(isPilotActive(pilot)) {
-    // Toggle pilot to force new channel
+    // Toggle pilot to force new frequency
     setPilotActive(pilot, false);
     setPilotActive(pilot, true);
   }
 }
 
-
-void setPilotBand(uint8_t pilot, uint8_t band) {
-  setRXBandPilot(pilot, band);
-  EepromSettings.RXBand[pilot] = band;
-  setSaveRequired();
-  if(isPilotActive(pilot)) {
-    // Toggle pilot to force new band
-    setPilotActive(pilot, false);
-    setPilotActive(pilot, true);
+uint8_t getPilotBand(uint8_t pilot) {
+  uint8_t band = 0;
+  if(pilot < MAX_NUM_PILOTS) {
+    band = EepromSettings.RXBand[pilot];
   }
+  return band;
+}
+
+uint8_t getPilotChannel(uint8_t pilot) {
+  uint8_t channel = 0;
+  if(pilot < MAX_NUM_PILOTS) {
+    channel = EepromSettings.RXChannel[pilot];
+  }
+  return channel;
+}
+
+uint16_t getPilotFrequency(uint8_t pilot) {
+  uint16_t frequency = 0;
+  if(pilot < MAX_NUM_PILOTS) {
+    frequency = EepromSettings.RXFrequency[pilot];
+  }
+  return frequency;
 }
 

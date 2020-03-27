@@ -23,6 +23,7 @@
 #include <Arduino.h>
 
 #define MAX_BAND 7
+#define MAX_CHANNEL 7
 
 //// Channels to send to the SPI registers
 //const uint16_t channelTable[] PROGMEM = {
@@ -78,12 +79,6 @@ uint8_t getRXBandModule(uint8_t module);
 
 void setRXChannelModule(uint8_t module, uint8_t channel);
 uint8_t getRXChannelModule(uint8_t module);
-
-void setRXBandPilot(uint8_t pilot, uint8_t band);
-uint8_t getRXBandPilot(uint8_t pilot);
-
-void setRXChannelPilot(uint8_t pilot, uint8_t channel);
-uint8_t getRXChannelPilot(uint8_t pilot);
 
 uint16_t getFrequencyFromBandChannel(uint8_t band, uint8_t channel);
 

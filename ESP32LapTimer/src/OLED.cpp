@@ -157,14 +157,14 @@ void rx_page_input(void* data, uint8_t index, uint8_t type) {
 void rx_page_update(void* data) {
   // Gather Data
   rxPageData_s* my_data = (rxPageData_s*) data;
-  uint8_t frequencyIndex = getRXChannelPilot(my_data->currentPilotNumber) + (8 * getRXBandPilot(my_data->currentPilotNumber));
+  uint8_t frequencyIndex = getPilotChannel(my_data->currentPilotNumber) + (8 * getPilotBand(my_data->currentPilotNumber));
   uint16_t frequency = channelFreqTable[frequencyIndex];
 
   // Display things
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_16);
   display.drawString(0, 0, "Settings for RX" + String(my_data->currentPilotNumber + 1));
-  display.drawString(0, 18, getBandLabel(getRXBandPilot(my_data->currentPilotNumber)) + String(getRXChannelPilot(my_data->currentPilotNumber) + 1) + " - " + frequency);
+  display.drawString(0, 18, getBandLabel(getPilotBand(my_data->currentPilotNumber)) + String(getPilotChannel(my_data->currentPilotNumber) + 1) + " - " + frequency);
   if (getRSSI(my_data->currentPilotNumber) < 600) {
     display.drawProgressBar(48, 35, 120 - 42, 8, map(600, 600, 3500, 0, 85));
   } else {
@@ -241,7 +241,7 @@ void summary_page_update(void* data) {
   uint8_t first_pilot = my_data->first_pilot;
   for (uint8_t i = 0; i < SUMMARY_PILOTS_PER_PAGE + skipped && (i + first_pilot) < MAX_NUM_PILOTS; ++i) {
     if(isPilotActive(i+first_pilot)) {
-      display.drawString(0, 9 + (i - skipped) * 9, String(i+1+first_pilot) + ":" + getBandLabel(getRXBandPilot(i + first_pilot)) + String(getRXChannelPilot(i + first_pilot) + 1) + "," + String(getRSSI(i + first_pilot) / 12));
+      display.drawString(0, 9 + (i - skipped) * 9, String(i+1+first_pilot) + ":" + getBandLabel(getPilotBand(i + first_pilot)) + String(getPilotChannel(i + first_pilot) + 1) + "," + String(getRSSI(i + first_pilot) / 12));
       display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + (i - skipped) * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i + first_pilot), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
       display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(MAX(getRSSIThreshold(i + first_pilot), RSSI_ADC_READING_MIN), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + (i - skipped) * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
     }
@@ -309,23 +309,23 @@ void airplane_page_input(void* data, uint8_t index, uint8_t type) {
 }
 
 void incrementRxFrequency(uint8_t currentRXNumber) {
-  uint8_t currentRXChannel = getRXChannelPilot(currentRXNumber);
+  uint8_t currentRXChannel = getPilotChannel(currentRXNumber);
   currentRXChannel++;
   if (currentRXChannel >= 8) {
     currentRXChannel = 0;
   }
-  setRXChannelPilot(currentRXNumber, currentRXChannel);
-  EepromSettings.RXChannel[currentRXNumber] = getRXChannelPilot(currentRXNumber);
+  setPilotChannel(currentRXNumber, currentRXChannel);
+  EepromSettings.RXChannel[currentRXNumber] = getPilotChannel(currentRXNumber);
   setSaveRequired();
 }
 void incrementRxBand(uint8_t currentRXNumber) {
-  uint8_t currentRXBand = getRXBandPilot(currentRXNumber);
+  uint8_t currentRXBand = getPilotBand(currentRXNumber);
   currentRXBand++;
   if (currentRXBand >= 8) {
     currentRXBand = 0;
   }
-  setRXBandPilot(currentRXNumber, currentRXBand);
-  EepromSettings.RXBand[currentRXNumber] = getRXBandPilot(currentRXNumber);
+  setPilotBand(currentRXNumber, currentRXBand);
+  EepromSettings.RXBand[currentRXNumber] = getPilotBand(currentRXNumber);
   setSaveRequired();
 }
 

@@ -39,10 +39,6 @@
 static volatile uint8_t RXBandModule[MAX_NUM_RECEIVERS];
 static volatile uint8_t RXChannelModule[MAX_NUM_RECEIVERS];
 
-// TODO: this doesn't really belong here
-static volatile uint8_t RXBandPilot[MAX_NUM_PILOTS];
-static volatile uint8_t RXChannelPilot[MAX_NUM_PILOTS];
-
 static uint32_t lastUpdate[MAX_NUM_RECEIVERS] = {0,0,0,0,0,0};
 
 void InitSPI() {
@@ -178,7 +174,7 @@ uint16_t setModuleChannelBand(uint8_t NodeAddr) {
   return setModuleChannelBand(RXChannelModule[NodeAddr], RXBandModule[NodeAddr], NodeAddr);
 }
 
-uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {  
+uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
   uint8_t index = channel + (8 * band);
   uint16_t frequency = channelFreqTable[index];
   RXBandModule[NodeAddr] = band;
@@ -228,22 +224,6 @@ String getBandLabel(int band) {
   }
 }
 
-void setRXBandPilot(uint8_t pilot, uint8_t band) {
-  RXBandPilot[pilot] = band;
-}
-uint8_t getRXBandPilot(uint8_t pilot) {
-  return RXBandPilot[pilot];
-}
-
-void setRXChannelPilot(uint8_t pilot, uint8_t channel) {
-  if(pilot < MAX_NUM_PILOTS) {
-    RXChannelPilot[pilot] = channel;
-  }
-}
-uint8_t getRXChannelPilot(uint8_t pilot) {
-  return RXChannelPilot[pilot];
-}
-
 void setRXBandModule(uint8_t module, uint8_t band) {
   RXBandModule[module] = band;
 }
@@ -257,3 +237,12 @@ void setRXChannelModule(uint8_t module, uint8_t channel) {
 uint8_t getRXChannelModule(uint8_t module) {
   return RXChannelModule[module];
 }
+
+uint16_t getFrequencyFromBandChannel(uint8_t band, uint8_t channel) {
+  uint16_t freq = 0;
+  if(band < MAX_BAND && channel < MAX_CHANNEL) {
+    freq = channelFreqTable[channel + (MAX_CHANNEL+1) * band];
+  }
+  return freq;
+}
+

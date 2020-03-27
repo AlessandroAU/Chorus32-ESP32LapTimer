@@ -101,10 +101,6 @@ void setup() {
   setADCVBATmode(EepromSettings.ADCVBATmode);
   setVbatCal(EepromSettings.VBATcalibration);
 
-  for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
-    setRXBandPilot(i, EepromSettings.RXBand[i]);
-    setRXChannelPilot(i, EepromSettings.RXChannel[i]);
-  }
   delay(30);
   ConfigureADC();
   delay(250);
@@ -129,7 +125,7 @@ void setup() {
     setModuleChannelBand(i % getNumReceivers());
     delayMicroseconds(MIN_TUNE_TIME_US);
   }
-  
+
   init_outputs();
   Serial.println("Starting ADC reading task on core 0");
 
