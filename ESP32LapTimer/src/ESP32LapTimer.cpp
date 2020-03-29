@@ -24,6 +24,11 @@
 #include "Laptime.h"
 #include "Wireless.h"
 
+#include "CrashDetection.h"
+#ifdef USE_ARDUINO_OTA
+#include <ArduinoOTA.h>
+#endif
+
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
 static TaskHandle_t adc_task_handle = NULL;
@@ -47,13 +52,21 @@ void IRAM_ATTR adc_task(void* args) {
 }
 
 void setup() {
-
-#ifdef OLED
-  oledSetup();
-#endif
+  init_crash_detection();
 
   Serial.begin(115200);
   Serial.println("Booting....");
+#ifdef USE_ARDUINO_OTA
+  if(is_crash_mode()) {
+    log_e("Detected crashing. Starting ArduinoOTA only!");
+    InitWifiAP();
+    ArduinoOTA.begin();
+    return;
+  }
+#endif
+#ifdef OLED
+  oledSetup();
+#endif
 #ifdef USE_BUTTONS
   newButtonSetup();
 #endif
@@ -104,6 +117,13 @@ void setup() {
 }
 
 void loop() {
+#ifdef USE_ARDUINO_OTA
+  ArduinoOTA.handle();
+  if(is_crash_mode()) return;
+#endif
+  if(millis() > CRASH_COUNT_RESET_TIME_MS) {
+    reset_crash_count();
+  }
   rssiCalibrationUpdate();
   // touchMonitor(); // A function to monitor capacitive touch values, defined in buttons.ino
 

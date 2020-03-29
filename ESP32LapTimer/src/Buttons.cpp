@@ -8,6 +8,7 @@
 #include "Calibration.h"
 #include "settings_eeprom.h"
 #include "TimerWebServer.h"
+#include "CrashDetection.h"
 
 #include <stdint.h>
 #include <Arduino.h>
@@ -151,7 +152,7 @@ void newButtonUpdate() {
     fiveBeep();
     EepromSettings.defaults();
     delay(100);
-    ESP.restart();
+    restart_esp();
   }
 }
 
