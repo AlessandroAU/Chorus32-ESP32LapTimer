@@ -3,10 +3,11 @@
 #include <rom/rtc.h>
 #include <Arduino.h>
 
+// positive values indicate a crashing system. negative values a manual reboot loop
 RTC_NOINIT_ATTR static int crash_count = 0;
 
 bool is_crash_mode() {
-  return (crash_count > MAX_CRASH_COUNT);
+  return (crash_count > MAX_CRASH_COUNT) || (crash_count > -MAX_CRASH_COUNT);
 }
 
 void init_crash_detection() {
@@ -22,7 +23,11 @@ int get_crash_count() {
   return crash_count;
 }
 
-void restart_esp() {
+void reset_crash_count() {
   crash_count = 0;
+}
+
+void restart_esp() {
+  --crash_count;
   ESP.restart();
 }

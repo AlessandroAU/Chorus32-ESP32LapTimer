@@ -7,5 +7,6 @@ bool is_crash_mode();
 void init_crash_detection();
 void restart_esp();
 int get_crash_count();
+void reset_crash_count();
 
 #endif  // _CRASHDETECTION_H_

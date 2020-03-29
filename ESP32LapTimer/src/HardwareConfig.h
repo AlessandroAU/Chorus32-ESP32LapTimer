@@ -42,6 +42,9 @@
 // Enable TCP support. Currently this needs a special version of the app: https://github.com/Smeat/Chorus-RF-Laptimer/releases/tag/tcp_support
 //#define USE_TCP
 
+// Enables the ArduinoOTA service. It allows flashing over WiFi and enters an emergency mode if a crashloop is detected.
+//#define USE_ARDUINO_OTA
+
 // BELOW ARE THE ADVANCED SETTINGS! ONLY CHANGE THEM IF YOU KNOW WHAT YOUR ARE DOING!
 
 #define EEPROM_VERSION_NUMBER 9 // Increment when eeprom struct modified
@@ -54,6 +57,8 @@
 // 800 and 2700 are about average min max raw values
 #define RSSI_ADC_READING_MAX 2700
 #define RSSI_ADC_READING_MIN 800
+// defines the time after which the crash loop detection assumes the operation is stable
+#define CRASH_COUNT_RESET_TIME_MS 300000
 
 #include "targets/target.h" // Needs to be at the bottom
 

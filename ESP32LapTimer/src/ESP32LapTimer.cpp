@@ -121,6 +121,9 @@ void loop() {
   ArduinoOTA.handle();
   if(is_crash_mode()) return;
 #endif
+  if(millis() > CRASH_COUNT_RESET_TIME_MS) {
+    reset_crash_count();
+  }
   rssiCalibrationUpdate();
   // touchMonitor(); // A function to monitor capacitive touch values, defined in buttons.ino
 
