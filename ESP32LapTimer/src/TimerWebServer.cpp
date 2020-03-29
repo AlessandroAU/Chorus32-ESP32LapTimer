@@ -17,7 +17,7 @@ AsyncWebServer webServer(80);
 
 //flag to use from web update to reboot the ESP
 //static bool shouldReboot = false;
-static const char NOSPIFFS[] PROGMEM = "You have not uploaded the SPIFFs filesystem!!!, Please install the <b><a href=\"https://github.com/me-no-dev/arduino-esp32fs-plugin\">following plugin</a></b>.<br> Place the plugin file here: <b>\"<path to your Arduino dir>/tools/ESP32FS/tool/esp32fs.jar\"</b>.<br><br> Next select <b>Tools > ESP32 Sketch Data Upload</b>.<br>NOTE: This is a seperate upload to the normal arduino upload!!!<br><br> The web interface will not work until you do this.";
+static const char NOSPIFFS[] PROGMEM = "<h1>ERROR: Could not read the SPIFFS partition</h1>This means you either forgot to upload the data files or a previous update failed.<br>To fix this problem you have a few options:<h4>1 Arduino IDE</h4> Install the <b><a href=\"https://github.com/me-no-dev/arduino-esp32fs-plugin\">following plugin</a></b>.<br> Place the plugin file here: <b>\"&lt;path to your Arduino dir&gt;/tools/ESP32FS/tool/esp32fs.jar\"</b>.<br><br> Next select <b>Tools > ESP32 Sketch Data Upload</b>.<br>NOTE: This is a seperate upload to the normal arduino upload!<h4>2 Platformio</h4>Press the Upload Filesystem button or run \"pio run -e &lt;your board&gt; -t uploadfs\"<h4>3 Use this form</h4>Upload the spiffs file from the release site here:<br><br><form method='POST' action='/update' enctype='multipart/form-data'> <input type='file' name='update'> <input type='submit' value='Update'></form>";
 
 static bool HasSPIFFsBegun = false;
 static bool isHTTPUpdating = false;
@@ -220,21 +220,19 @@ void ProcessDisplaySettingsUpdate(AsyncWebServerRequest* req) {
 void InitWebServer() {
   HasSPIFFsBegun = SPIFFS.begin();
   //delay(1000);
+  webServer.on("/recovery.html", HTTP_GET, [](AsyncWebServerRequest* req) {
+      req->send(200, "text/html", NOSPIFFS);
+    });
 
   if (!SPIFFS.exists("/index.html")) {
     Serial.println("SPIFFS filesystem was not found");
     webServer.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
-      req->send(200, "text/html", NOSPIFFS);
+      req->redirect("/recovery.html");
     });
-
-    webServer.onNotFound([](AsyncWebServerRequest* req) {
-      req->send(404, "text/plain", "404: Not Found");
+  } else {
+    webServer.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
+      req->send(SPIFFS, "/index.html");
     });
-
-    webServer.begin();                           // Actually start the server
-    Serial.println("HTTP server started");
-    //client.setNoDelay(true);
-    return;
   }
 
 
@@ -269,12 +267,9 @@ void InitWebServer() {
 
   webServer.on("/WiFisettings", ProcessWifiSettings);
 
-  webServer.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
-    req->send(SPIFFS, "/index.html");
-  });
 
   webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest* req) {
-    AsyncWebServerResponse *response = req->beginResponse(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK, module rebooting");
+    AsyncWebServerResponse *response = req->beginResponse((Update.hasError()) ? 400 : 200, "text/plain", (Update.hasError()) ? "FAIL" : "OK, module rebooting");
     response->addHeader("Connection", "close");
     req->send(response);
     Serial.println("off-updating");
@@ -282,15 +277,22 @@ void InitWebServer() {
   }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
     isHTTPUpdating = true;
     if(!index) {
-      Serial.printf("Update Start: %s\n", filename.c_str());
-      if (!Update.begin()) { //start with max available size
-        Update.printError(Serial);
+      int partition = data[0] == 0xE9 ? U_FLASH : U_SPIFFS;
+      if(partition == U_SPIFFS) {
+        // Since we don't have a magic number, we are checking the filename for "spiffs"
+        if(strstr(filename.c_str(), "spiffs") == NULL) {
+          partition = -1; // set partition to an invalid value
+        }
+      }
+      log_i("Update Start: %s on partition %d\n", filename.c_str(), partition);
+      if (!Update.begin(UPDATE_SIZE_UNKNOWN, partition)) { //start with max available size
+        log_e("%s\n", Update.errorString());
         isHTTPUpdating = false;
       }
     }
     if(!Update.hasError()){
       if(Update.write(data, len) != len){
-        Update.printError(Serial);
+        log_e("%s\n", Update.errorString());
         isHTTPUpdating = false;
       }
     }
@@ -298,7 +300,7 @@ void InitWebServer() {
       if(Update.end(true)){
         Serial.printf("Update Success: %uB\n", index+len);
       } else {
-        Update.printError(Serial);
+        log_e("%s\n", Update.errorString());
       }
       isHTTPUpdating = false;
     }
