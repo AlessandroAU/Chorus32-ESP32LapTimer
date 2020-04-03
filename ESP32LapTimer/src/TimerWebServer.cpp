@@ -4,6 +4,7 @@
 #include "ADC.h"
 #include "RX5808.h"
 #include "Calibration.h"
+#include "Output.h"
 #include "CrashDetection.h"
 
 #include <esp_wifi.h>
@@ -14,7 +15,13 @@
 #include <Update.h>
 #include <ESPAsyncWebServer.h>
 
+#define WEBSOCKET_BUF_SIZE 1500
+static uint8_t websocket_buffer[WEBSOCKET_BUF_SIZE];
+static int websocket_buffer_pos = 0;
+SemaphoreHandle_t websocket_lock;
+
 AsyncWebServer webServer(80);
+AsyncWebSocket ws("/ws");
 
 //flag to use from web update to reboot the ESP
 //static bool shouldReboot = false;
@@ -22,6 +29,7 @@ static const char NOSPIFFS[] PROGMEM = "<h1>ERROR: Could not read the SPIFFS par
 
 static bool HasSPIFFsBegun = false;
 static bool isHTTPUpdating = false;
+
 
 String getMacAddress() {
   byte mac[6];
@@ -218,9 +226,48 @@ void ProcessDisplaySettingsUpdate(AsyncWebServerRequest* req) {
   setSaveRequired();
 }
 
+void onWebsocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
+  if(isHTTPUpdating) return; // ignore all incoming messages during update
+  if(xSemaphoreTake(websocket_lock, portMAX_DELAY)){
+    //Handle WebSocket event
+    if(type == WS_EVT_DATA){
+      //data packet
+      AwsFrameInfo * info = (AwsFrameInfo*)arg;
+      if(info->final && info->index == 0 && info->len == len){
+        //the whole message is in a single frame and we got all of it's data
+        // we'll ignore fragmented messages for now
+        if(websocket_buffer_pos + len < WEBSOCKET_BUF_SIZE) {
+          memcpy(websocket_buffer + websocket_buffer_pos, data, len);
+          websocket_buffer_pos += len;
+        }
+      }
+    }
+    xSemaphoreGive(websocket_lock);
+  }
+}
+
+void read_websocket(void* output) {
+  if(xSemaphoreTake(websocket_lock, 1)){
+    if(websocket_buffer_pos > 0) {
+      output_t* out = (output_t*)output;
+      out->handle_input_callback(websocket_buffer, websocket_buffer_pos);
+      websocket_buffer_pos = 0;
+    }
+    xSemaphoreGive(websocket_lock);
+  }
+}
+
+void send_websocket(void* output, uint8_t* data, size_t len) {
+  ws.textAll(data, len);
+}
+
 void InitWebServer() {
   HasSPIFFsBegun = SPIFFS.begin();
-  //delay(1000);
+  // attach AsyncWebSocket
+  ws.onEvent(onWebsocketEvent);
+  webServer.addHandler(&ws);
+  websocket_lock = xSemaphoreCreateMutex();
+
   webServer.on("/recovery.html", HTTP_GET, [](AsyncWebServerRequest* req) {
       req->send(200, "text/html", NOSPIFFS);
     });

@@ -9,6 +9,9 @@
 #ifdef USE_TCP
 #include "TCP.h"
 #endif
+#ifdef USE_WEBSOCKET_OUTPUT
+#include "TimerWebServer.h"
+#endif
 
 #include <freertos/semphr.h>
 
@@ -31,6 +34,9 @@ static output_t outputs[] = {
 #ifdef USE_TCP
   {NULL, tcp_init, tcp_send_packet, tcp_update, output_input_callback},
 #endif // USE_TCP
+#ifdef USE_WEBSOCKET_OUTPUT
+  {NULL, NULL, send_websocket, read_websocket, output_input_callback},
+#endif // USE_WEBSOCKET_OUTPUT
 };
 
 #define OUTPUT_SIZE (sizeof(outputs)/sizeof(outputs[0]))
