@@ -77,6 +77,38 @@
 #define RESPONSE_END_SEQUENCE        'x'
 #define RESPONSE_IS_CONFIGURED       'y'
 
+// Extended commands for chorus32
+#define EXTENDED_PREFIX   'E'
+
+#define EXTENDED_ALL_SETTINGS 'a'
+
+#define EXTENDED_RACE_NUM 'R'
+#define EXTENDED_CALIB_MIN 'c'
+#define EXTENDED_CALIB_MAX 'C'
+#define EXTENDED_CALIB_START 's'
+#define EXTENDED_CALIB_STATUS 'S'
+#define EXTENDED_VOLTAGE_TYPE 'v'
+#define EXTENDED_VOLTAGE_CALIB 'V' // uint16
+#define EXTENDED_NUM_MODULES 'M' // half byte
+#define EXTENDED_CALIBRATE_START 'r'
+#define EXTENDED_EEPROM_RESET 'E'
+#define EXTENDED_DISPLAY_TIMEOUT 'D'
+#define EXTENDED_WIFI_CHANNEL 'W' // half byte
+#define EXTENDED_WIFI_PROTOCOL 'w' // half byte
+#define EXTENDED_FILTER_CUTOFF 'F'
+#define EXTENDED_MULTIPLEX_OFF 'm'
+#define EXTENDED_UPDATE_PROGRESS 'U'
+#define EXTENDED_RSSI 'y' // Time, RSSI
+#define EXTENDED_DEBUG_FREE_HEAP 'H'
+#define EXTENDED_DEBUG_MIN_FREE_HEAP 'h'
+#define EXTENDED_DEBUG_MAX_BLOCK_HEAP 'B'
+#define EXTENDED_DEBUG_LOG 'L' // one halfbyte 0: off 1: on
+#define EXTENDED_TRIGGER_MODE 'T' // byte
+#define EXTENDED_VERSION '#' // uint32
+
+
+#define EXTENDED_PROTOCOL_VERSION 1
+
 // send item byte constants
 // Must correspond to sequence of numbers used in "send data" switch statement
 // Subsequent items starting from 0 participate in "send all data" response
@@ -134,6 +166,65 @@ static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the l
 
 static uint8_t thresholdSetupMode[MAX_NUM_RECEIVERS];
 static uint16_t RXfrequencies[MAX_NUM_RECEIVERS];
+
+void sendExtendedCommandInt32(uint8_t set, uint8_t node, uint8_t cmd, uint32_t data) {
+  uint8_t buf[13];
+  buf[0] = EXTENDED_PREFIX;
+  buf[1] = 'S';
+  if(node == '*') {
+    buf[2] = node;
+  } else {
+    buf[2] = TO_HEX(node);
+  }
+  buf[3] = cmd;
+  longToHex(buf + 4, data);
+  buf[12] = '\n';
+  addToSendQueue(buf, 13);
+}
+// TODO: unify those functions
+// this is 16bit
+void sendExtendedCommandInt(uint8_t set, uint8_t node, uint8_t cmd, int data) {
+  uint8_t buf[9];
+  buf[0] = EXTENDED_PREFIX;
+  buf[1] = 'S';
+  if(node == '*') {
+    buf[2] = node;
+  } else {
+    buf[2] = TO_HEX(node);
+  }
+  buf[3] = cmd;
+  intToHex(buf + 4, data);
+  buf[8] = '\n';
+  addToSendQueue(buf, 9);
+}
+
+void sendExtendedCommandByte(uint8_t set, uint8_t node, uint8_t cmd, uint8_t data) {
+  addToSendQueue(EXTENDED_PREFIX);
+  addToSendQueue('S');
+  if(node == '*') {
+    addToSendQueue(node);
+  } else {
+    addToSendQueue(TO_HEX(node));
+  }
+  addToSendQueue(cmd);
+  uint8_t buf[2];
+  byteToHex(buf, data);
+  addToSendQueue(buf, 2);
+  addToSendQueue('\n');
+}
+
+void sendExtendedCommandHalfByte(uint8_t set, uint8_t node, uint8_t cmd, uint8_t data) {
+  addToSendQueue(EXTENDED_PREFIX);
+  addToSendQueue('S');
+  if(node == '*') {
+    addToSendQueue(node);
+  } else {
+    addToSendQueue(TO_HEX(node));
+  }
+  addToSendQueue(cmd);
+  addToSendQueue(TO_HEX(data));
+  addToSendQueue('\n');
+}
 
 static void sendThresholdMode(uint8_t node) {
   addToSendQueue('S');
@@ -595,6 +686,33 @@ void SendAllSettings(uint8_t NodeAddr) {
   update_outputs(); // Flush output after each node to prevent lost messages
 }
 
+void sendAllExtendedSettings() {
+  sendExtendedCommandInt32('S', '*', EXTENDED_VERSION, EXTENDED_PROTOCOL_VERSION);
+}
+
+
+void handleExtendedCommands(uint8_t* data, uint8_t length) {
+  uint8_t node_addr = TO_BYTE(data[1]);
+  uint8_t control_byte = data[2];
+  //set commands
+  // TODO: remove length > 4 here to reduce duplicate code
+  if(length > 4) {
+    switch(control_byte) {
+      default:
+        break;
+    }
+
+  } else {
+    switch(control_byte) {
+      case EXTENDED_ALL_SETTINGS:
+        sendAllExtendedSettings();
+        break;
+      case EXTENDED_VERSION:
+        sendExtendedCommandInt32('S', '*', EXTENDED_VERSION, EXTENDED_PROTOCOL_VERSION);
+    }
+  }
+}
+
 void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t NodeAddr, uint8_t length) {
 
   String InString = "";
@@ -610,6 +728,12 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   if (controlData[2] == CONTROL_GET_TIME) {
     //Serial.println("Sending Time.....");
     SendMillis();
+  }
+
+  if(ControlByte == EXTENDED_PREFIX) {
+    // We are removing the prefix here to make handling easier and if we ever decide to use another method
+    handleExtendedCommands((uint8_t*)controlData + 1, length - 1);
+    return;
   }
 
 
