@@ -82,28 +82,44 @@
 
 #define EXTENDED_ALL_SETTINGS 'a'
 
-#define EXTENDED_RACE_NUM 'R'
-#define EXTENDED_CALIB_MIN 'c'
-#define EXTENDED_CALIB_MAX 'C'
-#define EXTENDED_CALIB_START 's'
-#define EXTENDED_CALIB_STATUS 'S'
+#define EXTENDED_RACE_NUM 'R' // number of the current race
+// min calibration value
+#define EXTENDED_CALIB_MIN 'c' // uint16
+// max calibration value
+#define EXTENDED_CALIB_MAX 'C' // uint16
+// start a new calibration
+#define EXTENDED_CALIB_START 's' // half byte
+// the status of the calibration
+#define EXTENDED_CALIB_STATUS 'S' // half byte
+// get the voltage source type: ina219, adc5 etc
 #define EXTENDED_VOLTAGE_TYPE 'v'
+// the voltage calibration value
 #define EXTENDED_VOLTAGE_CALIB 'V' // uint16
+// number of installed modules
 #define EXTENDED_NUM_MODULES 'M' // half byte
-#define EXTENDED_CALIBRATE_START 'r'
-#define EXTENDED_EEPROM_RESET 'E'
-#define EXTENDED_DISPLAY_TIMEOUT 'D'
+// start a calibration
+#define EXTENDED_CALIBRATE_START 'r' // half byte
+// reset the eeprom
+#define EXTENDED_EEPROM_RESET 'E' // half byte
+// set the oled timeout in s. 0 to disable
+#define EXTENDED_DISPLAY_TIMEOUT 'D' // uint16
 #define EXTENDED_WIFI_CHANNEL 'W' // half byte
 #define EXTENDED_WIFI_PROTOCOL 'w' // half byte
 #define EXTENDED_FILTER_CUTOFF 'F'
-#define EXTENDED_MULTIPLEX_OFF 'm'
-#define EXTENDED_UPDATE_PROGRESS 'U'
-#define EXTENDED_RSSI 'y' // Time, RSSI
+// disables multiplexing for a pilot -> stays on the same module the entire time
+#define EXTENDED_MULTIPLEX_OFF 'm' // half byte
+// an rssi message with the time included
+#define EXTENDED_RSSI 'y' // Time(uin32), RSSI(uint16)
+
+// Debug variables for memory
 #define EXTENDED_DEBUG_FREE_HEAP 'H'
 #define EXTENDED_DEBUG_MIN_FREE_HEAP 'h'
 #define EXTENDED_DEBUG_MAX_BLOCK_HEAP 'B'
-#define EXTENDED_DEBUG_LOG 'L' // one halfbyte 0: off 1: on
+// enables logging over the socket
+#define EXTENDED_DEBUG_LOG 'L' // one halfbyte 0: off 1: on. response a string
+// sets the trigger mode i.e. threshold, max
 #define EXTENDED_TRIGGER_MODE 'T' // byte
+// the extended protocol version
 #define EXTENDED_VERSION '#' // uint32
 
 
