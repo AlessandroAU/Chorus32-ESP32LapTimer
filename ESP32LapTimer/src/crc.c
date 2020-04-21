@@ -1,17 +1,19 @@
-/**
- * \file
- * Functions and types for CRC checks.
+/*
+ * This file is part of Chorus32-ESP32LapTimer 
+ * (see https://github.com/AlessandroAU/Chorus32-ESP32LapTimer).
  *
- * Generated on Tue Jun 18 19:46:35 2019
- * by pycrc v0.9.2, https://pycrc.org
- * using the configuration:
- *  - Width         = 32
- *  - Poly          = 0x04c11db7
- *  - XorIn         = 0xffffffff
- *  - ReflectIn     = True
- *  - XorOut        = 0xffffffff
- *  - ReflectOut    = True
- *  - Algorithm     = table-driven
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "crc.h"     /* include the header file generated with pycrc */
 #include <stdlib.h>

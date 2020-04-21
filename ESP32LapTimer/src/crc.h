@@ -1,41 +1,19 @@
-/**
- * \file
- * Functions and types for CRC checks.
+/*
+ * This file is part of Chorus32-ESP32LapTimer 
+ * (see https://github.com/AlessandroAU/Chorus32-ESP32LapTimer).
  *
- * Generated on Tue Jun 18 19:46:32 2019
- * by pycrc v0.9.2, https://pycrc.org
- * using the configuration:
- *  - Width         = 32
- *  - Poly          = 0x04c11db7
- *  - XorIn         = 0xffffffff
- *  - ReflectIn     = True
- *  - XorOut        = 0xffffffff
- *  - ReflectOut    = True
- *  - Algorithm     = table-driven
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * This file defines the functions crc_init(), crc_update() and crc_finalize().
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * The crc_init() function returns the inital \c crc value and must be called
- * before the first call to crc_update().
- * Similarly, the crc_finalize() function must be called after the last call
- * to crc_update(), before the \c crc is being used.
- * is being used.
- *
- * The crc_update() function can be called any number of times (including zero
- * times) in between the crc_init() and crc_finalize() calls.
- *
- * This pseudo-code shows an example usage of the API:
- * \code{.c}
- * crc_t crc;
- * unsigned char data[MAX_DATA_LEN];
- * size_t data_len;
- *
- * crc = crc_init();
- * while ((data_len = read_data(data, MAX_DATA_LEN)) > 0) {
- *     crc = crc_update(crc, data, data_len);
- * }
- * crc = crc_finalize(crc);
- * \endcode
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef CRC_H
 #define CRC_H
