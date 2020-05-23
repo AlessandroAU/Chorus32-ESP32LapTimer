@@ -24,7 +24,7 @@
 RTC_NOINIT_ATTR static int crash_count = 0;
 
 bool is_crash_mode() {
-  return (crash_count > MAX_CRASH_COUNT) || (crash_count > -MAX_CRASH_COUNT);
+  return (crash_count > MAX_CRASH_COUNT) || (crash_count < -MAX_CRASH_COUNT);
 }
 
 void init_crash_detection() {
