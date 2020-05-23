@@ -187,6 +187,14 @@ uint8_t getNumReceivers() {
   return EepromSettings.NumReceivers;
 }
 
+uint8_t getMaxPilots() {
+#ifdef USE_MULTIPLEXING
+  return MAX_NUM_PILOTS;
+#else
+  return getNumReceivers();
+#endif
+}
+
 uint32_t getDisplayTimeout() {
   return EepromSettings.display_timeout_ms;
 }

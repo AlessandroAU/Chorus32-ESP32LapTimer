@@ -63,6 +63,9 @@
 // Enables the ArduinoOTA service. It allows flashing over WiFi and enters an emergency mode if a crashloop is detected.
 //#define USE_ARDUINO_OTA
 
+// Enables multiplexing. This causes the timer to always report 8 possible pilots and the client must support protocol v6
+//#define USE_MULTIPLEXING
+
 // BELOW ARE THE ADVANCED SETTINGS! ONLY CHANGE THEM IF YOU KNOW WHAT YOUR ARE DOING!
 
 #define EEPROM_VERSION_NUMBER 9 // Increment when eeprom struct modified

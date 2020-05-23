@@ -225,7 +225,7 @@ void SendMinLap(uint8_t NodeAddr) {
 }
 
 void SendIsModuleConfigured() {
-  for (int i = 0; i < MAX_NUM_PILOTS; i ++) {
+  for (int i = 0; i < getMaxPilots(); i ++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
     addToSendQueue(RESPONSE_IS_CONFIGURED);
@@ -269,7 +269,7 @@ void SendMillis() {
   uint8_t buf[8];
   longToHex(buf, CurrMillis);
 
-  for (int i = 0; i < MAX_NUM_PILOTS; i ++) {
+  for (int i = 0; i < getMaxPilots(); i ++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
     addToSendQueue(RESPONSE_TIME);
@@ -311,7 +311,7 @@ void SendCurrRSSIloop() {
     return;
   }
   if (millis() > rssiMonitorInterval + lastRSSIsent) {
-    for (int i = 0; i < MAX_NUM_PILOTS; i ++) {
+    for (int i = 0; i < getMaxPilots(); i ++) {
       SendCurrRSSI(i);
     }
   }
@@ -444,7 +444,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
 void SendNumberOfnodes() {
     addToSendQueue('N');
-    addToSendQueue(TO_HEX(MAX_NUM_PILOTS));
+    addToSendQueue(TO_HEX(getMaxPilots()));
     addToSendQueue('\n');
 }
 
@@ -568,7 +568,7 @@ void SendVRxFreq(uint8_t NodeAddr) {
 
 void sendAPIversion() {
 
-  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+  for (int i = 0; i < getMaxPilots(); i++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
     addToSendQueue(RESPONSE_API_VERSION);
@@ -655,7 +655,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
 
   if (controlData[2] == CONTROL_GET_ALL_DATA) {
-    for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+    for (int i = 0; i < getMaxPilots(); i++) {
       SendAllSettings(i);
       //delay(100);
     }
@@ -681,7 +681,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
       case CONTROL_RACE_MODE:
         valueToSet = TO_BYTE(controlData[3]);
         setRaceMode(valueToSet);
-        for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+        for (int i = 0; i < getMaxPilots(); i++) {
           SendRaceMode(i);
         }
         isConfigured = 1;
@@ -739,7 +739,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         //        }
         //addToSendQueue(SEND_SOUND_STATE);
         //playClickTones();
-        for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+        for (int i = 0; i < getMaxPilots(); i++) {
           SendSoundMode(i);
         }
         isConfigured = 1;
@@ -802,7 +802,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendMinLap(NodeAddrByte);
         break;
       case CONTROL_SOUND:
-        for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+        for (int i = 0; i < getMaxPilots(); i++) {
           SendSoundMode(i);
         }
         break;
@@ -811,7 +811,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
       case CONTROL_GET_RSSI: // get current RSSI value
         //Serial.println("sending current RSSI");
-        for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+        for (int i = 0; i < getMaxPilots(); i++) {
           SendCurrRSSI(i);
         }
         break;
@@ -841,7 +841,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 }
 
 void thresholdModeStep() {
-  for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
+  for(uint8_t i = 0; i < getMaxPilots(); ++i) {
     setupThreshold(RSSI_SETUP_NEXT_STEP, i);
   }
 }

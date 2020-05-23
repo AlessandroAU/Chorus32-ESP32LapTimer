@@ -74,6 +74,8 @@ int getWiFiChannel();
 int getWiFiProtocol();
 
 uint8_t getNumReceivers();
+uint8_t getMaxPilots();
+
 uint32_t getDisplayTimeout();
 
 void setSaveRequired();
