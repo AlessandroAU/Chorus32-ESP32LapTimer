@@ -23,6 +23,7 @@
 #define BOARD_DEFAULT 1
 #define BOARD_OLD 2
 #define BOARD_TTGO_LORA 3
+#define BOARD_WROOM 4
 
 ///Define the board used here
 ///For jye's PCB v2.x the value doesn't need to be changed

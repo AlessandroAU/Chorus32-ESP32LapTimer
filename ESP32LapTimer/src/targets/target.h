@@ -21,7 +21,9 @@
   #include "config_old.h"
 #elif BOARD==BOARD_TTGO_LORA
   #include "config_ttgo_lora_v1.h"
-#else 
+#elif BOARD==BOARD_WROOM
+  #include "config_wroom.h"
+#else
   #error "Unknown board!"
 #endif
 
