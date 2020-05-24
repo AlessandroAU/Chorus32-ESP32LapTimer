@@ -1,5 +1,5 @@
 /*
- * This file is part of Chorus32-ESP32LapTimer 
+ * This file is part of Chorus32-ESP32LapTimer
  * (see https://github.com/AlessandroAU/Chorus32-ESP32LapTimer).
  *
  * This program is free software: you can redistribute it and/or modify
@@ -72,7 +72,7 @@ typedef struct pilot_data_s {
   /// Pilot state 0: unsused, 1: active
   uint8_t state;
   receiver_data_t* current_rx;
-  uint8_t number;
+  uint8_t number; // the number of the pilot. is the same as the position in the array. this is used for fast access to that number from the queue
   uint32_t unused_time; // used to force a certain stay time. if we allow an instant switch, modules would be constantly switching with e.g. 6 modules and 7 pilots
   bool disable_multiplexing; // don't switch this pilot. scenario: 3 modules installed with 4 pilots. 2 pilots really care about their time and the other 2 just want to see their approximate time. so fix the first two pilots and the remaining module multiplexes the other 2
 } pilot_data_t;
@@ -117,6 +117,7 @@ static IRAM_ATTR bool setNextPilot(uint8_t adc) {
   bool ret_val = false;
   if(new_pilot) {
     if(new_pilot->state == PILOT_ACTIVE) {
+      // If the pilot is active and had didn't have an rx assigned in the specified time, we assign this pilot to the given adc
       if((micros() - new_pilot->unused_time) > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US){
         new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue);
         // set old pilot to active again

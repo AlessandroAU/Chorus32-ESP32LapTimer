@@ -1,5 +1,5 @@
 /*
- * This file is part of Chorus32-ESP32LapTimer 
+ * This file is part of Chorus32-ESP32LapTimer
  * (see https://github.com/AlessandroAU/Chorus32-ESP32LapTimer).
  *
  * This program is free software: you can redistribute it and/or modify
@@ -66,6 +66,7 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
 
 void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
   if (node < MAX_NUM_RECEIVERS) {
+    lastUpdate[node] = micros();
     rxWrite(addressBits, dataBits, CS_PINS[node]);
   }
 }
@@ -85,7 +86,7 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
     digitalWrite(CS_PINS[i], HIGH);
   }
 
-  delayMicroseconds(MIN_TUNE_TIME);
+  delayMicroseconds(MIN_TUNE_TIME_US);
 
   SPI.endTransaction();
 
