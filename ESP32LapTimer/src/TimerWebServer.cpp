@@ -94,9 +94,7 @@ void updateRx (int band, int channel, int rx) {
   rx = rx - 1;
   setModuleChannelBand(band, channel, rx);
   EepromSettings.RXBand[rx] = band;
-  setRXBand(rx, band);
   EepromSettings.RXChannel[rx] = channel;
-  setRXChannel(rx, channel);
   uint16_t index = getRXChannel(rx) + (8 * getRXBand(rx));
   EepromSettings.RXfrequencies[rx] = channelFreqTable[index];
 }
@@ -140,28 +138,28 @@ void ProcessGeneralSettingsUpdate(AsyncWebServerRequest* req) {
   int channel1 = (byte)Channel1.toInt();
   updateRx(band1, channel1, 1);
 
-  if (getNumReceivers() >= 1) {
+  if (getNumReceivers() > 1) {
     String Band2 = req->arg("band2");
     String Channel2 = req->arg("channel2");
     int band2 = (byte)Band2.toInt();
     int channel2 = (byte)Channel2.toInt();
     updateRx(band2, channel2, 2);
   }
-  if (getNumReceivers() >= 2) {
+  if (getNumReceivers() > 2) {
     String Band3 = req->arg("band3");
     String Channel3 = req->arg("channel3");
     int band3 = (byte)Band3.toInt();
     int channel3 = (byte)Channel3.toInt();
     updateRx(band3, channel3, 3);
   }
-  if (getNumReceivers() >= 3) {
+  if (getNumReceivers() > 3) {
     String Band4 = req->arg("band4");
     String Channel4 = req->arg("channel4");
     int band4 = (byte)Band4.toInt();
     int channel4 = (byte)Channel4.toInt();
     updateRx(band4, channel4, 4);
   }
-  if (getNumReceivers() >= 4) {
+  if (getNumReceivers() > 4) {
     String Band5 = req->arg("band5");
     String Channel5 = req->arg("channel5");
     int band5 = (byte)Band5.toInt();
@@ -169,7 +167,7 @@ void ProcessGeneralSettingsUpdate(AsyncWebServerRequest* req) {
     updateRx(band5, channel5, 5);
   }
 
-  if (getNumReceivers() >= 5) {
+  if (getNumReceivers() > 5) {
     String Band6 = req->arg("band6");
     String Channel6 = req->arg("channel6");
     int band6 = (byte)Band6.toInt();

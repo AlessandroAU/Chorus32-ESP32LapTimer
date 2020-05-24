@@ -28,6 +28,7 @@ void InitHardwarePins() {
   pinMode(MOSI, OUTPUT);
   for(int i = 0; i < MAX_NUM_RECEIVERS; i++) {
     pinMode(CS_PINS[i], OUTPUT);
+    digitalWrite(CS_PINS[i], HIGH);
   }
   //pinMode(MISO, INPUT);
   pinMode(BEEPER, OUTPUT);
