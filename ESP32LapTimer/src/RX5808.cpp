@@ -51,8 +51,8 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
   digitalWrite(CSpin, LOW);
   SPI.transferBits(data, NULL, 25);
 
-  delayMicroseconds(MIN_TUNE_TIME);
   digitalWrite(CSpin, HIGH);
+  delayMicroseconds(MIN_TUNE_TIME);
   SPI.endTransaction();
 
 }
@@ -73,11 +73,11 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
 
   SPI.transferBits(data, NULL, 25);
 
-  delayMicroseconds(MIN_TUNE_TIME);
-
   for(int i = 0; i < MAX_NUM_RECEIVERS; i++) {
     digitalWrite(CS_PINS[i], HIGH);
   }
+
+  delayMicroseconds(MIN_TUNE_TIME);
 
   SPI.endTransaction();
 
