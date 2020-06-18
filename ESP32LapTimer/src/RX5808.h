@@ -23,6 +23,7 @@
 #include <Arduino.h>
 
 #define MAX_BAND 7
+#define MAX_CHANNEL 7
 
 //// Channels to send to the SPI registers
 //const uint16_t channelTable[] PROGMEM = {
@@ -64,7 +65,6 @@ const uint16_t channelFreqTable[] = {
 //  // even more connex, last 6 unused!!!
 //};
 
-uint16_t setModuleChannel(uint8_t channel, uint8_t band);
 
 void InitSPI();
 void SetDefaultRegs();
@@ -74,12 +74,23 @@ uint16_t setModuleFrequencyAll(uint16_t frequency);
 uint16_t setModuleFrequency(uint16_t frequency, uint8_t NodeAddr);
 String getBandLabel(int band);
 
-void setRXBand(uint8_t node, uint8_t band);
-uint8_t getRXBand(uint8_t node);
+void setRXBandModule(uint8_t module, uint8_t band);
+uint8_t getRXBandModule(uint8_t module);
 
-void setRXChannel(uint8_t node, uint8_t channel);
-uint8_t getRXChannel(uint8_t node);
+void setRXChannelModule(uint8_t module, uint8_t channel);
+uint8_t getRXChannelModule(uint8_t module);
 
 uint16_t getFrequencyFromBandChannel(uint8_t band, uint8_t channel);
+
+bool isRxReady(uint8_t module);
+
+void RXpowerOn(uint8_t NodeAddr);
+void RXstandBy(uint8_t NodeAddr);
+void RXPowerDown(uint8_t NodeAddr);
+void RXreset(uint8_t NodeAddr);
+void RXstandBy(uint8_t NodeAddr);
+void RXPowerUpAll();
+void RXPowerDownAll();
+void RXResetAll();
 
 #endif

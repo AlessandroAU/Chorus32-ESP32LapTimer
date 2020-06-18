@@ -63,13 +63,20 @@ void IRAM_ATTR adc_task(void* args) {
   watchdog_add_task();
   while(42) {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    nbADCread(NULL);
+    if(LIKELY(!isCalibrating())) {
+      nbADCread(NULL);
+    } else {
+      rssiCalibrationUpdate();
+    }
     watchdog_feed();
   }
 }
 
 void setup() {
   init_crash_detection();
+  InitSPI();
+  InitHardwarePins();
+  RXPowerDownAll(); // Powers down all RX5808's
 
   Serial.begin(115200);
   Serial.println("Booting....");
@@ -87,15 +94,15 @@ void setup() {
 #ifdef USE_BUTTONS
   newButtonSetup();
 #endif
+  resetLaptimes();
 
   EepromSettings.setup();
+  setRXADCfilter(EepromSettings.RXADCfilter);
+  setADCVBATmode(EepromSettings.ADCVBATmode);
+  setVbatCal(EepromSettings.VBATcalibration);
 
-  delay(500);
-  InitHardwarePins();
+  delay(30);
   ConfigureADC();
-
-  InitSPI();
-  //PowerDownAll(); // Powers down all RX5808's
   delay(250);
 
   InitWifi();
@@ -107,30 +114,26 @@ void setup() {
     Serial.println("Detected That EEPROM corruption has occured.... \n Resetting EEPROM to Defaults....");
   }
 
-  setRXADCfilter(EepromSettings.RXADCfilter);
-  setADCVBATmode(EepromSettings.ADCVBATmode);
-  setVbatCal(EepromSettings.VBATcalibration);
   commsSetup();
-  init_outputs();
 
-  for (int i = 0; i < getNumReceivers(); i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
+
+  // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
+  for (int i = 0; i < getNumReceivers()*10; i++) {
+    setModuleChannelBand(i % getNumReceivers());
+    delayMicroseconds(MIN_TUNE_TIME_US);
+  }
+
+  init_outputs();
+  Serial.println("Starting ADC reading task on core 0");
 
   xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, &adc_task_handle, 0);
   hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
   timerAttachInterrupt(adc_task_timer, &adc_read, true);
   timerAlarmWrite(adc_task_timer, 1667, true); // 6khz -> 1khz per adc channel
   timerAlarmEnable(adc_task_timer);
-
-  //SelectivePowerUp();
-
-  // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
-  for (int i = 0; i < getNumReceivers()*10; i++) {
-    setModuleChannelBand(i % getNumReceivers());
-  }
-
-  //beep();
 }
 
 void loop() {
@@ -142,13 +145,6 @@ void loop() {
     reset_crash_count();
   }
   rssiCalibrationUpdate();
-  // touchMonitor(); // A function to monitor capacitive touch values, defined in buttons.ino
-
-  //  if (shouldReboot) {  //checks if reboot is needed
-  //    Serial.println("Rebooting...");
-  //    delay(100);
-  //    ESP.restart();
-  //  }
 #ifdef USE_BUTTONS
   newButtonUpdate();
 #endif

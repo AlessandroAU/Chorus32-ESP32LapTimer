@@ -86,6 +86,7 @@
 #define CONTROL_NUM_RECIEVERS       'N'
 #define CONTROL_SOUND               'S'
 #define CONTROL_THRESHOLD           'T'
+#define CONTROL_PILOT_ACTIVE        'A'
 // get only:
 #define CONTROL_GET_API_VERSION     '#'
 #define CONTROL_WILDCARD_INDICATOR  '*'
@@ -108,6 +109,7 @@
 #define RESPONSE_MIN_LAP_TIME        'M'
 #define RESPONSE_SOUND               'S'
 #define RESPONSE_THRESHOLD           'T'
+#define RESPONSE_PILOT_ACTIVE        'A'
 
 #define RESPONSE_API_VERSION         '#'
 #define RESPONSE_RSSI                'r'
@@ -171,8 +173,7 @@ static uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted re
 static uint8_t isConfigured = 0; //changes to 1 if any input changes the state of the device. it will mean that externally stored preferences should not be applied
 static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
 
-static uint8_t thresholdSetupMode[MAX_NUM_RECEIVERS];
-static uint16_t RXfrequencies[MAX_NUM_RECEIVERS];
+static uint8_t thresholdSetupMode[MAX_NUM_PILOTS];
 
 static void sendThresholdMode(uint8_t node) {
   addToSendQueue('S');
@@ -183,26 +184,21 @@ static void sendThresholdMode(uint8_t node) {
 }
 
 void commsSetup() {
-  for (int i = 0; i < getNumReceivers(); i++) {
-    setRXBand(i, EepromSettings.RXBand[i]);
-    setRXChannel(i, EepromSettings.RXChannel[i]);
-    RXfrequencies[i] = EepromSettings.RXfrequencies[i];
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     thresholdSetupMode[i] = 0;
   }
 }
 
 void setRaceMode(uint8_t mode) {
   if (mode == 0) { // stop race
-
     resetLaptimes();
-
     raceMode = 0;
     //playEndRaceTones();
   } else { // start race in specified mode
     //holeShot = true;
     raceMode = mode;
     startRaceLap();
-    for(uint8_t i = 0; i < getNumReceivers(); ++i) {
+    for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
       if(thresholdSetupMode[i]) {
         thresholdSetupMode[i] = 0;
         sendThresholdMode(i);
@@ -211,7 +207,6 @@ void setRaceMode(uint8_t mode) {
     //playStartRaceTones();
   }
 }
-
 
 void setMinLap(uint8_t mlt) {
   if (mlt >= MIN_MIN_LAP_TIME && mlt <= MAX_MIN_LAP_TIME) {
@@ -230,7 +225,7 @@ void SendMinLap(uint8_t NodeAddr) {
 }
 
 void SendIsModuleConfigured() {
-  for (int i = 0; i < getNumReceivers(); i ++) {
+  for (int i = 0; i < getMaxPilots(); i ++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
     addToSendQueue(RESPONSE_IS_CONFIGURED);
@@ -274,7 +269,7 @@ void SendMillis() {
   uint8_t buf[8];
   longToHex(buf, CurrMillis);
 
-  for (int i = 0; i < getNumReceivers(); i ++) {
+  for (int i = 0; i < getMaxPilots(); i ++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
     addToSendQueue(RESPONSE_TIME);
@@ -316,7 +311,7 @@ void SendCurrRSSIloop() {
     return;
   }
   if (millis() > rssiMonitorInterval + lastRSSIsent) {
-    for (int i = 0; i < getNumReceivers(); i ++) {
+    for (int i = 0; i < getMaxPilots(); i ++) {
       SendCurrRSSI(i);
     }
   }
@@ -340,11 +335,11 @@ void setupThreshold(uint8_t phase, uint8_t node) {
 #define RISE_RSSI_THRESHOLD_PERCENT 25 // rssi value should pass this percentage above low value to continue finding the peak and further fall down of rssi
 #define FALL_RSSI_THRESHOLD_PERCENT 50 // rssi should fall below this percentage of diff between high and low to finalize setup of the threshold
 
-  static uint16_t rssiLow[MAX_NUM_RECEIVERS];
-  static uint16_t rssiHigh[MAX_NUM_RECEIVERS];
-  static uint16_t rssiHighEnoughForMonitoring[MAX_NUM_RECEIVERS];
-  static uint32_t accumulatedShiftedRssi[MAX_NUM_RECEIVERS]; // accumulates rssi slowly; contains multiplied rssi value for better accuracy
-  static uint32_t lastRssiAccumulationTime[MAX_NUM_RECEIVERS];
+  static uint16_t rssiLow[MAX_NUM_PILOTS];
+  static uint16_t rssiHigh[MAX_NUM_PILOTS];
+  static uint16_t rssiHighEnoughForMonitoring[MAX_NUM_PILOTS];
+  static uint32_t accumulatedShiftedRssi[MAX_NUM_PILOTS]; // accumulates rssi slowly; contains multiplied rssi value for better accuracy
+  static uint32_t lastRssiAccumulationTime[MAX_NUM_PILOTS];
 
   if (!thresholdSetupMode[node]) return;
 
@@ -364,7 +359,6 @@ void setupThreshold(uint8_t phase, uint8_t node) {
     // active phase step (searching for high value and fall down)
     if (thresholdSetupMode[node] == 1) {
       // in this phase of the setup we are tracking rssi growth until it reaches the predefined percentage from low
-
       // searching for peak; using slowRssi to avoid catching sudden random peaks
       if (rssi > rssiHigh[node]) {
         rssiHigh[node] = rssi;
@@ -388,7 +382,6 @@ void setupThreshold(uint8_t phase, uint8_t node) {
       }
     } else {
       // in this phase of the setup we are tracking highest rssi and expect it to fall back down so that we know that the process is complete
-
       // continue searching for peak; using slowRssi to avoid catching sudden random peaks
       if (rssi > rssiHigh[node]) {
         rssiHigh[node] = rssi;
@@ -451,20 +444,28 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
 void SendNumberOfnodes() {
     addToSendQueue('N');
-    addToSendQueue(TO_HEX(getNumReceivers()));
+    addToSendQueue(TO_HEX(getMaxPilots()));
     addToSendQueue('\n');
 }
 
 void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
-  uint8_t Pointer = getCurrentLap(NodeAddr);
-  for (uint8_t i = 0; i < Pointer; i++) {
+  uint8_t lap_count = getCurrentLap(NodeAddr);
+  for (uint8_t i = 0; i < lap_count; i++) {
     sendLap(i + 1, NodeAddr);
     update_outputs(); // Flush outputs as the buffer could overflow with a large number of laps
   }
 }
 
-void SendRSSImonitorInterval(uint8_t NodeAddr) {
+void sendPilotActive(uint8_t pilot) {
+  uint8_t status = isPilotActive(pilot);
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(pilot));
+  addToSendQueue('A');
+  addToSendQueue(TO_HEX(status));
+  addToSendQueue('\n');
+}
 
+void SendRSSImonitorInterval(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   uint8_t buf[4];
@@ -533,7 +534,7 @@ void SendVRxBand(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue(RESPONSE_BAND);
-  addToSendQueue(TO_HEX(getRXBand(NodeAddr)));
+  addToSendQueue(TO_HEX(getPilotBand(NodeAddr)));
   addToSendQueue('\n');
   //SendVRxFreq(NodeAddr);
 
@@ -544,7 +545,7 @@ void SendVRxChannel(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue(RESPONSE_CHANNEL);
-  addToSendQueue(TO_HEX(getRXChannel(NodeAddr)));
+  addToSendQueue(TO_HEX(getPilotChannel(NodeAddr)));
   addToSendQueue('\n');
   //SendVRxFreq(NodeAddr);
 
@@ -552,7 +553,7 @@ void SendVRxChannel(uint8_t NodeAddr) {
 
 void SendVRxFreq(uint8_t NodeAddr) {
   //Cmd Byte F
-  uint8_t index = getRXChannel(NodeAddr) + (8 * getRXBand(NodeAddr));
+  uint8_t index = getPilotChannel(NodeAddr) + (8 * getPilotBand(NodeAddr));
   uint16_t frequency = channelFreqTable[index];
 
   addToSendQueue('S');
@@ -567,7 +568,7 @@ void SendVRxFreq(uint8_t NodeAddr) {
 
 void sendAPIversion() {
 
-  for (int i = 0; i < getNumReceivers(); i++) {
+  for (int i = 0; i < getMaxPilots(); i++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
     addToSendQueue(RESPONSE_API_VERSION);
@@ -629,6 +630,7 @@ void SendAllSettings(uint8_t NodeAddr) {
   SendAllLaps(NodeAddr);
   sendAPIversion();
   sendThresholdMode(NodeAddr);
+  sendPilotActive(NodeAddr);
   SendXdone(NodeAddr);
 
   update_outputs(); // Flush output after each node to prevent lost messages
@@ -653,7 +655,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
 
   if (controlData[2] == CONTROL_GET_ALL_DATA) {
-    for (int i = 0; i < getNumReceivers(); i++) {
+    for (int i = 0; i < getMaxPilots(); i++) {
       SendAllSettings(i);
       //delay(100);
     }
@@ -671,10 +673,15 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   if (length > 4) { // set value commands  changed to n+1 ie, 3+1 = 4.
     switch (ControlByte) {
 
+    case CONTROL_PILOT_ACTIVE:
+      valueToSet = TO_BYTE(controlData[3]);
+      setPilotActive(NodeAddrByte, valueToSet);
+      break;
+
       case CONTROL_RACE_MODE:
         valueToSet = TO_BYTE(controlData[3]);
         setRaceMode(valueToSet);
-        for (int i = 0; i < getNumReceivers(); i++) {
+        for (int i = 0; i < getMaxPilots(); i++) {
           SendRaceMode(i);
         }
         isConfigured = 1;
@@ -688,37 +695,25 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
 
       case CONTROL_BAND:
-
-        setRXBand(NodeAddrByte, TO_BYTE(controlData[3]));
-        setModuleChannelBand(NodeAddrByte);
+        setPilotBand(NodeAddrByte, TO_BYTE(controlData[3]));
         SendVRxBand(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
-        EepromSettings.RXBand[NodeAddrByte] = getRXBand(NodeAddrByte);
-        setSaveRequired();
         break;
 
       case CONTROL_CHANNEL:
-
-        setRXChannel(NodeAddrByte, TO_BYTE(controlData[3]));
-        setModuleChannelBand(NodeAddrByte);
+        setPilotChannel(NodeAddrByte, TO_BYTE(controlData[3]));
         SendVRxChannel(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
-        EepromSettings.RXChannel[NodeAddrByte] = getRXChannel(NodeAddrByte);
-        setSaveRequired();
         break;
 
       case CONTROL_FREQUENCY:
-
         InString += (char)controlData[3];
         InString += (char)controlData[4];
         InString += (char)controlData[5];
         InString += (char)controlData[6];
-        RXfrequencies[NodeAddr] = InString.toInt();
-        EepromSettings.RXfrequencies[NodeAddr] = RXfrequencies[NodeAddr];
-        setSaveRequired();
-        setModuleFrequency(RXfrequencies[NodeAddrByte], NodeAddrByte);
+        setPilotFrequency(InString.toInt(), NodeAddrByte);
         isConfigured = 1;
         break;
 
@@ -744,7 +739,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         //        }
         //addToSendQueue(SEND_SOUND_STATE);
         //playClickTones();
-        for (int i = 0; i < getNumReceivers(); i++) {
+        for (int i = 0; i < getMaxPilots(); i++) {
           SendSoundMode(i);
         }
         isConfigured = 1;
@@ -766,7 +761,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         valueToSet = TO_BYTE(controlData[3]);
         uint8_t node = TO_BYTE(controlData[1]);
         // Skip this if we get an invalid node id
-        if(node >= MAX_NUM_RECEIVERS) {
+        if(node >= MAX_NUM_PILOTS) {
           break;
         }
         if (!raceMode) { // don't run threshold setup in race mode because we don't calculate slowRssi in race mode, but it's needed for setup threshold algorithm
@@ -807,7 +802,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendMinLap(NodeAddrByte);
         break;
       case CONTROL_SOUND:
-        for (int i = 0; i < getNumReceivers(); i++) {
+        for (int i = 0; i < getMaxPilots(); i++) {
           SendSoundMode(i);
         }
         break;
@@ -816,7 +811,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
       case CONTROL_GET_RSSI: // get current RSSI value
         //Serial.println("sending current RSSI");
-        for (int i = 0; i < getNumReceivers(); i++) {
+        for (int i = 0; i < getMaxPilots(); i++) {
           SendCurrRSSI(i);
         }
         break;
@@ -846,7 +841,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 }
 
 void thresholdModeStep() {
-  for(uint8_t i = 0; i < MAX_NUM_RECEIVERS; ++i) {
+  for(uint8_t i = 0; i < getMaxPilots(); ++i) {
     setupThreshold(RSSI_SETUP_NEXT_STEP, i);
   }
 }

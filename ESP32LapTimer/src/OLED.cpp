@@ -27,7 +27,10 @@
 #include "RX5808.h"
 #include "Calibration.h"
 #include "TimerWebServer.h"
+#include "Filter.h"
 #include "Utils.h"
+
+#define SUMMARY_PILOTS_PER_PAGE 6
 
 static uint8_t oledRefreshTime = 50;
 static uint32_t last_input_ms = 0;
@@ -48,11 +51,18 @@ static struct rxPageData_s {
   uint8_t currentPilotNumber;
 } rxPageData;
 
+static struct adcPageData_s {
+  lowpass_filter_t filter;
+} adcPageData;
+
+static struct summaryPageData_s {
+  uint8_t first_pilot;
+} summaryPageData;
 
 
 oled_page_t oled_pages[] = {
-  {NULL, NULL, summary_page_update, next_page_input},
-  {NULL, NULL, adc_page_update, next_page_input},
+  {&summaryPageData, summary_page_init, summary_page_update, summary_page_input},
+  {&adcPageData, adc_page_init, adc_page_update, next_page_input},
   {NULL, NULL, calib_page_update, calib_page_input},
   {NULL, NULL, airplane_page_update, airplane_page_input},
   {&rxPageData, rx_page_init, rx_page_update, rx_page_input}
@@ -73,7 +83,7 @@ void oledSetup(void) {
   display.drawFastImage(0, 0, 128, 64, ChorusLaptimerLogo_Screensaver);
   display.display();
   display.setFont(Dialog_plain_9);
-  
+
   for(uint8_t i = 0; i < NUM_OLED_PAGES; ++i) {
     if(oled_pages[i].init) {
       oled_pages[i].init(oled_pages[i].data);
@@ -131,7 +141,7 @@ void rx_page_input(void* data, uint8_t index, uint8_t type) {
   rxPageData_s* my_data = (rxPageData_s*) data;
   if(index == 0 && type == BUTTON_SHORT) {
     ++my_data->currentPilotNumber;
-    if(my_data->currentPilotNumber >= getNumReceivers()) {
+    if(my_data->currentPilotNumber >= MAX_NUM_PILOTS) {
       oledNextPage();
       my_data->currentPilotNumber = 0;
     }
@@ -147,14 +157,14 @@ void rx_page_input(void* data, uint8_t index, uint8_t type) {
 void rx_page_update(void* data) {
   // Gather Data
   rxPageData_s* my_data = (rxPageData_s*) data;
-  uint8_t frequencyIndex = getRXChannel(my_data->currentPilotNumber) + (8 * getRXBand(my_data->currentPilotNumber));
+  uint8_t frequencyIndex = getPilotChannel(my_data->currentPilotNumber) + (8 * getPilotBand(my_data->currentPilotNumber));
   uint16_t frequency = channelFreqTable[frequencyIndex];
 
   // Display things
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_16);
   display.drawString(0, 0, "Settings for RX" + String(my_data->currentPilotNumber + 1));
-  display.drawString(0, 18, getBandLabel(getRXBand(my_data->currentPilotNumber)) + String(getRXChannel(my_data->currentPilotNumber) + 1) + " - " + frequency);
+  display.drawString(0, 18, getBandLabel(getPilotBand(my_data->currentPilotNumber)) + String(getPilotChannel(my_data->currentPilotNumber) + 1) + " - " + frequency);
   if (getRSSI(my_data->currentPilotNumber) < 600) {
     display.drawProgressBar(48, 35, 120 - 42, 8, map(600, 600, 3500, 0, 85));
   } else {
@@ -167,7 +177,26 @@ void rx_page_update(void* data) {
   display.drawString(0,55, "Btn2 LONG  - Band.");
 }
 
-void summary_page_update(void* data) {
+void summary_page_init(void* data) {
+  summaryPageData_s* my_data = (summaryPageData_s*) data;
+  my_data->first_pilot = 0;
+}
+
+void summary_page_input(void* data, uint8_t index, uint8_t type) {
+  summaryPageData_s* my_data = (summaryPageData_s*) data;
+  if(index == 1 && type == BUTTON_SHORT) {
+    if(my_data->first_pilot + SUMMARY_PILOTS_PER_PAGE >= getActivePilots()) {
+      my_data->first_pilot = 0;
+    } else {
+      my_data->first_pilot += MIN(SUMMARY_PILOTS_PER_PAGE, getActivePilots() - SUMMARY_PILOTS_PER_PAGE);
+    }
+  }
+  else {
+    next_page_input(data, index, type);
+  }
+}
+
+void draw_header() {
   // Display on time
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   // Hours
@@ -198,22 +227,40 @@ void summary_page_update(void* data) {
   if (getADCVBATmode() == INA219) {
     display.drawString(90, 0, String(getMaFloat()/1000, 2) + "A");
   }
-  
+}
+
+void summary_page_update(void* data) {
+  summaryPageData_s* my_data = (summaryPageData_s*) data;
+  draw_header();
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   #define RSSI_BAR_LENGTH (127 - 42)
   #define RSSI_BAR_HEIGHT 8
   #define RSSI_BAR_X_OFFSET 40
-  for (int i = 0; i < getNumReceivers(); i++) {
-    display.drawString(0, 9 + i * 9, getBandLabel(getRXBand(i)) + String(getRXChannel(i) + 1) + ", " + String(getRSSI(i) / 12));
-    display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + i * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
-    display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(MAX(getRSSIThreshold(i), RSSI_ADC_READING_MIN), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + i * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
+  uint8_t skipped = 0;
+  uint8_t first_pilot = my_data->first_pilot;
+  for (uint8_t i = 0; i < SUMMARY_PILOTS_PER_PAGE + skipped && (i + first_pilot) < MAX_NUM_PILOTS; ++i) {
+    if(isPilotActive(i+first_pilot)) {
+      display.drawString(0, 9 + (i - skipped) * 9, String(i+1+first_pilot) + ":" + getBandLabel(getPilotBand(i + first_pilot)) + String(getPilotChannel(i + first_pilot) + 1) + "," + String(getRSSI(i + first_pilot) / 12));
+      display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + (i - skipped) * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i + first_pilot), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
+      display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(MAX(getRSSIThreshold(i + first_pilot), RSSI_ADC_READING_MIN), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + (i - skipped) * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
+    }
+    else {
+      ++skipped;
+    }
   }
 }
 
+void adc_page_init(void* data) {
+  adcPageData_s* my_data = (adcPageData_s*)data;
+  filter_init(&my_data->filter, 1, oledRefreshTime/1000.0);
+}
+
 void adc_page_update(void* data) {
+  adcPageData_s* my_data = (adcPageData_s*)data;
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.drawString(0, 0, "ADC loop " + String(getADCLoopCount() * (1000.0 / oledRefreshTime)) + " Hz");
+  float freq = filter_add_value(&my_data->filter, getADCLoopCount() * (1000.0 / oledRefreshTime));
+  display.drawString(0, 0, "ADC loop " + String(freq) + " Hz");
   setADCLoopCount(0);
   display.drawString(0, 9, String(getMaFloat()) + " mA");
 }
@@ -232,7 +279,7 @@ void calib_page_update(void* data) {
 void calib_page_input(void* data, uint8_t index, uint8_t type) {
   (void)data;
   if(index == 1 && type == BUTTON_SHORT) {
-    rssiCalibration();  
+    rssiCalibration();
   }
   else {
     next_page_input(data, index, type);
@@ -262,27 +309,24 @@ void airplane_page_input(void* data, uint8_t index, uint8_t type) {
 }
 
 void incrementRxFrequency(uint8_t currentRXNumber) {
-  uint8_t currentRXChannel = getRXChannel(currentRXNumber);
-  uint8_t currentRXBand = getRXBand(currentRXNumber);
+  uint8_t currentRXChannel = getPilotChannel(currentRXNumber);
   currentRXChannel++;
   if (currentRXChannel >= 8) {
-    //currentRXBand++;
     currentRXChannel = 0;
   }
-  if (currentRXBand >= 7 && currentRXChannel >= 2) {
-    currentRXBand = 0;
-    currentRXChannel = 0;
-  }
-  setModuleChannelBand(currentRXChannel,currentRXBand,currentRXNumber);
+  setPilotChannel(currentRXNumber, currentRXChannel);
+  EepromSettings.RXChannel[currentRXNumber] = getPilotChannel(currentRXNumber);
+  setSaveRequired();
 }
 void incrementRxBand(uint8_t currentRXNumber) {
-  uint8_t currentRXChannel = getRXChannel(currentRXNumber);
-  uint8_t currentRXBand = getRXBand(currentRXNumber);
+  uint8_t currentRXBand = getPilotBand(currentRXNumber);
   currentRXBand++;
   if (currentRXBand >= 8) {
     currentRXBand = 0;
   }
-  setModuleChannelBand(currentRXChannel,currentRXBand,currentRXNumber);
+  setPilotBand(currentRXNumber, currentRXBand);
+  EepromSettings.RXBand[currentRXNumber] = getPilotBand(currentRXNumber);
+  setSaveRequired();
 }
 
 void setDisplayScreenNumber(uint16_t num) {

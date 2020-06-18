@@ -24,22 +24,21 @@
 #include "settings_eeprom.h"
 #include "Comms.h"
 
-static volatile uint32_t LapTimes[MAX_NUM_RECEIVERS][MAX_LAPS_NUM];
-static volatile int lap_counter[MAX_NUM_RECEIVERS] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
-static int last_lap_sent[MAX_NUM_RECEIVERS];
+static uint32_t LapTimes[MAX_NUM_PILOTS][MAX_LAPS_NUM];
+static uint8_t lap_counter[MAX_NUM_PILOTS]; //Keep track of what lap we are up too
+static int last_lap_sent[MAX_NUM_PILOTS];
 
 static uint32_t MinLapTime = 5000;  //this is in millis
 static uint32_t start_time = 0;
 
 void resetLaptimes() {
-  for (int i = 0; i < getNumReceivers(); ++i) {
-    lap_counter[i] = 0;
-    last_lap_sent[i] = 0;
-  }
+  memset(LapTimes, 0, MAX_NUM_PILOTS * MAX_LAPS_NUM * sizeof(LapTimes[0][0]));
+  memset(lap_counter, 0, MAX_NUM_PILOTS * sizeof(lap_counter[0]));
+  memset(last_lap_sent, 0, MAX_NUM_PILOTS * sizeof(last_lap_sent[0]));
 }
 
 void sendNewLaps() {
-  for (int i = 0; i < getNumReceivers(); ++i) {
+  for (int i = 0; i < MAX_NUM_PILOTS; ++i) {
     int laps_to_send = lap_counter[i] - last_lap_sent[i];
     if(laps_to_send > 0) {
       for(int j = 0; j < laps_to_send; ++j) {
@@ -51,7 +50,10 @@ void sendNewLaps() {
 }
 
 uint32_t getLaptime(uint8_t receiver, uint8_t lap) {
-  return LapTimes[receiver][lap];
+  if(receiver < MAX_NUM_PILOTS && lap < MAX_LAPS_NUM) {
+    return LapTimes[receiver][lap];
+  }
+  return 0;
 }
 
 uint32_t getLaptime(uint8_t receiver) {

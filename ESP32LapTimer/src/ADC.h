@@ -19,6 +19,7 @@
 
 #include <esp_attr.h>
 #include <stdint.h>
+#include <driver/adc.h>
 
 #include "HardwareConfig.h"
 #include "Filter.h"
@@ -27,6 +28,8 @@ void ConfigureADC();
 void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t node);
 void ReadVBAT_INA219();
 void IRAM_ATTR nbADCread( void * pvParameters );
+adc1_channel_t IRAM_ATTR getADCChannel(uint8_t adc_num);
+uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples);
 
 uint16_t getRSSI(uint8_t index);
 void setRSSIThreshold(uint8_t node, uint16_t threshold);
@@ -42,3 +45,17 @@ void setVbatFloat(float val);
 
 float getVBATcalibration();
 void setVBATcalibration(float val);
+
+// TODO: these don't belong here!
+uint8_t getActivePilots();
+bool isPilotActive(uint8_t pilot);
+void setPilotActive(uint8_t pilot, bool active);
+void setPilotFilters(uint16_t cutoff);
+
+void setPilotBand(uint8_t pilot, uint8_t band);
+void setPilotChannel(uint8_t pilot, uint8_t channel);
+void setPilotFrequency(uint8_t pilot, uint16_t frequency);
+
+uint8_t getPilotBand(uint8_t pilot);
+uint8_t getPilotChannel(uint8_t pilot);
+uint16_t getPilotFrequency(uint8_t pilot);
