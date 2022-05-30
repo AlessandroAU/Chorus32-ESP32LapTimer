@@ -92,7 +92,7 @@ bool handleFileRead(AsyncWebServerRequest* req, String path) { // send the right
 
 void updateRx (int band, int channel, int rx) {
   rx = rx - 1;
-  setModuleChannelBand(band, channel, rx);
+  setModuleChannelBand(channel, band, rx);
   EepromSettings.RXBand[rx] = band;
   EepromSettings.RXChannel[rx] = channel;
   uint16_t index = getRXChannel(rx) + (8 * getRXBand(rx));
