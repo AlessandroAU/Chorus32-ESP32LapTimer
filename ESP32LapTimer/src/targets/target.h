@@ -23,6 +23,8 @@
   #include "config_ttgo_lora_v1.h"
 #elif BOARD==BOARD_WROOM
   #include "config_wroom.h"
+#elif BOARD==BOARD_MICRO32
+  #include "config_micro32.h"
 #else
   #error "Unknown board!"
 #endif

@@ -59,7 +59,7 @@ void newButtonSetup() {
 #ifdef USE_NORMAL_BUTTONS
   pinMode(BUTTON1, INPUT_PULLUP);
   pinMode(BUTTON2, INPUT_PULLUP);
-#else
+#elif USE_TOUCH_BUTTONS
   touch_pad_filter_start(BUTTON1);
   touch_pad_set_filter_period(BUTTON1);
   touch_pad_filter_start(BUTTON2);
@@ -71,9 +71,12 @@ void newButtonUpdate() {
 #ifdef USE_NORMAL_BUTTONS
   touch1 = (digitalRead(BUTTON1)) ? 100 : 0;
   touch2 = (digitalRead(BUTTON2)) ? 100 : 0;
-#else
+#elif USE_TOUCH_BUTTONS
   touch1 = touchRead(BUTTON1); // Read the state of button 1
   touch2 = touchRead(BUTTON2); // Read the state of button 2
+#else
+  touch1 = 100;
+  touch2 = 100;
 #endif
 
   // BUTTON 1 Debounce logic here. Basically, we only read a button touch if
